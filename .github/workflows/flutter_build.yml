@@ -1,31 +1,36 @@
 name: Build APK
 
 on:
+  push:
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
   build:
+    name: Build Release APK
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.32.2'
+          flutter-version: "3.32.2"
 
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Patch flutter_inappwebview to add namespace
-        run: sed -i '/android {/a \ \ \ \ namespace '\''com.pichillilorenzo.flutter_inappwebview'\''' ~/.pub-cache/hosted/pub.dev/flutter_inappwebview-*/android/build.gradle
+      - name: Patch flutter_inappwebview namespace
+        run: |
+          sed -i '/defaultConfig {/a \    namespace "com.pichillilorenzo.flutter_inappwebview"' ~/.pub-cache/hosted/pub.dev/flutter_inappwebview-*/android/build.gradle
 
-      - name: Build APK
+      - name: Build Release APK
         run: flutter build apk --release
 
       - name: Upload Release APK
         uses: actions/upload-artifact@v4
         with:
-          name: NancyMusicWorld.apk
+          name: app-release.apk
           path: build/app/outputs/flutter-apk/app-release.apk
