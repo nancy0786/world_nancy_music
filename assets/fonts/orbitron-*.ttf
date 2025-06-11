@@ -1,0 +1,28 @@
+# Files: assets/fonts/orbitron-*.ttf
+# [Place all six Orbitron font variants here]
+
+# Example list:
+# assets/fonts/Orbitron-Regular.ttf
+# assets/fonts/Orbitron-Bold.ttf
+# assets/fonts/Orbitron-Black.ttf
+# assets/fonts/Orbitron-Medium.ttf
+# assets/fonts/Orbitron-SemiBold.ttf
+# assets/fonts/Orbitron-Light.ttf
+
+# Update your pubspec.yaml like this:
+
+fonts:
+  - family: Orbitron
+    fonts:
+      - asset: assets/fonts/Orbitron-Light.ttf
+        weight: 300
+      - asset: assets/fonts/Orbitron-Regular.ttf
+        weight: 400
+      - asset: assets/fonts/Orbitron-Medium.ttf
+        weight: 500
+      - asset: assets/fonts/Orbitron-SemiBold.ttf
+        weight: 600
+      - asset: assets/fonts/Orbitron-Bold.ttf
+        weight: 700
+      - asset: assets/fonts/Orbitron-Black.ttf
+        weight: 900

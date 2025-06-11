@@ -1,0 +1,3 @@
+mkdir -p assets/fonts
+# ✅ Place your 'Orbitron-Regular.ttf' file in this folder manually
+echo "→ Please ensure Orbitron-Regular.ttf is copied into assets/fonts/"
