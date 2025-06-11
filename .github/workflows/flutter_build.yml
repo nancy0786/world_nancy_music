@@ -18,6 +18,9 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Patch flutter_inappwebview to add namespace
+        run: sed -i '/android {/a \ \ \ \ namespace '\''com.pichillilorenzo.flutter_inappwebview'\''' ~/.pub-cache/hosted/pub.dev/flutter_inappwebview-*/android/build.gradle
+
       - name: Build APK
         run: flutter build apk --release
 
