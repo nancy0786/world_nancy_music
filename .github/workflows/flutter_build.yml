@@ -21,6 +21,13 @@ jobs:
           channel: stable
           cache: true
 
+      - name: 🔧 Fix Broken Android Folder
+        run: |
+          flutter create --android-language java temp_fix
+          rm -rf android
+          cp -r temp_fix/android android
+          rm -rf temp_fix
+
       - name: 📦 Install Dependencies
         run: flutter pub get
 
