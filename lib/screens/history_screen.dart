@@ -1,7 +1,6 @@
-cat > lib/screens/history_screen.dart << 'EOF'
 import 'package:flutter/material.dart';
-import 'package:nancy_music_world/lib/services/queue_service.dart';
-import 'package:nancy_music_world/lib/components/custom_app_bar.dart';
+import 'package:nancy_music_world/services/queue_service.dart';
+import 'package:nancy_music_world/components/common_widgets.dart';
 
 class HistoryScreen extends StatelessWidget {
   const HistoryScreen({super.key});
@@ -24,4 +23,3 @@ class HistoryScreen extends StatelessWidget {
     );
   }
 }
-EOF
