@@ -24,9 +24,9 @@ jobs:
       - name: 📦 Install Dependencies
         run: flutter pub get
 
-      - name: ⚙️ Patch flutter_inappwebview namespace (non-blocking)
+      - name: ⚙️ Patch flutter_inappwebview namespace (optional fix)
         run: |
-          sed -i '/defaultConfig {/a \    namespace "com.pichillilorenzo.flutter_inappwebview"' ~/.pub-cache/hosted/pub.dev/flutter_inappwebview-*/android/build.gradle || true
+          sed -i '/defaultConfig {/a \    namespace "com.pichillilorenzo.flutter_inappwebview"' android/app/build.gradle
         continue-on-error: true
 
       - name: 🧼 Clean Build Cache
@@ -39,6 +39,9 @@ jobs:
           flutter build apk --release -v | tee build_log.txt
           echo "APK build exit code: $?"
           exit 0
+
+      - name: List APK Output Folder
+        run: ls -la build/app/outputs/flutter-apk
 
       - name: 📤 Upload Release APK
         uses: actions/upload-artifact@v4
