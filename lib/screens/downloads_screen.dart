@@ -1,9 +1,8 @@
-cat > lib/screens/downloads_screen.dart << 'EOF'
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:nancy_music_world/lib/services/download_manager.dart';
-import 'package:nancy_music_world/lib/components/custom_app_bar.dart';
+import '../../services/download_manager.dart';
+import '../../components/custom_widgets.dart';
 
 class DownloadsScreen extends StatefulWidget {
   const DownloadsScreen({super.key});
@@ -19,23 +18,35 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Offline Downloads")),
-      body: FutureBuilder(
+      body: FutureBuilder<List<Map<String, String>>>(
         future: DownloadManager.getDownloadedSongs(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return const CircularProgressIndicator();
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
           final songs = snapshot.data!;
-          if (songs.isEmpty) return const Center(child: Text("No songs downloaded"));
+          if (songs.isEmpty) {
+            return const Center(child: Text("No downloaded songs found."));
+          }
 
           return ListView.builder(
             itemCount: songs.length,
             itemBuilder: (context, index) {
               final song = songs[index];
               return ListTile(
-                leading: Image.network(song['thumbnail']!, width: 50),
-                title: Text(song['title']!),
+                leading: Image.network(song['thumb'] ?? ''),
+                title: Text(song['title'] ?? 'No Title'),
                 onTap: () async {
-                  await _player.setFilePath(song['path']!);
-                  _player.play();
+                  final path = song['filePath'];
+                  if (path != null && File(path).existsSync()) {
+                    await _player.setFilePath(path);
+                    _player.play();
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("File not found.")),
+                    );
+                  }
                 },
               );
             },
@@ -45,4 +56,3 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
     );
   }
 }
-EOF
