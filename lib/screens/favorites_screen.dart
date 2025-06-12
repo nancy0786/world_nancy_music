@@ -1,4 +1,5 @@
 cat > lib/screens/favorites_screen.dart << 'EOF'
+import 'package:world_music_nancy/widgets/youtube_thumbnail.dart';
 import 'package:flutter/material.dart';
 import 'package:world_music_nancy/services/storage_service.dart';
 import 'package:world_music_nancy/widgets/thumbnail.dart';
