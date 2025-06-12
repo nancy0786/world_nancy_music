@@ -34,7 +34,7 @@ jobs:
       - name: 🏗️ Build Release APK (ignore minor warnings)
         run: |
           set +e
-          flutter build apk --release
+          flutter build apk --release -v
           echo "APK build exit code: $?"
           exit 0
 
