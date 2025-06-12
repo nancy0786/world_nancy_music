@@ -31,10 +31,10 @@ jobs:
         run: flutter clean || true
         continue-on-error: true
 
-      - name: 🏗️ Build Release APK (ignore minor warnings)
+      - name: 🏗️ Build APK and Capture Logs
         run: |
           set +e
-          flutter build apk --release -v
+          flutter build apk --release -v | tee build_log.txt
           echo "APK build exit code: $?"
           exit 0
 
@@ -43,3 +43,9 @@ jobs:
         with:
           name: app-release.apk
           path: build/app/outputs/flutter-apk/app-release.apk
+
+      - name: 📄 Upload Build Logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: build_log.txt
