@@ -1,0 +1,44 @@
+name: Regenerate Gradle Files Only
+
+on:
+  workflow_dispatch:
+
+jobs:
+  regen:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🛠 Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.32.2"
+          channel: stable
+          cache: true
+
+      - name: 🧠 Backup lib
+        run: mv lib lib_backup
+
+      - name: ⚙️ Flutter Create (recreate android only)
+        run: flutter create .
+
+      - name: ♻️ Restore lib
+        run: |
+          rm -rf lib
+          mv lib_backup lib
+
+      - name: 🧹 Keep only needed Gradle files
+        run: |
+          git checkout HEAD -- pubspec.yaml
+          git checkout HEAD -- assets
+          git checkout HEAD -- .github
+          git restore .
+
+      - name: 📤 Commit regenerated Gradle files
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add android/build.gradle android/app/build.gradle
+          git commit -m "Fix: regenerate build.gradle files only"
+          git push
