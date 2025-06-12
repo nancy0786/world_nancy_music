@@ -1,4 +1,4 @@
-name: Regenerate Gradle Files Only
+name: Regenerate Android Folder
 
 on:
   workflow_dispatch:
@@ -6,6 +6,7 @@ on:
 jobs:
   regen:
     runs-on: ubuntu-latest
+
     steps:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
@@ -15,21 +16,19 @@ jobs:
         with:
           flutter-version: "3.32.2"
 
-      - name: 🚀 Download Groovy-based Android folder from Flutter sample
-        run: |
-          rm -rf android
-          curl -L https://github.com/nisrulz/flutter-examples/archive/refs/heads/master.zip -o template.zip
-          unzip template.zip
-          mv flutter-examples-master/using_android_intent/android ./android
-          rm -rf template.zip flutter-examples-master
+      - name: 🚮 Delete existing android folder
+        run: rm -rf android
+
+      - name: ♻️ Regenerate android folder using `flutter create`
+        run: flutter create --platforms android .
 
       - name: 📦 Install Dependencies
         run: flutter pub get
 
-      - name: ✅ Commit Updated Gradle Files
+      - name: ✅ Commit Regenerated android Folder
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add android
-          git commit -m "Replaced android folder with Groovy-based template"
+          git commit -m "Regenerated android folder using flutter create"
           git push
