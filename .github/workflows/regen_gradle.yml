@@ -10,6 +10,11 @@ jobs:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
 
+      - name: 🛠 Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.32.2"
+
       - name: 🚀 Download Groovy-based Android folder from Flutter sample
         run: |
           rm -rf android
