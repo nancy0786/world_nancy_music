@@ -1,34 +1,29 @@
-name: Regenerate Android Folder
+name: Regenerate Gradle
 
 on:
   workflow_dispatch:
 
 jobs:
-  regen:
+  regenerate:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📥 Checkout Repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: 🛠 Set up Flutter
+      - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: "3.32.2"
 
-      - name: 🚮 Delete existing android folder
-        run: rm -rf android
-
-      - name: ♻️ Regenerate android folder using `flutter create`
-        run: flutter create --platforms android .
-
-      - name: 📦 Install Dependencies
-        run: flutter pub get
-
-      - name: ✅ Commit Regenerated android Folder
+      - name: Regenerate android folder
         run: |
+          rm -rf android
+          flutter create .
+          rm lib/main.dart # if you want to keep your own main.dart
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add android
-          git commit -m "Regenerated android folder using flutter create"
+          git remote set-url origin https://${{ secrets.PERSONAL_TOKEN }}@github.com/${{ github.repository }}
+          git add .
+          git commit -m "Auto: Regenerate android folder using flutter create"
           git push
