@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:nancy_music_world/lib/models/playlist.dart';
-import 'package:nancy_music_world/lib/models/song_model.dart';
+import 'package:nancy_music_world/models/playlist.dart';
+import 'package:nancy_music_world/models/song_model.dart';
 
 class PlaylistProvider with ChangeNotifier {
   final List<PlaylistModel> _playlists = [];

@@ -1,6 +1,6 @@
 cat > lib/widgets/queue_sheet.dart << 'EOF'
 import 'package:flutter/material.dart';
-import 'package:nancy_music_world/lib/services/queue_service.dart';
+import 'package:nancy_music_world/services/queue_service.dart';
 
 class QueueSheet extends StatelessWidget {
   const QueueSheet({super.key});

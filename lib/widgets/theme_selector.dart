@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:nancy_music_world/lib/providers/theme_provider.dart';
+import 'package:nancy_music_world/providers/theme_provider.dart';
 
 class ThemeSelector extends StatelessWidget {
   final List<String> themes;

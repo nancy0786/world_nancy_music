@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:nancy_music_world/lib/providers/playlist_provider.dart';
+import 'package:nancy_music_world/providers/playlist_provider.dart';
 
 class PlaylistEditor extends StatefulWidget {
   const PlaylistEditor({super.key});

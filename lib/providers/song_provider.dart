@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:nancy_music_world/lib/models/song_model.dart';
+import 'package:nancy_music_world/models/song_model.dart';
 
 class SongProvider with ChangeNotifier {
   final AudioPlayer _audioPlayer = AudioPlayer();

@@ -1,6 +1,6 @@
 cat > lib/screens/settings_screen.dart << 'EOF'
 import 'package:flutter/material.dart';
-import 'package:nancy_music_world/lib/services/storage_service.dart';
+import 'package:nancy_music_world/services/storage_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});

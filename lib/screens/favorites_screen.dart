@@ -1,7 +1,7 @@
 cat > lib/screens/favorites_screen.dart << 'EOF'
 import 'package:flutter/material.dart';
-import 'package:nancy_music_world/lib/services/storage_service.dart';
-import 'package:nancy_music_world/lib/widgets/thumbnail.dart';
+import 'package:nancy_music_world/services/storage_service.dart';
+import 'package:nancy_music_world/widgets/thumbnail.dart';
 import 'player_screen.dart';
 
 class FavoritesScreen extends StatefulWidget {

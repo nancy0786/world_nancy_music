@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nancy_music_world/lib/services/auth_service.dart';
+import 'package:nancy_music_world/services/auth_service.dart';
 
 class AuthProvider with ChangeNotifier {
   bool _isAuthenticated = false;
