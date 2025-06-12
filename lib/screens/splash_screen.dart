@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:lottie/lottie.dart';
-import 'package:nancy_music_world/home.dart'; // Correct import
+import 'package:world_music_nancy/home.dart'; // Correct import
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});

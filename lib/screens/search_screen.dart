@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:nancy_music_world/services/youtube_service.dart';
-import 'package:nancy_music_world/screens/player_screen.dart';
-import 'package:nancy_music_world/components/custom_app_bar.dart';
+import 'package:world_music_nancy/services/youtube_service.dart';
+import 'package:world_music_nancy/screens/player_screen.dart';
+import 'package:world_music_nancy/components/custom_app_bar.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:nancy_music_world/providers/playlist_provider.dart';
-import 'package:nancy_music_world/widgets/playlist_tile.dart'; // <-- ADDED
-import 'package:nancy_music_world/models/playlist.dart';
-import 'package:nancy_music_world/components/cyberpunk_card.dart';
-import 'package:nancy_music_world/components/custom_app_bar.dart';
+import 'package:world_music_nancy/providers/playlist_provider.dart';
+import 'package:world_music_nancy/widgets/playlist_tile.dart'; // <-- ADDED
+import 'package:world_music_nancy/models/playlist.dart';
+import 'package:world_music_nancy/components/cyberpunk_card.dart';
+import 'package:world_music_nancy/components/custom_app_bar.dart';
 class PlaylistScreen extends StatelessWidget {
   const PlaylistScreen({super.key});
 

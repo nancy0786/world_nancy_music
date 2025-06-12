@@ -2,17 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:nancy_music_world/screens/splash_screen.dart';
-import 'package:nancy_music_world/theme.dart'; // Custom theme file
-import 'package:nancy_music_world/screens/profile_screen.dart';
-import 'package:nancy_music_world/screens/create_playlist.dart';
-import 'package:nancy_music_world/screens/downloads_screen.dart';
-import 'package:nancy_music_world/screens/history_screen.dart';
-import 'package:nancy_music_world/home.dart';
-import 'package:nancy_music_world/screens/playlist_screen.dart';
-import 'package:nancy_music_world/screens/library_screen.dart';
-import 'package:nancy_music_world/screens/search_screen.dart';
-import 'package:nancy_music_world/routes.dart';
+import 'package:world_music_nancy/screens/splash_screen.dart';
+import 'package:world_music_nancy/theme.dart'; // Custom theme file
+import 'package:world_music_nancy/screens/profile_screen.dart';
+import 'package:world_music_nancy/screens/create_playlist.dart';
+import 'package:world_music_nancy/screens/downloads_screen.dart';
+import 'package:world_music_nancy/screens/history_screen.dart';
+import 'package:world_music_nancy/home.dart';
+import 'package:world_music_nancy/screens/playlist_screen.dart';
+import 'package:world_music_nancy/screens/library_screen.dart';
+import 'package:world_music_nancy/screens/search_screen.dart';
+import 'package:world_music_nancy/routes.dart';
 
 void main() {
   runApp(const NancyMusicWorldApp());

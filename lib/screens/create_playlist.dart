@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import 'package:nancy_music_world/components/custom_app_bar.dart';
+import 'package:world_music_nancy/components/custom_app_bar.dart';
 
 class CreatePlaylistScreen extends StatefulWidget {
   const CreatePlaylistScreen({super.key});

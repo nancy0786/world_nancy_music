@@ -1,7 +1,7 @@
 // lib/data/playlist_data.dart
 
-import 'package:nancy_music_world/models/playlist.dart';
-import 'package:nancy_music_world/models/song.dart';
+import 'package:world_music_nancy/models/playlist.dart';
+import 'package:world_music_nancy/models/song.dart';
 
 final List<Playlist> samplePlaylists = [
   Playlist(

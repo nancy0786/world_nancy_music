@@ -1,19 +1,19 @@
 # lib/routes.dart
 
 import 'package:flutter/material.dart';
-import 'package:nancy_music_world/screens/home_screen.dart';
-import 'package:nancy_music_world/screens/player_screen.dart';
-import 'package:nancy_music_world/screens/search_screen.dart';
-import 'package:nancy_music_world/screens/library_screen.dart';
-import 'package:nancy_music_world/screens/playlist_screen.dart';
-import 'package:nancy_music_world/screens/favorites_screen.dart';
-import 'package:nancy_music_world/screens/downloads_screen.dart';
-import 'package:nancy_music_world/screens/history_screen.dart';
-import 'package:nancy_music_world/screens/playlist_details_screen.dart';
-import 'package:nancy_music_world/screens/login_screen.dart';
-import 'package:nancy_music_world/screens/register_screen.dart';
-import 'package:nancy_music_world/screens/profile_screen.dart';
-import 'package:nancy_music_world/screens/splash_screen.dart';
+import 'package:world_music_nancy/screens/home_screen.dart';
+import 'package:world_music_nancy/screens/player_screen.dart';
+import 'package:world_music_nancy/screens/search_screen.dart';
+import 'package:world_music_nancy/screens/library_screen.dart';
+import 'package:world_music_nancy/screens/playlist_screen.dart';
+import 'package:world_music_nancy/screens/favorites_screen.dart';
+import 'package:world_music_nancy/screens/downloads_screen.dart';
+import 'package:world_music_nancy/screens/history_screen.dart';
+import 'package:world_music_nancy/screens/playlist_details_screen.dart';
+import 'package:world_music_nancy/screens/login_screen.dart';
+import 'package:world_music_nancy/screens/register_screen.dart';
+import 'package:world_music_nancy/screens/profile_screen.dart';
+import 'package:world_music_nancy/screens/splash_screen.dart';
 
 final Map<String, WidgetBuilder> appRoutes = {
   '/': (context) => const SplashScreen(),

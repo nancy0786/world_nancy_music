@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nancy_music_world/screens/home_screen.dart'; // You already created this!
+import 'package:world_music_nancy/screens/home_screen.dart'; // You already created this!
 
 /// HomePage is a simple wrapper around your main screen.
 class HomePage extends StatelessWidget {

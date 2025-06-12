@@ -1,7 +1,7 @@
 # lib/components/history_tile.dart
 
 import 'package:flutter/material.dart';
-import 'package:nancy_music_world/models/song_model.dart';
+import 'package:world_music_nancy/models/song_model.dart';
 
 class HistoryTile extends StatelessWidget {
   final SongModel song;

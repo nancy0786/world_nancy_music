@@ -2,8 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:nancy_music_world/providers/theme_provider.dart';
-import 'package:nancy_music_world/providers/user_provider.dart';
+import 'package:world_music_nancy/providers/theme_provider.dart';
+import 'package:world_music_nancy/providers/user_provider.dart';
 
 class CustomDrawer extends StatelessWidget {
   const CustomDrawer({super.key});

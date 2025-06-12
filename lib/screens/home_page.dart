@@ -1,17 +1,17 @@
 # --------- lib/screens/home_page.dart (updated with buttons and queue support) ----------
 cat > lib/screens/home_page.dart << 'EOF'
 import 'package:flutter/material.dart';
-import 'package:nancy_music_world/widgets/player_controls.dart';
-import 'package:nancy_music_world/widgets/song_search.dart';
-import 'package:nancy_music_world/widgets/theme_toggle.dart';
-import 'package:nancy_music_world/widgets/background_manager.dart';
-import 'package:nancy_music_world/widgets/favorites_section.dart';
-import 'package:nancy_music_world/services/mood_service.dart';
-import 'package:nancy_music_world/widgets/neon_theme_picker.dart';
-import 'package:nancy_music_world/widgets/smart_discovery_section.dart';
+import 'package:world_music_nancy/widgets/player_controls.dart';
+import 'package:world_music_nancy/widgets/song_search.dart';
+import 'package:world_music_nancy/widgets/theme_toggle.dart';
+import 'package:world_music_nancy/widgets/background_manager.dart';
+import 'package:world_music_nancy/widgets/favorites_section.dart';
+import 'package:world_music_nancy/services/mood_service.dart';
+import 'package:world_music_nancy/widgets/neon_theme_picker.dart';
+import 'package:world_music_nancy/widgets/smart_discovery_section.dart';
 import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:nancy_music_world/widgets/neon_button.dart';
+import 'package:world_music_nancy/widgets/neon_button.dart';
 
 class HomePage extends StatelessWidget {
   final VoidCallback toggleTheme;

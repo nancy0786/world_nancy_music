@@ -2,8 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:nancy_music_world/providers/song_provider.dart';
-import 'package:nancy_music_world/widgets/song_tile.dart';
+import 'package:world_music_nancy/providers/song_provider.dart';
+import 'package:world_music_nancy/widgets/song_tile.dart';
 
 class SongQueue extends StatelessWidget {
   const SongQueue({super.key});

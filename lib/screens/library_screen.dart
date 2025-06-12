@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:nancy_music_world/components/recently_played_tile.dart';
-import 'package:nancy_music_world/components/history_tile.dart';
-import 'package:nancy_music_world/components/download_button.dart';
-import 'package:nancy_music_world/components/settings_tile.dart';
-import 'package:nancy_music_world/widgets/theme_selector.dart';
-import 'package:nancy_music_world/components/custom_app_bar.dart';
+import 'package:world_music_nancy/components/recently_played_tile.dart';
+import 'package:world_music_nancy/components/history_tile.dart';
+import 'package:world_music_nancy/components/download_button.dart';
+import 'package:world_music_nancy/components/settings_tile.dart';
+import 'package:world_music_nancy/widgets/theme_selector.dart';
+import 'package:world_music_nancy/components/custom_app_bar.dart';
 
 class LibraryScreen extends StatelessWidget {
   const LibraryScreen({super.key});

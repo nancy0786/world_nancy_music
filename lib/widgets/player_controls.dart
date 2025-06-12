@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:nancy_music_world/services/youtube_service.dart';
-import 'package:nancy_music_world/services/storage_service.dart';
-import 'package:nancy_music_world/services/queue_service.dart';
+import 'package:world_music_nancy/services/youtube_service.dart';
+import 'package:world_music_nancy/services/storage_service.dart';
+import 'package:world_music_nancy/services/queue_service.dart';
 import 'queue_sheet.dart';
 import 'lyrics_display.dart';
 

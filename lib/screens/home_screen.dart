@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
-import 'package:nancy_music_world/services/storage_service.dart';
-import 'package:nancy_music_world/widgets/thumbnail.dart';
+import 'package:world_music_nancy/services/storage_service.dart';
+import 'package:world_music_nancy/widgets/thumbnail.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
