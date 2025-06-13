@@ -21,6 +21,9 @@ jobs:
           channel: stable
           cache: true
 
+      - name: 📦 Install Dependencies
+        run: flutter pub get
+
       - name: 🔧 Fix Broken Android Folder
         run: |
           flutter create --android-language java temp_fix
@@ -28,19 +31,16 @@ jobs:
           cp -r temp_fix/android android
           rm -rf temp_fix
 
-      - name: 📦 Install Dependencies
-        run: flutter pub get
-
       - name: ✅ Ensure package_config.json exists
         run: |
           if [ ! -f .dart_tool/package_config.json ]; then
             flutter pub get
           fi
 
-       - name: ⚙️ Patch flutter_inappwebview namespace
-         run: |
-           sed -i '/android {/a \    namespace "com.pichillilorenzo.flutter_inappwebview"' ~/.pub-cache/hosted/pub.dev/flutter_inappwebview-*/android/build.gradle
-         continue-on-error: true
+      - name: ⚙️ Patch flutter_inappwebview namespace
+        run: |
+          sed -i '/android {/a \    namespace "com.pichillilorenzo.flutter_inappwebview"' ~/.pub-cache/hosted/pub.dev/flutter_inappwebview-*/android/build.gradle
+        continue-on-error: true
 
       - name: 🧼 Clean Build Cache
         run: flutter clean || true
