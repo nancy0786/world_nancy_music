@@ -5,6 +5,7 @@ import 'package:world_music_nancy/components/download_button.dart';
 import 'package:world_music_nancy/components/settings_tile.dart';
 import 'package:world_music_nancy/widgets/theme_selector.dart';
 import 'package:world_music_nancy/components/custom_app_bar.dart';
+import 'package:world_music_nancy/utils/neon_themes.dart'; // <-- Added this
 
 class LibraryScreen extends StatelessWidget {
   const LibraryScreen({super.key});
@@ -39,12 +40,8 @@ class LibraryScreen extends StatelessWidget {
             title: 'Playlists',
             onTap: () => Navigator.pushNamed(context, '/playlist'),
           ),
-          // Correct map usage — avoid spread conflicts
           ThemeSelector(
-            themes: <String, ThemeData>{
-              'Light': ThemeData.light(),
-              'Dark': ThemeData.dark(),
-            },
+            themes: NeonThemes.themes, // <-- Unified with ThemeProvider
           ),
         ],
       ),
