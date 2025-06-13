@@ -1,5 +1,3 @@
-# File: lib/utils/validators.dart
-# Basic form and text field validation
 
 class Validators {
   static String? validateEmail(String? value) {

@@ -1,5 +1,3 @@
-# File: lib/widgets/animated_loader.dart
-# Displays Lottie loading animation (loading_girl.json)
 
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';

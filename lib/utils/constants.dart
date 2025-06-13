@@ -1,5 +1,3 @@
-# File: lib/utils/constants.dart
-# Holds reusable constants (colors, sizes, etc.)
 
 import 'package:flutter/material.dart';
 

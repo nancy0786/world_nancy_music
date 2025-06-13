@@ -1,4 +1,3 @@
-# lib/components/settings_tile.dart
 
 import 'package:flutter/material.dart';
 

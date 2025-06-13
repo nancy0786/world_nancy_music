@@ -1,4 +1,3 @@
-# lib/components/profile_editor.dart
 
 import 'package:flutter/material.dart';
 

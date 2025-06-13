@@ -1,4 +1,3 @@
-# lib/components/lyrics_display.dart
 
 import 'package:flutter/material.dart';
 

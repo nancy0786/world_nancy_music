@@ -35,4 +35,3 @@ class PlaylistTile extends StatelessWidget {
     );
   }
 }
-EOF

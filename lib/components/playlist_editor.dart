@@ -1,4 +1,3 @@
-# lib/components/playlist_editor.dart
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
