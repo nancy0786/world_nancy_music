@@ -24,13 +24,6 @@ jobs:
       - name: 📦 Install Dependencies
         run: flutter pub get
 
-      - name: 🔧 Fix Broken Android Folder
-        run: |
-          flutter create --android-language java temp_fix
-          rm -rf android
-          cp -r temp_fix/android android
-          rm -rf temp_fix
-
       - name: 🧩 Set NDK Version to 27 in build.gradle
         run: |
           sed -i '/^android {/a \    ndkVersion "27.0.12077973"' android/app/build.gradle
@@ -61,9 +54,3 @@ jobs:
         with:
           name: app-release.apk
           path: build/app/outputs/flutter-apk/app-release.apk
-
-      - name: 🗃 Upload temp_fix folder
-        uses: actions/upload-artifact@v4
-        with:
-          name: temp_fix-android
-          path: temp_fix/android
