@@ -31,6 +31,12 @@ jobs:
       - name: 📦 Install Dependencies
         run: flutter pub get
 
+      - name: ✅ Ensure package_config.json exists
+        run: |
+          if [ ! -f .dart_tool/package_config.json ]; then
+            flutter pub get
+          fi
+
       - name: ⚙️ Patch flutter_inappwebview namespace (optional)
         run: |
           sed -i '/defaultConfig {/a \        namespace "com.pichillilorenzo.inappwebview"' android/app/build.gradle
@@ -40,9 +46,8 @@ jobs:
         run: flutter clean || true
         continue-on-error: true
 
-      - name: 🏗️ Build APK using Gradle
-        working-directory: android
-        run: ./gradlew assembleRelease
+      - name: 🏗️ Build APK
+        run: flutter build apk --release
 
       - name: 📂 List APK Output Folder
         run: ls -la build/app/outputs/flutter-apk

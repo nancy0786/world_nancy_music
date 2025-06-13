@@ -24,7 +24,7 @@ if (flutterVersionName == null) {
 }
 
 android {
-    namespace = "com.example.temp_fix"
+    namespace = "com.example.world_nancy_music"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "27.0.12077973"
 
