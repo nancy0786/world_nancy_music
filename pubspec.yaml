@@ -28,7 +28,7 @@ dependencies:
   youtube_player_flutter: ^8.1.1
   image_picker: ^1.0.4
   audio_session: ^0.1.10
-  flutter_inappwebview: 5.7.2+3
+  flutter_inappwebview: ^6.0.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
