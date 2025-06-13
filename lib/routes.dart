@@ -15,8 +15,12 @@ import 'package:world_music_nancy/screens/splash_screen.dart';
 
 final Map<String, WidgetBuilder> appRoutes = {
   '/': (context) => const SplashScreen(),
-  '/home': (context) => const HomeScreen(),
-  '/player': (context) => const PlayerScreen(title: 'Now Playing', author: 'Unknown'),  
+  '/home': (context) => const HomeScreen(),  
+  '/player': (context) => const PlayerScreen(
+  title: 'Now Playing',
+  author: 'Unknown',
+  url: 'https://youtube.com/watch?v=dQw4w9WgXcQ',
+),
   '/search': (context) => const SearchScreen(),
   '/library': (context) => const LibraryScreen(),
   '/playlist': (context) => const PlaylistScreen(),
