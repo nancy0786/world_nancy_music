@@ -39,11 +39,12 @@ class LibraryScreen extends StatelessWidget {
             title: 'Playlists',
             onTap: () => Navigator.pushNamed(context, '/playlist'),
           ),
+          // Correct map usage — avoid spread conflicts
           ThemeSelector(
-            themes: {
+            themes: <String, ThemeData>{
               'Light': ThemeData.light(),
               'Dark': ThemeData.dark(),
-            }
+            },
           ),
         ],
       ),

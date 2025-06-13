@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:world_music_nancy/models/song_model.dart';
 
@@ -16,10 +15,12 @@ class RecentlyPlayedTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       leading: Image.network(
-        song.thumbnail,
+        song.thumbnail ?? '', // Fix: provide fallback if null
         width: 50,
         height: 50,
         fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) =>
+            const Icon(Icons.music_note, color: Colors.white),
       ),
       title: Text(
         song.title,
