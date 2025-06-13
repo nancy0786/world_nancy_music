@@ -37,10 +37,10 @@ jobs:
             flutter pub get
           fi
 
-      - name: ⚙️ Patch flutter_inappwebview namespace (optional)
-        run: |
-          sed -i '/defaultConfig {/a \        namespace "com.pichillilorenzo.inappwebview"' android/app/build.gradle
-        continue-on-error: true
+       - name: ⚙️ Patch flutter_inappwebview namespace
+         run: |
+           sed -i '/android {/a \    namespace "com.pichillilorenzo.flutter_inappwebview"' ~/.pub-cache/hosted/pub.dev/flutter_inappwebview-*/android/build.gradle
+         continue-on-error: true
 
       - name: 🧼 Clean Build Cache
         run: flutter clean || true
