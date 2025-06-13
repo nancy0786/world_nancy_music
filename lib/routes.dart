@@ -1,5 +1,3 @@
-# lib/routes.dart
-
 import 'package:flutter/material.dart';
 import 'package:world_music_nancy/screens/home_screen.dart';
 import 'package:world_music_nancy/screens/player_screen.dart';
