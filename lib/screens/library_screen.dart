@@ -39,7 +39,10 @@ class LibraryScreen extends StatelessWidget {
             title: 'Playlists',
             onTap: () => Navigator.pushNamed(context, '/playlist'),
           ),
-          ThemeSelector(), // 👈 Add this widget
+          ThemeSelector(themes: {
+            'Light': ThemeData.light(),
+            'Dark': ThemeData.dark(),
+          }),
         ],
       ),
     );
