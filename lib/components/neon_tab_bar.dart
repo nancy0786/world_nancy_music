@@ -1,4 +1,3 @@
-# lib/components/neon_tab_bar.dart
 
 import 'package:flutter/material.dart';
 

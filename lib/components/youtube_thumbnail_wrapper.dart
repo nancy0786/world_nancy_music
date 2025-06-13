@@ -1,4 +1,3 @@
-# lib/components/youtube_thumbnail_wrapper.dart
 
 import 'package:flutter/material.dart';
 

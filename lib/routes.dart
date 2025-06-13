@@ -1,5 +1,3 @@
-# lib/routes.dart
-
 import 'package:flutter/material.dart';
 import 'package:world_music_nancy/screens/home_screen.dart';
 import 'package:world_music_nancy/screens/player_screen.dart';
@@ -17,8 +15,12 @@ import 'package:world_music_nancy/screens/splash_screen.dart';
 
 final Map<String, WidgetBuilder> appRoutes = {
   '/': (context) => const SplashScreen(),
-  '/home': (context) => const HomeScreen(),
-  '/player': (context) => const PlayerScreen(),
+  '/home': (context) => const HomeScreen(),  
+  '/player': (context) => const PlayerScreen(
+  title: 'Now Playing',
+  author: 'Unknown',
+  url: 'https://youtube.com/watch?v=dQw4w9WgXcQ',
+),
   '/search': (context) => const SearchScreen(),
   '/library': (context) => const LibraryScreen(),
   '/playlist': (context) => const PlaylistScreen(),

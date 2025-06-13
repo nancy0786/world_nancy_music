@@ -1,5 +1,3 @@
-# File: lib/widgets/theme_toggle.dart
-# A switch widget to toggle between light and dark themes
 
 import 'package:flutter/material.dart';
 

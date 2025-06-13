@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:world_music_nancy/models/playlist.dart';
+import 'package:world_music_nancy/models/playlist_model.dart';
 
 class PlaylistTile extends StatelessWidget {
   final PlaylistModel playlist;
@@ -35,4 +36,3 @@ class PlaylistTile extends StatelessWidget {
     );
   }
 }
-EOF

@@ -39,4 +39,3 @@ class ThemeSelector extends StatelessWidget {
     );
   }
 }
-EOF

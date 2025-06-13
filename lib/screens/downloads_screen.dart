@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
-import '../../services/download_manager.dart';
 import '../../components/custom_widgets.dart';
+import 'package:world_music_nancy/services/download_manager.dart';
 
 class DownloadsScreen extends StatefulWidget {
   const DownloadsScreen({super.key});

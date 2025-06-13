@@ -32,7 +32,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final query = _searchController.text.trim();
     if (query.isEmpty) return;
 
-    final results = await _yt.search.getVideos(query).toList();
+    final searchStream = await _yt.search.getVideos(query);
+    final results = searchStream.take(10).toList();
     setState(() => _results = results.take(10).toList());
   }
 

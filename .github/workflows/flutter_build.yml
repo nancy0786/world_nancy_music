@@ -21,12 +21,19 @@ jobs:
           channel: stable
           cache: true
 
+      - name: 🔧 Fix Broken Android Folder
+        run: |
+          flutter create --android-language java temp_fix
+          rm -rf android
+          cp -r temp_fix/android android
+          rm -rf temp_fix
+
       - name: 📦 Install Dependencies
         run: flutter pub get
 
-      - name: ⚙️ Patch flutter_inappwebview namespace (non-blocking)
+      - name: ⚙️ Patch flutter_inappwebview namespace (optional fix)
         run: |
-          sed -i '/defaultConfig {/a \    namespace "com.pichillilorenzo.flutter_inappwebview"' ~/.pub-cache/hosted/pub.dev/flutter_inappwebview-*/android/build.gradle || true
+          sed -i '/defaultConfig {/a \    namespace "com.pichillilorenzo.flutter_inappwebview"' android/app/build.gradle
         continue-on-error: true
 
       - name: 🧼 Clean Build Cache
@@ -36,9 +43,10 @@ jobs:
       - name: 🏗️ Build APK and Capture Logs
         run: |
           set +e
-          flutter build apk --release -v | tee build_log.txt
-          echo "APK build exit code: $?"
-          exit 0
+          flutter build apk --release
+
+      - name: List APK Output Folder
+        run: ls -la build/app/outputs/flutter-apk
 
       - name: 📤 Upload Release APK
         uses: actions/upload-artifact@v4
@@ -46,8 +54,8 @@ jobs:
           name: app-release.apk
           path: build/app/outputs/flutter-apk/app-release.apk
 
-      - name: 📄 Upload Build Logs
+      - name: 🗃 Upload temp_fix folder
         uses: actions/upload-artifact@v4
         with:
-          name: build-log
-          path: build_log.txt
+          name: temp_fix-android
+          path: temp_fix/android
