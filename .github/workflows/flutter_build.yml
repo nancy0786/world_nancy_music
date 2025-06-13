@@ -31,21 +31,20 @@ jobs:
       - name: 📦 Install Dependencies
         run: flutter pub get
 
-      - name: ⚙️ Patch flutter_inappwebview namespace (optional fix)
+      - name: ⚙️ Patch flutter_inappwebview namespace (optional)
         run: |
-          sed -i '/defaultConfig {/a \    namespace "com.pichillilorenzo.flutter_inappwebview"' android/app/build.gradle
+          sed -i '/defaultConfig {/a \        namespace "com.pichillilorenzo.inappwebview"' android/app/build.gradle
         continue-on-error: true
 
       - name: 🧼 Clean Build Cache
         run: flutter clean || true
         continue-on-error: true
 
-      - name: 🏗️ Build APK and Capture Logs
-        run: |
-          set +e
-          flutter build apk --release
+      - name: 🏗️ Build APK using Gradle
+        working-directory: android
+        run: ./gradlew assembleRelease
 
-      - name: List APK Output Folder
+      - name: 📂 List APK Output Folder
         run: ls -la build/app/outputs/flutter-apk
 
       - name: 📤 Upload Release APK
