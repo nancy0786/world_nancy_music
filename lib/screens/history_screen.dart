@@ -16,7 +16,7 @@ class HistoryScreen extends StatelessWidget {
         itemBuilder: (context, index) {
           final song = history[index];
           return ListTile(
-            title: Text(song),
+          title: Text(song['title'] ?? 'Unknown'),
           );
         },
       ),

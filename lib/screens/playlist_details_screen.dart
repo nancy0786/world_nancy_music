@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
-class DummyScreen extends StatelessWidget {
-  const DummyScreen({super.key});
+class PlaylistDetailsScreen extends StatelessWidget {
+  const PlaylistDetailsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) => const Scaffold(
-    body: Center(child: Text('This is a placeholder screen')),
-  );
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(child: Text('Playlist Details')),
+    );
+  }
 }
