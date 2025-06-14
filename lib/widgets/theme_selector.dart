@@ -34,10 +34,17 @@ class ThemeSelector extends StatelessWidget {
               selectedColor: Colors.pinkAccent,
               backgroundColor: Colors.grey.shade800,
               labelStyle: TextStyle(
+            
                 color: isSelected ? Colors.white : Colors.white70,
               ),
               onSelected: (_) {
                 themeProvider.setTheme(themeName, themes[themeName]!);
+       
+                color: isSelected ? Colors.white : Colors.black,
+              ),
+              onSelected: (_) {
+                themeProvider.setTheme(themeName);
+         e6a6f22 (Fix: Correct theme selection widget and method call)
               },
             );
           }).toList(),
