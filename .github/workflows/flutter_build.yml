@@ -43,14 +43,14 @@ jobs:
         run: flutter clean || true
         continue-on-error: true
 
-      - name: 📲 Use Custom Android SDK 35 Jar
+      - name: 📲 Copy Uploaded android.jar to System SDK Path
         run: |
-          echo "🔍 Checking for custom android.jar..."
+          echo "🔍 Checking for uploaded tools/android-35/android.jar"
           if [ -f tools/android-35/android.jar ]; then
-            echo "✅ Found tools/android-35/android.jar"
-            mkdir -p "$ANDROID_HOME/platforms/android-35"
-            cp tools/android-35/android.jar "$ANDROID_HOME/platforms/android-35/android.jar"
-            echo "✅ Copied to \$ANDROID_HOME/platforms/android-35/"
+            echo "✅ Found android.jar, copying to SDK system path..."
+            sudo mkdir -p /usr/local/lib/android/sdk/platforms/android-35
+            sudo cp tools/android-35/android.jar /usr/local/lib/android/sdk/platforms/android-35/android.jar
+            echo "✅ android.jar is now in place."
           else
             echo "❌ ERROR: tools/android-35/android.jar not found!"
             exit 1
