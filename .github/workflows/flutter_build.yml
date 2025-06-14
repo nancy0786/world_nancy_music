@@ -43,6 +43,9 @@ jobs:
         run: flutter clean || true
         continue-on-error: true
 
+      - name: 📲 Install Android SDK 35
+        run: sdkmanager "platforms;android-35"
+
       - name: 🏗️ Build APK
         run: flutter build apk --release
 
