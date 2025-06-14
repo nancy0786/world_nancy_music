@@ -44,7 +44,14 @@ jobs:
         continue-on-error: true
 
       - name: 📲 Install Android SDK 35
-        run: sdkmanager "platforms;android-35"
+        run: |
+          mkdir -p "$ANDROID_HOME/cmdline-tools/latest"
+          cd "$ANDROID_HOME/cmdline-tools/latest"
+          curl -o sdk.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+          unzip sdk.zip > /dev/null
+          rm sdk.zip
+          yes | ./bin/sdkmanager --licenses
+          ./bin/sdkmanager "platforms;android-35"
 
       - name: 🏗️ Build APK
         run: flutter build apk --release
