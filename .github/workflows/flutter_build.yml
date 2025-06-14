@@ -43,16 +43,22 @@ jobs:
         run: flutter clean || true
         continue-on-error: true
 
-      - name: 📲 Copy Uploaded android.jar to System SDK Path
+      - name: 📲 Install Android SDK 35
         run: |
-          echo "🔍 Checking for uploaded tools/android-35/android.jar"
-          if [ -f tools/android-35/android.jar ]; then
-            echo "✅ Found android.jar, copying to SDK system path..."
-            sudo mkdir -p /usr/local/lib/android/sdk/platforms/android-35
-            sudo cp tools/android-35/android.jar /usr/local/lib/android/sdk/platforms/android-35/android.jar
-            echo "✅ android.jar is now in place."
+          mkdir -p "$ANDROID_HOME/cmdline-tools/latest"
+          cd "$ANDROID_HOME/cmdline-tools/latest"
+          curl -o sdk.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+          unzip sdk.zip > /dev/null
+          rm sdk.zip
+          yes | ./bin/sdkmanager --licenses
+          ./bin/sdkmanager "platforms;android-35"
+
+      - name: 🔍 Confirm android.jar exists
+        run: |
+          if [ -f "$ANDROID_HOME/platforms/android-35/android.jar" ]; then
+            echo "✅ android.jar exists and is ready to use."
           else
-            echo "❌ ERROR: tools/android-35/android.jar not found!"
+            echo "❌ android.jar is missing!"
             exit 1
           fi
 
