@@ -43,16 +43,10 @@ jobs:
         run: flutter clean || true
         continue-on-error: true
 
-      - name: 📲 Install Android SDK 35
+      - name: 📲 Use Custom Android SDK 35 Jar
         run: |
-          rm -rf "$ANDROID_HOME/platforms/android-35"
-          mkdir -p "$ANDROID_HOME/cmdline-tools/latest"
-          cd "$ANDROID_HOME/cmdline-tools/latest"
-          curl -o sdk.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
-          unzip sdk.zip > /dev/null
-          rm sdk.zip
-          yes | ./bin/sdkmanager --licenses
-          ./bin/sdkmanager "platforms;android-35"
+          mkdir -p "$ANDROID_HOME/platforms/android-35"
+          cp tools/android-35/android.jar "$ANDROID_HOME/platforms/android-35/"
 
       - name: 🏗️ Build APK
         run: flutter build apk --release
