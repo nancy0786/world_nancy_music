@@ -45,8 +45,16 @@ jobs:
 
       - name: 📲 Use Custom Android SDK 35 Jar
         run: |
-          mkdir -p "$ANDROID_HOME/platforms/android-35"
-          cp tools/android-35/android.jar "$ANDROID_HOME/platforms/android-35/"
+          echo "🔍 Checking for custom android.jar..."
+          if [ -f tools/android-35/android.jar ]; then
+            echo "✅ Found tools/android-35/android.jar"
+            mkdir -p "$ANDROID_HOME/platforms/android-35"
+            cp tools/android-35/android.jar "$ANDROID_HOME/platforms/android-35/android.jar"
+            echo "✅ Copied to \$ANDROID_HOME/platforms/android-35/"
+          else
+            echo "❌ ERROR: tools/android-35/android.jar not found!"
+            exit 1
+          fi
 
       - name: 🏗️ Build APK
         run: flutter build apk --release
