@@ -45,6 +45,7 @@ jobs:
 
       - name: 📲 Install Android SDK 35
         run: |
+          rm -rf "$ANDROID_HOME/platforms/android-35"
           mkdir -p "$ANDROID_HOME/cmdline-tools/latest"
           cd "$ANDROID_HOME/cmdline-tools/latest"
           curl -o sdk.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
