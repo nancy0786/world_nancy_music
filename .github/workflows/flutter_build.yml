@@ -44,65 +44,51 @@ jobs:
           yes | ./bin/sdkmanager --licenses
           yes | ./bin/sdkmanager "platforms;android-35"
 
-      - name: 🔍 Remove existing android.jar from SDK 35
+      - name: 🧹 Remove broken android.jar from SDK 35
         run: |
-          JAR="$ANDROID_HOME/platforms/android-35/android.jar"
-          if [ -f "$JAR" ]; then
-            echo "🗑️ Found android.jar in SDK 35. Removing..."
-            rm "$JAR"
-            if [ -f "$JAR" ]; then
-              echo "❌ Failed to remove android.jar."
-              exit 1
-            else
-              echo "✅ android.jar removed successfully."
-            fi
-          else
-            echo "ℹ️ android.jar was already missing in SDK 35."
-          fi
+          echo "🗑️ Deleting broken android.jar from SDK 35..."
+          rm -f $ANDROID_HOME/platforms/android-35/android.jar
 
-      - name: 📥 Install Android SDK 34
+      - name: ⬇️ Install Android SDK 34
         run: |
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-34"
-          if [ ! -f "$ANDROID_HOME/platforms/android-34/android.jar" ]; then
-            echo "❌ Failed to install SDK 34 or missing android.jar."
-            exit 1
-          fi
-          echo "✅ SDK 34 android.jar found."
 
-      - name: 🔁 Copy android.jar from SDK 34 → SDK 35
+      - name: 🔁 Move android.jar from SDK 34 → SDK 35
         run: |
-          SRC="$ANDROID_HOME/platforms/android-34/android.jar"
-          DST="$ANDROID_HOME/platforms/android-35/android.jar"
-          cp "$SRC" "$DST"
-          if [ ! -f "$DST" ]; then
-            echo "❌ Failed to copy android.jar to SDK 35."
-            exit 1
-          fi
-          echo "✅ android.jar successfully copied to SDK 35."
+          echo "📦 Copying android.jar from SDK 34 to 35..."
+          cp $ANDROID_HOME/platforms/android-34/android.jar $ANDROID_HOME/platforms/android-35/android.jar
 
-      - name: 🧹 Delete SDK 34 (optional cleanup)
+      - name: ❌ Delete Android SDK 34 (optional cleanup)
         run: |
+          echo "🧹 Removing SDK 34..."
           rm -rf $ANDROID_HOME/platforms/android-34
-          if [ -d "$ANDROID_HOME/platforms/android-34" ]; then
-            echo "⚠️ Failed to delete SDK 34 (optional)."
-          else
-            echo "✅ SDK 34 deleted."
-          fi
 
-      - name: ✅ Verify android.jar & aapt2
+      - name: ⚙️ Download and install aapt2
         run: |
+          mkdir -p $HOME/aapt2
+          curl -s -L -o aapt2.zip https://dl.google.com/android/maven2/com/android/tools/build/aapt2/8.3.0-11076708/aapt2-8.3.0-11076708-linux.zip
+          unzip -q aapt2.zip -d $HOME/aapt2
+          rm aapt2.zip
+          chmod +x $HOME/aapt2/aapt2
+          echo "$HOME/aapt2" >> $GITHUB_PATH
+
+      - name: ✅ Verify android.jar and aapt2
+        run: |
+          echo "📁 Checking android-35 folder contents..."
+          ls -lh $ANDROID_HOME/platforms/android-35/
+
           JAR="$ANDROID_HOME/platforms/android-35/android.jar"
           if [ -f "$JAR" ]; then
-            echo "✅ android.jar is in place."
+            echo "✅ android.jar exists at: $JAR"
           else
-            echo "❌ android.jar is missing after all steps."
+            echo "❌ android.jar is missing!"
             exit 1
           fi
-          echo "🔍 Looking for aapt2..."
-          AAPT2=$(find ~/.pub-cache -type f -name aapt2 -executable | head -n 1)
+
+          AAPT2=$(which aapt2 || true)
           if [ -x "$AAPT2" ]; then
             echo "✅ aapt2 found: $AAPT2"
-            "$AAPT2" version || echo "⚠️ aapt2 failed to run"
+            "$AAPT2" version || echo "ℹ️ Could not read version"
           else
             echo "❌ aapt2 not found!"
             exit 1
