@@ -14,7 +14,7 @@ jobs:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
 
-      - name: ☕ Set up Java (required for Android SDK tools)
+      - name: ☕ Install Java for SDK Manager
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
@@ -49,23 +49,24 @@ jobs:
         run: flutter clean || true
         continue-on-error: true
 
-      - name: 📲 Install Android SDK 35
+      - name: 📲 Install Android SDK 35 with Validation
         run: |
           mkdir -p "$ANDROID_HOME/cmdline-tools/latest"
           cd "$ANDROID_HOME/cmdline-tools/latest"
-          curl -o sdk.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
-          unzip sdk.zip > /dev/null
+          curl -L -o sdk.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+          unzip -o sdk.zip -d . > /dev/null
           rm sdk.zip
-          yes | ./bin/sdkmanager --licenses
-          ./bin/sdkmanager "platforms;android-35"
+          
+          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
+          yes | sdkmanager --licenses
+          sdkmanager "platforms;android-35"
 
-      - name: 🔍 Confirm android.jar exists
-        run: |
-          if [ -f "$ANDROID_HOME/platforms/android-35/android.jar" ]; then
-            echo "✅ android.jar exists and is ready to use."
-          else
-            echo "❌ android.jar is missing!"
+          echo "🔎 Verifying android.jar..."
+          if [ ! -s "$ANDROID_HOME/platforms/android-35/android.jar" ]; then
+            echo "❌ android.jar is missing or corrupted!"
             exit 1
+          else
+            echo "✅ android.jar installed and valid."
           fi
 
       - name: 🏗️ Build APK
