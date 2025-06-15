@@ -24,23 +24,6 @@ jobs:
       - name: 📦 Install Dependencies
         run: flutter pub get
 
-      - name: 📥 Install SDK cmdline-tools
-        run: |
-          mkdir -p "$ANDROID_HOME/cmdline-tools/latest"
-          cd "$ANDROID_HOME/cmdline-tools/latest"
-          curl -o sdk.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
-          unzip sdk.zip > /dev/null
-          rm sdk.zip
-          yes | ./bin/sdkmanager --licenses
-
-      - name: 📲 Install SDK 34 and SDK 35
-        run: |
-          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-34" "platforms;android-35"
-
-      - name: 🛠 Replace SDK 35 android.jar with working one from SDK 34
-        run: |
-          cp "$ANDROID_HOME/platforms/android-34/android.jar" "$ANDROID_HOME/platforms/android-35/android.jar"
-
       - name: ✅ Ensure package_config.json exists
         run: |
           if [ ! -f .dart_tool/package_config.json ]; then
@@ -51,9 +34,79 @@ jobs:
         run: flutter clean || true
         continue-on-error: true
 
-      - name: 🧩 Set NDK Version in build.gradle
+      - name: 🧩 Install Android SDK 35
         run: |
-          sed -i '/^android {/a \    ndkVersion "27.0.12077973"' android/app/build.gradle
+          mkdir -p "$ANDROID_HOME/cmdline-tools/latest"
+          cd "$ANDROID_HOME/cmdline-tools/latest"
+          curl -s -o sdk.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+          unzip -q sdk.zip
+          rm sdk.zip
+          yes | ./bin/sdkmanager --licenses
+          yes | ./bin/sdkmanager "platforms;android-35"
+
+      - name: 🔍 Remove existing android.jar from SDK 35
+        run: |
+          JAR="$ANDROID_HOME/platforms/android-35/android.jar"
+          if [ -f "$JAR" ]; then
+            echo "🗑️ Found android.jar in SDK 35. Removing..."
+            rm "$JAR"
+            if [ -f "$JAR" ]; then
+              echo "❌ Failed to remove android.jar."
+              exit 1
+            else
+              echo "✅ android.jar removed successfully."
+            fi
+          else
+            echo "ℹ️ android.jar was already missing in SDK 35."
+          fi
+
+      - name: 📥 Install Android SDK 34
+        run: |
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-34"
+          if [ ! -f "$ANDROID_HOME/platforms/android-34/android.jar" ]; then
+            echo "❌ Failed to install SDK 34 or missing android.jar."
+            exit 1
+          fi
+          echo "✅ SDK 34 android.jar found."
+
+      - name: 🔁 Copy android.jar from SDK 34 → SDK 35
+        run: |
+          SRC="$ANDROID_HOME/platforms/android-34/android.jar"
+          DST="$ANDROID_HOME/platforms/android-35/android.jar"
+          cp "$SRC" "$DST"
+          if [ ! -f "$DST" ]; then
+            echo "❌ Failed to copy android.jar to SDK 35."
+            exit 1
+          fi
+          echo "✅ android.jar successfully copied to SDK 35."
+
+      - name: 🧹 Delete SDK 34 (optional cleanup)
+        run: |
+          rm -rf $ANDROID_HOME/platforms/android-34
+          if [ -d "$ANDROID_HOME/platforms/android-34" ]; then
+            echo "⚠️ Failed to delete SDK 34 (optional)."
+          else
+            echo "✅ SDK 34 deleted."
+          fi
+
+      - name: ✅ Verify android.jar & aapt2
+        run: |
+          JAR="$ANDROID_HOME/platforms/android-35/android.jar"
+          if [ -f "$JAR" ]; then
+            echo "✅ android.jar is in place."
+          else
+            echo "❌ android.jar is missing after all steps."
+            exit 1
+          fi
+          echo "🔍 Looking for aapt2..."
+          AAPT2=$(find ~/.pub-cache -type f -name aapt2 -executable | head -n 1)
+          if [ -x "$AAPT2" ]; then
+            echo "✅ aapt2 found: $AAPT2"
+            "$AAPT2" version || echo "⚠️ aapt2 failed to run"
+          else
+            echo "❌ aapt2 not found!"
+            exit 1
+          fi
 
       - name: 🏗️ Build APK
         run: flutter build apk --release
