@@ -14,12 +14,6 @@ jobs:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
 
-      - name: ☕ Install Java for SDK Manager
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
       - name: 🛠 Set up Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -30,9 +24,22 @@ jobs:
       - name: 📦 Install Dependencies
         run: flutter pub get
 
-      - name: 🧩 Set NDK Version to 27 in build.gradle
+      - name: 📥 Install SDK cmdline-tools
         run: |
-          sed -i '/^android {/a \    ndkVersion "27.0.12077973"' android/app/build.gradle
+          mkdir -p "$ANDROID_HOME/cmdline-tools/latest"
+          cd "$ANDROID_HOME/cmdline-tools/latest"
+          curl -o sdk.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+          unzip sdk.zip > /dev/null
+          rm sdk.zip
+          yes | ./bin/sdkmanager --licenses
+
+      - name: 📲 Install SDK 34 and SDK 35
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-34" "platforms;android-35"
+
+      - name: 🛠 Replace SDK 35 android.jar with working one from SDK 34
+        run: |
+          cp "$ANDROID_HOME/platforms/android-34/android.jar" "$ANDROID_HOME/platforms/android-35/android.jar"
 
       - name: ✅ Ensure package_config.json exists
         run: |
@@ -40,34 +47,13 @@ jobs:
             flutter pub get
           fi
 
-      - name: ⚙️ Patch flutter_inappwebview namespace
-        run: |
-          sed -i '/android {/a \    namespace "com.pichillilorenzo.flutter_inappwebview"' ~/.pub-cache/hosted/pub.dev/flutter_inappwebview-*/android/build.gradle
-        continue-on-error: true
-
       - name: 🧼 Clean Build Cache
         run: flutter clean || true
         continue-on-error: true
 
-      - name: 📲 Install Android SDK 35 with Validation
+      - name: 🧩 Set NDK Version in build.gradle
         run: |
-          mkdir -p "$ANDROID_HOME/cmdline-tools/latest"
-          cd "$ANDROID_HOME/cmdline-tools/latest"
-          curl -L -o sdk.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
-          unzip -o sdk.zip -d . > /dev/null
-          rm sdk.zip
-          
-          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
-          yes | sdkmanager --licenses
-          sdkmanager "platforms;android-35"
-
-          echo "🔎 Verifying android.jar..."
-          if [ ! -s "$ANDROID_HOME/platforms/android-35/android.jar" ]; then
-            echo "❌ android.jar is missing or corrupted!"
-            exit 1
-          else
-            echo "✅ android.jar installed and valid."
-          fi
+          sed -i '/^android {/a \    ndkVersion "27.0.12077973"' android/app/build.gradle
 
       - name: 🏗️ Build APK
         run: flutter build apk --release
