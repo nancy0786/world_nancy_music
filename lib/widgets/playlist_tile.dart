@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:world_music_nancy/models/playlist.dart';
-import 'package:world_music_nancy/models/playlist_model.dart';
 
 class PlaylistTile extends StatelessWidget {
-  final PlaylistModel playlist;
+  final Playlist playlist;
   final VoidCallback? onTap;
   final VoidCallback? onDelete;
 
@@ -19,7 +18,7 @@ class PlaylistTile extends StatelessWidget {
     return ListTile(
       leading: const Icon(Icons.queue_music, color: Colors.pinkAccent),
       title: Text(
-        playlist.name,
+        playlist.title,
         style: const TextStyle(color: Colors.white),
       ),
       subtitle: Text(
