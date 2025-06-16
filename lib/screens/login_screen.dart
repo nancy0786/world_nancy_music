@@ -6,9 +6,16 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(backgroundColor: Colors.transparent,
-      body: Center(child: Text('Login Page')),
+    return BaseScreen(
+      child: const Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Center(
+          child: Text(
+            'Login Page',
+            style: TextStyle(color: Colors.white, fontSize: 20),
+          ),
+        ),
+      ),
     );
   }
-);
 }
