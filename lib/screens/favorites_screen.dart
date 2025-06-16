@@ -6,3 +6,21 @@ class FavoritesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return BaseScreen(
+      appBar: AppBar(title: const Text("Favorites")),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Icon(Icons.favorite_border, size: 80, color: Colors.grey),
+            SizedBox(height: 20),
+            Text(
+              "No favorites yet.",
+              style: TextStyle(fontSize: 18, color: Colors.grey),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
