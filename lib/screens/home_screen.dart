@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 import 'package:world_music_nancy/services/storage_service.dart';
 import 'package:world_music_nancy/widgets/thumbnail.dart';
+import 'package:world_music_nancy/components/base_screen.dart'; // ✅ Add this import
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -74,62 +75,64 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Nancy Music World'),
-        backgroundColor: Colors.black,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.favorite),
-            onPressed: () => print("Go to favorites screen"),
-          ),
-        ],
-      ),
-      backgroundColor: Colors.black,
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: TextField(
-              controller: _searchController,
-              style: const TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                hintText: 'Search YouTube...',
-                hintStyle: const TextStyle(color: Colors.white70),
-                filled: true,
-                fillColor: Colors.grey[900],
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.search, color: Colors.white),
-                  onPressed: _searchSongs,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              onSubmitted: (_) => _searchSongs(),
+    return BaseScreen( // ✅ Wrap everything inside BaseScreen
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Nancy Music World'),
+          backgroundColor: Colors.black,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.favorite),
+              onPressed: () => print("Go to favorites screen"),
             ),
-          ),
-          Expanded(
-            child: _results.isEmpty
-                ? const Center(child: Text("No results yet", style: TextStyle(color: Colors.white)))
-                : ListView.builder(
-                    itemCount: _results.length,
-                    itemBuilder: (context, index) {
-                      final video = _results[index];
-                      return ListTile(
-                        leading: YouTubeThumbnail(videoId: video.id.value),
-                        title: Text(video.title, style: const TextStyle(color: Colors.white)),
-                        subtitle: Text(video.author, style: const TextStyle(color: Colors.white70)),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.favorite_border, color: Colors.white),
-                          onPressed: () => _addToFavorites(video),
-                        ),
-                        onTap: () => _playSong(video),
-                      );
-                    },
+          ],
+        ),
+        backgroundColor: Colors.transparent,
+        body: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: TextField(
+                controller: _searchController,
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  hintText: 'Search YouTube...',
+                  hintStyle: const TextStyle(color: Colors.white70),
+                  filled: true,
+                  fillColor: Colors.grey[900],
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.search, color: Colors.white),
+                    onPressed: _searchSongs,
                   ),
-          ),
-        ],
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                onSubmitted: (_) => _searchSongs(),
+              ),
+            ),
+            Expanded(
+              child: _results.isEmpty
+                  ? const Center(child: Text("No results yet", style: TextStyle(color: Colors.white)))
+                  : ListView.builder(
+                      itemCount: _results.length,
+                      itemBuilder: (context, index) {
+                        final video = _results[index];
+                        return ListTile(
+                          leading: YouTubeThumbnail(videoId: video.id.value),
+                          title: Text(video.title, style: const TextStyle(color: Colors.white)),
+                          subtitle: Text(video.author, style: const TextStyle(color: Colors.white70)),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.favorite_border, color: Colors.white),
+                            onPressed: () => _addToFavorites(video),
+                          ),
+                          onTap: () => _playSong(video),
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }
