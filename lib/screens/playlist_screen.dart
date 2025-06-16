@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:world_music_nancy/components/base_screen.dart';
 import 'package:world_music_nancy/providers/playlist_provider.dart';
 import 'package:world_music_nancy/widgets/playlist_tile.dart';
-import 'package:world_music_nancy/models/playlist.dart';
+import 'package:world_music_nancy/models/playlist_model.dart';
 import 'package:world_music_nancy/components/custom_app_bar.dart';
 
 class PlaylistScreen extends StatelessWidget {
@@ -16,7 +16,7 @@ class PlaylistScreen extends StatelessWidget {
     return BaseScreen(
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        appBar: CustomAppBar(title: 'Your Playlists'),
+        appBar: const CustomAppBar(title: 'Your Playlists'),
         body: playlists.isEmpty
             ? const Center(
                 child: Text(
@@ -28,7 +28,10 @@ class PlaylistScreen extends StatelessWidget {
                 itemCount: playlists.length,
                 itemBuilder: (context, index) {
                   final PlaylistModel model = playlists[index];
-                  final Playlist playlist = model.toPlaylist(id: model.name.hashCode.toString(), createdBy: "Me");
+                  final playlist = model.toPlaylist(
+                    id: model.name.hashCode.toString(),
+                    createdBy: "Me",
+                  );
                   return PlaylistTile(playlist: playlist);
                 },
               ),
