@@ -10,7 +10,7 @@ class ThemeSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
-    final currentTheme = themeProvider.currentTheme;
+    final currentThemeName = themeProvider.currentThemeName;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -27,15 +27,18 @@ class ThemeSelector extends StatelessWidget {
         Wrap(
           spacing: 10,
           children: themes.keys.map((themeName) {
-            final isSelected = currentTheme == themes[themeName];
+            final isSelected = themeName == currentThemeName;
+
             return ChoiceChip(
-              label: Text(themeName),
+              label: Text(
+                themeName,
+                style: TextStyle(
+                  color: isSelected ? Colors.white : Colors.black,
+                ),
+              ),
               selected: isSelected,
               selectedColor: Colors.pinkAccent,
               backgroundColor: Colors.grey.shade800,
-              labelStyle: TextStyle(
-                color: isSelected ? Colors.white : Colors.black,
-              ),
               onSelected: (_) {
                 themeProvider.setTheme(themeName);
               },
