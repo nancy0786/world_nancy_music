@@ -27,7 +27,8 @@ class PlaylistScreen extends StatelessWidget {
             : ListView.builder(
                 itemCount: playlists.length,
                 itemBuilder: (context, index) {
-                  final Playlist playlist = playlists[index];
+                  final PlaylistModel model = playlists[index];
+                  final Playlist playlist = model.toPlaylist(id: model.name.hashCode.toString(), createdBy: "Me");
                   return PlaylistTile(playlist: playlist);
                 },
               ),
