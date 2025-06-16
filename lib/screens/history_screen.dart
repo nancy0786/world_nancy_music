@@ -12,18 +12,3 @@ class HistoryScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final history = QueueService().history;
 
-    return BaseScreen(child: Scaffold(backgroundColor: Colors.transparent,
-      appBar: AppBar(title: const Text('Playback History')),
-      body: ListView.builder(
-        itemCount: history.length,
-        itemBuilder: (context, index) {
-          final song = history[index];
-          return ListTile(
-          title: Text(song['title'] ?? 'Unknown'),
-          );
-        },
-      ),
-    );
-  }
-);
-}

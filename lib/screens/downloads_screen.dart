@@ -21,13 +21,6 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BaseScreen(child: Scaffold(backgroundColor: Colors.transparent,
-      appBar: AppBar(title: const Text("Offline Downloads")),
-      body: FutureBuilder<List<Map<String, String>>>(
-        future: DownloadManager.getDownloadedSongs(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
           }
 
           final songs = snapshot.data!;

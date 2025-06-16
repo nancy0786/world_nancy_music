@@ -53,35 +53,3 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BaseScreen(child: Scaffold(backgroundColor: Colors.transparent,
-      appBar: AppBar(title: const Text("Your Profile")),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: ListView(
-          children: [
-            TextField(
-              controller: _usernameController,
-              decoration: const InputDecoration(labelText: "Username"),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: _emailController,
-              decoration: const InputDecoration(labelText: "Email"),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: _bioController,
-              decoration: const InputDecoration(labelText: "Bio / Status"),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _saveProfile,
-              child: const Text("Save Profile"),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-);
-}

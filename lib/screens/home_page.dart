@@ -38,37 +38,3 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return BaseScreen(child: Scaffold(backgroundColor: Colors.transparent,
-      backgroundColor: AppColors.darkBackground,
-      body: _screens[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        backgroundColor: Colors.black,
-        selectedItemColor: AppColors.neonPink,
-        unselectedItemColor: Colors.grey,
-        selectedLabelStyle: GoogleFonts.orbitron(fontWeight: FontWeight.bold),
-        unselectedLabelStyle: GoogleFonts.orbitron(),
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Search',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.library_music),
-            label: 'Library',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.download),
-            label: 'Downloads',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
-      ),
-    );
-  }
-);
-}

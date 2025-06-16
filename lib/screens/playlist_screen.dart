@@ -19,39 +19,3 @@ class PlaylistScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final playlists = context.watch<PlaylistProvider>().playlists;
 
-    return BaseScreen(child: Scaffold(backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        title: const Text('Your Playlists'),
-        backgroundColor: Colors.deepPurpleAccent,
-      ),
-      backgroundColor: Colors.black,
-      body: playlists.isEmpty
-          ? const Center(
-              child: Text(
-                'No playlists yet.',
-                style: TextStyle(color: Colors.white70),
-              ),
-            )
-          : ListView.builder(
-              itemCount: playlists.length,
-              itemBuilder: (context, index) {
-                final playlist = playlists[index];
-                return PlaylistTile(
-                  playlist: playlist,
-                  onTap: () {
-                    Navigator.pushNamed(
-                      context,
-                      '/playlistDetails',
-                      arguments: playlist,
-                    );
-                  },
-                  onDelete: () {
-                    context.read<PlaylistProvider>().deletePlaylist(playlist.name);
-                  },
-                );
-              },
-            ),
-    );
-  }
-);
-}
