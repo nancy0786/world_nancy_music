@@ -3,11 +3,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/neon_themes.dart';
 
 class ThemeProvider with ChangeNotifier {
-  String _currentTheme = 'Teal';
+  String _currentThemeName = 'Teal';
 
-  String get currentTheme => _currentTheme;
+  // Expose the current theme name (e.g., "Neon", "Dark")
+  String get currentThemeName => _currentThemeName;
 
-  ThemeData get themeData => NeonThemes.themes[_currentTheme]!;
+  // Expose the actual ThemeData
+  ThemeData get currentTheme => NeonThemes.themes[_currentThemeName]!;
 
   ThemeProvider() {
     _loadThemeFromPrefs();
@@ -15,26 +17,26 @@ class ThemeProvider with ChangeNotifier {
 
   Future<void> _loadThemeFromPrefs() async {
     final prefs = await SharedPreferences.getInstance();
-    final theme = prefs.getString('neonTheme') ?? 'Teal';
-    if (NeonThemes.themes.containsKey(theme)) {
-      _currentTheme = theme;
+    final saved = prefs.getString('neonTheme') ?? 'Teal';
+    if (NeonThemes.themes.containsKey(saved)) {
+      _currentThemeName = saved;
       notifyListeners();
     }
   }
 
   Future<void> setTheme(String themeName) async {
     if (NeonThemes.themes.containsKey(themeName)) {
-      _currentTheme = themeName;
+      _currentThemeName = themeName;
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('neonTheme', themeName);
       notifyListeners();
     }
   }
 
-  void toggleTheme() {
-    final allKeys = NeonThemes.themes.keys.toList();
-    int currentIndex = allKeys.indexOf(_currentTheme);
-    int nextIndex = (currentIndex + 1) % allKeys.length;
-    setTheme(allKeys[nextIndex]);
+  Future<void> toggleTheme() async {
+    final keys = NeonThemes.themes.keys.toList();
+    final index = keys.indexOf(_currentThemeName);
+    final nextIndex = (index + 1) % keys.length;
+    await setTheme(keys[nextIndex]);
   }
 }
