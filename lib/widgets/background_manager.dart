@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 class BackgroundManager extends StatefulWidget {
-  final Widget child;
-
-  const BackgroundManager({super.key, required this.child});
+  const BackgroundManager({super.key});
 
   @override
   State<BackgroundManager> createState() => _BackgroundManagerState();
@@ -39,8 +37,12 @@ class _BackgroundManagerState extends State<BackgroundManager> {
       _videoController = VideoPlayerController.asset(_selectedBackground)
         ..setLooping(true)
         ..initialize().then((_) {
-          _videoController!.play();
-          setState(() {});
+          if (mounted) {
+            _videoController!.play();
+            setState(() {});
+          }
+        }).catchError((e) {
+          debugPrint('Video failed to load: $e');
         });
     }
   }
@@ -53,19 +55,24 @@ class _BackgroundManagerState extends State<BackgroundManager> {
 
   @override
   Widget build(BuildContext context) {
+    final isVideo = _selectedBackground.endsWith('.mp4');
+
     return Stack(
       children: [
         Positioned.fill(
-          child: _selectedBackground.endsWith('.mp4')
+          child: isVideo
               ? (_videoController != null && _videoController!.value.isInitialized)
                   ? VideoPlayer(_videoController!)
                   : const SizedBox()
-              : Image.asset(_selectedBackground, fit: BoxFit.cover),
+              : Image.asset(
+                  _selectedBackground,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => const ColoredBox(color: Colors.black),
+                ),
         ),
         Positioned.fill(
-          child: Container(color: Colors.black.withOpacity(0.4)),
+          child: Container(color: Colors.black.withOpacity(0.4)), // dark overlay
         ),
-        widget.child,
       ],
     );
   }
