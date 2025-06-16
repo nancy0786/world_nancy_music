@@ -1,17 +1,19 @@
 import 'song_model.dart';
 import 'playlist.dart';
+import 'song.dart'; // ✅ Required to access Song.fromModel
 
 class PlaylistModel {
   final String name;
   final List<SongModel> songs;
-  bool isPublic; // Added to fix isPublic related errors
+  bool isPublic;
 
   PlaylistModel({
     required this.name,
     required this.songs,
-    this.isPublic = false, // Default to false
+    this.isPublic = false,
   });
 }
+
 extension PlaylistModelMapper on PlaylistModel {
   Playlist toPlaylist({required String id, required String createdBy}) {
     return Playlist(
@@ -20,7 +22,7 @@ extension PlaylistModelMapper on PlaylistModel {
       description: '',
       isPublic: isPublic,
       createdBy: createdBy,
-      songs: songs,
+      songs: songs.map((s) => Song.fromModel(s)).toList(), // ✅ Key Fix
     );
   }
 }
