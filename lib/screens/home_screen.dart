@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:world_music_nancy/components/base_screen.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
+import 'package:world_music_nancy/components/base_screen.dart';
 import 'package:world_music_nancy/services/storage_service.dart';
+import 'package:world_music_nancy/components/base_screen.dart';
 import 'package:world_music_nancy/widgets/thumbnail.dart';
+import 'package:world_music_nancy/components/base_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -74,7 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BaseScreen(child: Scaffold(backgroundColor: Colors.transparent,
       backgroundColor: Colors.black,
       appBar: AppBar(
         title: const Text("Nancy Music World"),
@@ -143,4 +147,5 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+);
 }

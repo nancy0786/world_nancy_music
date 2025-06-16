@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:world_music_nancy/components/base_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:world_music_nancy/components/base_screen.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:world_music_nancy/components/base_screen.dart';
 import 'dart:io';
+import 'package:world_music_nancy/components/base_screen.dart';
 import 'package:world_music_nancy/components/custom_app_bar.dart';
+import 'package:world_music_nancy/components/base_screen.dart';
 
 class CreatePlaylistScreen extends StatefulWidget {
   const CreatePlaylistScreen({super.key});
@@ -43,7 +48,7 @@ class _CreatePlaylistScreenState extends State<CreatePlaylistScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BaseScreen(child: Scaffold(backgroundColor: Colors.transparent,
       appBar: AppBar(title: const Text("Create Playlist")),
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -89,4 +94,5 @@ class _CreatePlaylistScreenState extends State<CreatePlaylistScreen> {
       ),
     );
   }
+);
 }

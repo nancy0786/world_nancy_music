@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:world_music_nancy/components/base_screen.dart';
 import 'dart:async';
+import 'package:world_music_nancy/components/base_screen.dart';
 import 'package:lottie/lottie.dart';
+import 'package:world_music_nancy/components/base_screen.dart';
 import 'package:world_music_nancy/home.dart'; // Correct import
+import 'package:world_music_nancy/components/base_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -23,7 +27,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BaseScreen(child: Scaffold(backgroundColor: Colors.transparent,
       body: Stack(
         fit: StackFit.expand,
         children: [
@@ -56,4 +60,5 @@ class _SplashScreenState extends State<SplashScreen> {
       ),
     );
   }
+);
 }

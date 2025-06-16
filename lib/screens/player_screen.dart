@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:world_music_nancy/components/base_screen.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:world_music_nancy/components/base_screen.dart';
 
 class PlayerScreen extends StatefulWidget {
   final String title;
@@ -43,7 +45,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BaseScreen(child: Scaffold(backgroundColor: Colors.transparent,
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.deepPurple,
@@ -83,4 +85,5 @@ class _PlayerScreenState extends State<PlayerScreen> {
       ),
     );
   }
+);
 }

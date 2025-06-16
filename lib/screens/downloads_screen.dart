@@ -1,8 +1,13 @@
 import 'dart:io';
+import 'package:world_music_nancy/components/base_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:world_music_nancy/components/base_screen.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:world_music_nancy/components/base_screen.dart';
 import '../../components/custom_widgets.dart';
+import 'package:world_music_nancy/components/base_screen.dart';
 import 'package:world_music_nancy/services/download_manager.dart';
+import 'package:world_music_nancy/components/base_screen.dart';
 
 class DownloadsScreen extends StatefulWidget {
   const DownloadsScreen({super.key});
@@ -16,7 +21,7 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BaseScreen(child: Scaffold(backgroundColor: Colors.transparent,
       appBar: AppBar(title: const Text("Offline Downloads")),
       body: FutureBuilder<List<Map<String, String>>>(
         future: DownloadManager.getDownloadedSongs(),
@@ -55,4 +60,5 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
       ),
     );
   }
+);
 }

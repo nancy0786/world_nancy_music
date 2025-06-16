@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:world_music_nancy/components/base_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:world_music_nancy/components/base_screen.dart';
 import 'package:world_music_nancy/components/custom_app_bar.dart';
+import 'package:world_music_nancy/components/base_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -50,7 +53,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BaseScreen(child: Scaffold(backgroundColor: Colors.transparent,
       appBar: AppBar(title: const Text("Your Profile")),
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -80,4 +83,5 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
   }
+);
 }
