@@ -14,20 +14,22 @@ class RecentlyPlayedTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Image.network(
-        song.thumbnail ?? '', // Fix: provide fallback if null
-        width: 50,
-        height: 50,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) =>
-            const Icon(Icons.music_note, color: Colors.white),
-      ),
+      leading: song.thumbnail != null && song.thumbnail!.isNotEmpty
+          ? Image.network(
+              song.thumbnail!,
+              width: 50,
+              height: 50,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) =>
+                  const Icon(Icons.music_note, color: Colors.white),
+            )
+          : const Icon(Icons.music_note, color: Colors.white),
       title: Text(
-        song.title,
+        song.title.isNotEmpty ? song.title : "Unknown Title",
         style: const TextStyle(color: Colors.white),
       ),
       subtitle: Text(
-        song.artist ?? '',
+        song.artist ?? 'Unknown Artist',
         style: const TextStyle(color: Colors.white60),
       ),
       trailing: const Icon(Icons.play_arrow, color: Colors.cyanAccent),
