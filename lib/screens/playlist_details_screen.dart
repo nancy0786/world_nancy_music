@@ -6,9 +6,11 @@ class PlaylistDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(backgroundColor: Colors.transparent,
-      body: Center(child: Text('Playlist Details')),
+    return BaseScreen(
+      child: const Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Center(child: Text('Playlist Details')),
+      ),
     );
   }
-);
 }
