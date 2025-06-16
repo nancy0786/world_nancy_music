@@ -18,8 +18,10 @@ class LibraryScreen extends StatelessWidget {
       title: 'Sample Song',
       artist: 'Unknown Artist',
       thumbnail: '',
+      thumbnailUrl: '',
       url: '',
-      id: '',
+      channel: '',
+      id: 'dummy-id',
     );
 
     return BaseScreen(
@@ -31,29 +33,33 @@ class LibraryScreen extends StatelessWidget {
           children: [
             RecentlyPlayedTile(
               song: dummySong,
-              onTap: () {}, // TODO: Replace with actual navigation
+              onTap: () {
+                // Example navigation: Navigator.pushNamed(context, '/player');
+              },
             ),
             const SizedBox(height: 10),
             HistoryTile(
               song: dummySong,
-              onTap: () {}, // TODO: Replace with actual navigation
+              onTap: () {
+                // Example navigation: Navigator.pushNamed(context, '/historyDetail');
+              },
             ),
             const SizedBox(height: 10),
             DownloadButton(
               onPressed: () {
-                // TODO: Add functionality
+                // Example action: download a test song
               },
             ),
             const SizedBox(height: 10),
             ThemeSelector(
-              themes: availableNeonThemes, // <-- Ensure this list exists
+              themes: availableNeonThemes,
             ),
             const SizedBox(height: 10),
             SettingsTile(
               icon: Icons.settings,
               title: 'App Settings',
               onTap: () {
-                // TODO: Navigate to settings screen
+                // Example: Navigator.pushNamed(context, '/settings');
               },
             ),
           ],
