@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:world_music_nancy/components/base_screen.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:world_music_nancy/components/base_screen.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:world_music_nancy/components/base_screen.dart';
-import 'dart:io';
-import 'package:world_music_nancy/components/base_screen.dart';
 import 'package:world_music_nancy/components/custom_app_bar.dart';
-import 'package:world_music_nancy/components/base_screen.dart';
 
 class CreatePlaylistScreen extends StatefulWidget {
   const CreatePlaylistScreen({super.key});
@@ -48,3 +44,54 @@ class _CreatePlaylistScreenState extends State<CreatePlaylistScreen> {
 
   @override
   Widget build(BuildContext context) {
+    return BaseScreen(
+      appBar: const CustomAppBar(title: 'Create Playlist'),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            TextField(
+              controller: _nameController,
+              decoration: const InputDecoration(labelText: 'Playlist Name'),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                const Text('Public'),
+                Switch(
+                  value: _isPublic,
+                  onChanged: (val) {
+                    setState(() {
+                      _isPublic = val;
+                    });
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton.icon(
+              onPressed: _pickImage,
+              icon: const Icon(Icons.image),
+              label: const Text("Pick Thumbnail"),
+            ),
+            if (_thumbnail != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: Image.file(
+                  _thumbnail!,
+                  width: 100,
+                  height: 100,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            const Spacer(),
+            ElevatedButton(
+              onPressed: _savePlaylist,
+              child: const Text('Save Playlist'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
