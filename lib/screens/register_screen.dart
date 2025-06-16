@@ -6,9 +6,16 @@ class RegisterScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(backgroundColor: Colors.transparent,
-      body: Center(child: Text('Register Page')),
+    return BaseScreen(
+      child: const Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Center(
+          child: Text(
+            'Register Page',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+      ),
     );
   }
-);
 }
