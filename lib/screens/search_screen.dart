@@ -84,7 +84,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     return ListTile(
                       title: Text(video['title'] ?? 'No Title', style: const TextStyle(color: Colors.white)),
                       subtitle: Text(video['channel'] ?? '', style: const TextStyle(color: Colors.white70)),
-                      onTap: () => _play(video['id']!, video['title']!),
+                      onTap: () => _play(video['videoId']!, video['title']!), // ✅ fixed here
                     );
                   },
                 ),
