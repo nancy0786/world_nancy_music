@@ -11,11 +11,12 @@ class DownloadManager {
       try {
         final decoded = jsonDecode(str);
         if (decoded is Map) {
+          // Ensure proper typing
           return Map<String, dynamic>.from(decoded);
         }
-        return {};
+        return <String, dynamic>{};
       } catch (_) {
-        return {}; // fallback on decode error
+        return <String, dynamic>{}; // fallback on decode error
       }
     }).where((item) => item.isNotEmpty).toList();
   }
