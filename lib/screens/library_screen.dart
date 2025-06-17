@@ -34,32 +34,32 @@ class LibraryScreen extends StatelessWidget {
             RecentlyPlayedTile(
               song: dummySong,
               onTap: () {
-                // Example navigation: Navigator.pushNamed(context, '/player');
+                // TODO: Implement onTap functionality
               },
             ),
             const SizedBox(height: 10),
             HistoryTile(
               song: dummySong,
               onTap: () {
-                // Example navigation: Navigator.pushNamed(context, '/historyDetail');
+                // TODO: Implement onTap functionality
               },
             ),
             const SizedBox(height: 10),
             DownloadButton(
               onPressed: () {
-                // Example action: download a test song
+                // TODO: Implement download action
               },
             ),
             const SizedBox(height: 10),
             ThemeSelector(
-              themes: availableNeonThemes,
+              themes: NeonThemes.themes, // ✅ Corrected here
             ),
             const SizedBox(height: 10),
             SettingsTile(
               icon: Icons.settings,
               title: 'App Settings',
               onTap: () {
-                // Example: Navigator.pushNamed(context, '/settings');
+                // TODO: Implement settings navigation
               },
             ),
           ],
