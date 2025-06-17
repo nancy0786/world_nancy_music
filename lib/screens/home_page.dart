@@ -5,14 +5,14 @@ import 'package:world_music_nancy/screens/library_screen.dart';
 import 'package:world_music_nancy/screens/profile_screen.dart';
 import 'package:world_music_nancy/screens/downloads_screen.dart';
 
-class HomePage extends StatefulWidget {
+class HomePageWithNav extends StatefulWidget {
   const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageWithNavState extends State<HomePageWithNav> {
   int _selectedIndex = 0;
 
   final List<Widget> _screens = [
