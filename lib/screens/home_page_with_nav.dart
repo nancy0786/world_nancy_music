@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:world_music_nancy/widgets/background_manager.dart';
 import 'package:world_music_nancy/screens/search_screen.dart';
 import 'package:world_music_nancy/screens/library_screen.dart';
 import 'package:world_music_nancy/screens/profile_screen.dart';
 import 'package:world_music_nancy/screens/downloads_screen.dart';
 
 class HomePageWithNav extends StatefulWidget {
-  const HomePageWithNav({super.key}); // ✅ fixed constructor name
+  const HomePageWithNav({super.key});
 
   @override
-  State<HomePageWithNav> createState() => _HomePageWithNavState(); // ✅ also fixed state class name
+  State<HomePageWithNav> createState() => _HomePageWithNavState();
 }
 
 class _HomePageWithNavState extends State<HomePageWithNav> {
@@ -30,33 +30,39 @@ class _HomePageWithNavState extends State<HomePageWithNav> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _screens[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        selectedItemColor: Colors.pinkAccent,
-        unselectedItemColor: Colors.grey,
-        backgroundColor: Colors.black,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Search',
+    return Stack(
+      children: [
+        const BackgroundManager(), // ✅ Set background globally only once
+        Scaffold(
+          backgroundColor: Colors.transparent,
+          body: _screens[_selectedIndex],
+          bottomNavigationBar: BottomNavigationBar(
+            currentIndex: _selectedIndex,
+            onTap: _onItemTapped,
+            selectedItemColor: Colors.pinkAccent,
+            unselectedItemColor: Colors.grey,
+            backgroundColor: Colors.black,
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.search),
+                label: 'Search',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.library_music),
+                label: 'Library',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.download),
+                label: 'Downloads',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.person),
+                label: 'Profile',
+              ),
+            ],
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.library_music),
-            label: 'Library',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.download),
-            label: 'Downloads',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
