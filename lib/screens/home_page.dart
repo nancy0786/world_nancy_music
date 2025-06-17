@@ -6,10 +6,10 @@ import 'package:world_music_nancy/screens/profile_screen.dart';
 import 'package:world_music_nancy/screens/downloads_screen.dart';
 
 class HomePageWithNav extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePageWithNav({super.key}); // ✅ fixed constructor name
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<HomePageWithNav> createState() => _HomePageWithNavState(); // ✅ also fixed state class name
 }
 
 class _HomePageWithNavState extends State<HomePageWithNav> {
