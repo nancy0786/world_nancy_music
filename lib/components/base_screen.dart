@@ -19,13 +19,20 @@ class BaseScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        const BackgroundManager(), // Displays a random background
-        Scaffold(
-          backgroundColor: Colors.transparent,
-          appBar: appBar,
-          floatingActionButton: floatingActionButton,
-          bottomNavigationBar: bottomNavigationBar,
-          body: child,
+        // ✅ Background behind everything
+        Positioned.fill(
+          child: const BackgroundManager(),
+        ),
+
+        // ✅ Foreground screen content
+        Positioned.fill(
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
+            appBar: appBar,
+            body: child,
+            floatingActionButton: floatingActionButton,
+            bottomNavigationBar: bottomNavigationBar,
+          ),
         ),
       ],
     );
