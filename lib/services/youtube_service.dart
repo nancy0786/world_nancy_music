@@ -31,6 +31,7 @@ class YouTubeService {
           'videoId': video.id.value,
           'title': video.title,
           'thumbnail': video.thumbnails.highResUrl,
+          'channel': video.author, // ✅ Added this to fix subtitle
         };
       }).toList();
     } catch (e) {
