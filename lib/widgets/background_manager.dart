@@ -34,6 +34,8 @@ class _BackgroundManagerState extends State<BackgroundManager> {
             _videoController!.play();
             setState(() {});
           }
+        }).catchError((e) {
+          debugPrint('Video failed to load: $e');
         });
     }
   }
@@ -48,22 +50,21 @@ class _BackgroundManagerState extends State<BackgroundManager> {
   Widget build(BuildContext context) {
     final isVideo = _selectedBackground.endsWith('.mp4');
 
-    return Stack(
-      children: [
-        Positioned.fill(
-          child: isVideo
+    return Positioned.fill(
+      child: Stack(
+        children: [
+          isVideo
               ? (_videoController != null && _videoController!.value.isInitialized)
                   ? VideoPlayer(_videoController!)
                   : const SizedBox()
               : Image.asset(
                   _selectedBackground,
                   fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => const ColoredBox(color: Colors.black),
                 ),
-        ),
-        Positioned.fill(
-          child: Container(color: Colors.black.withOpacity(0.4)),
-        ),
-      ],
+          Container(color: Colors.black.withOpacity(0.4)), // dark overlay
+        ],
+      ),
     );
   }
 }
