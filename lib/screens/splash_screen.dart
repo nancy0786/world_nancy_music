@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:lottie/lottie.dart';
-import 'package:world_music_nancy/home.dart';
+import 'package:world_music_nancy/screens/home_page_with_nav.dart'; // ✅ Correct file
 import 'package:world_music_nancy/components/base_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -17,7 +17,7 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
     Timer(const Duration(seconds: 4), () {
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const HomePage()),
+        MaterialPageRoute(builder: (_) => const HomePageWithNav()), // ✅ FIXED HERE
       );
     });
   }
