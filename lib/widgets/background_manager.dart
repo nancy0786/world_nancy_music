@@ -3,7 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 class BackgroundManager extends StatefulWidget {
-  const BackgroundManager({super.key});
+  final PreferredSizeWidget? appBar;
+  final Widget body;
+
+  const BackgroundManager({
+    super.key,
+    this.appBar,
+    required this.body,
+  });
 
   @override
   State<BackgroundManager> createState() => _BackgroundManagerState();
@@ -14,17 +21,10 @@ class _BackgroundManagerState extends State<BackgroundManager> {
   VideoPlayerController? _videoController;
 
   final List<String> _backgrounds = [
-    // Cyberpunk: mp4
     for (int i = 1; i <= 18; i++) 'assets/backgrounds/cyberpunk/cyber$i.mp4',
-    // Cyberpunk: jpg
     for (int i = 19; i <= 30; i++) 'assets/backgrounds/cyberpunk/cyber$i.jpg',
-
-    // Girls: jpg
     for (int i = 1; i <= 14; i++) 'assets/backgrounds/girls/girl$i.jpg',
-    // Girls: mp4
     for (int i = 15; i <= 30; i++) 'assets/backgrounds/girls/girl$i.mp4',
-
-    // Nature: mp4
     for (int i = 1; i <= 26; i++) 'assets/backgrounds/nature/nature$i.mp4',
   ];
 
@@ -57,23 +57,30 @@ class _BackgroundManagerState extends State<BackgroundManager> {
   Widget build(BuildContext context) {
     final isVideo = _selectedBackground.endsWith('.mp4');
 
-    return Stack(
-      children: [
-        Positioned.fill(
-          child: isVideo
-              ? (_videoController != null && _videoController!.value.isInitialized)
-                  ? VideoPlayer(_videoController!)
-                  : const SizedBox()
-              : Image.asset(
-                  _selectedBackground,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => const ColoredBox(color: Colors.black),
-                ),
-        ),
-        Positioned.fill(
-          child: Container(color: Colors.black.withOpacity(0.4)), // dark overlay
-        ),
-      ],
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      appBar: widget.appBar,
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: isVideo
+                ? (_videoController != null && _videoController!.value.isInitialized)
+                    ? VideoPlayer(_videoController!)
+                    : const SizedBox()
+                : Image.asset(
+                    _selectedBackground,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => const ColoredBox(color: Colors.black),
+                  ),
+          ),
+          Positioned.fill(
+            child: Container(color: Colors.black.withOpacity(0.4)),
+          ),
+          Positioned.fill(
+            child: widget.body,
+          ),
+        ],
+      ),
     );
   }
 }
