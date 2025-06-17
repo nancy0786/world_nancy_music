@@ -19,13 +19,25 @@ class BaseScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        const BackgroundManager(),
-        Scaffold(
-          backgroundColor: Colors.transparent,
-          appBar: appBar,
-          floatingActionButton: floatingActionButton,
-          bottomNavigationBar: bottomNavigationBar,
-          body: child,
+        const BackgroundManager(), // Neon video/image background
+        Positioned.fill(
+          child: Builder(
+            builder: (context) {
+              // If the child is already a Scaffold, don’t wrap again
+              if (child is Scaffold) {
+                return child;
+              }
+
+              // Wrap in Scaffold if not already
+              return Scaffold(
+                backgroundColor: Colors.transparent,
+                appBar: appBar,
+                floatingActionButton: floatingActionButton,
+                bottomNavigationBar: bottomNavigationBar,
+                body: child,
+              );
+            },
+          ),
         ),
       ],
     );
