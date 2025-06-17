@@ -17,27 +17,17 @@ class BaseScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        const BackgroundManager(), // Background video/image
-        Positioned.fill(
-          child: Builder(
-            builder: (context) {
-              // If child is already a Scaffold, use as-is
-              if (child is Scaffold) return child;
-
-              // Otherwise wrap in Scaffold
-              return Scaffold(
-                backgroundColor: Colors.transparent,
-                appBar: appBar,
-                floatingActionButton: floatingActionButton,
-                bottomNavigationBar: bottomNavigationBar,
-                body: child,
-              );
-            },
-          ),
-        ),
-      ],
+    return BackgroundManager(
+      appBar: appBar,
+      body: child is Scaffold
+          ? child
+          : Scaffold(
+              backgroundColor: Colors.transparent,
+              appBar: appBar,
+              floatingActionButton: floatingActionButton,
+              bottomNavigationBar: bottomNavigationBar,
+              body: child,
+            ),
     );
   }
 }
