@@ -3,14 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 class BackgroundManager extends StatefulWidget {
-  final PreferredSizeWidget? appBar;
-  final Widget body;
-
-  const BackgroundManager({
-    super.key,
-    this.appBar,
-    required this.body,
-  });
+  const BackgroundManager({super.key});
 
   @override
   State<BackgroundManager> createState() => _BackgroundManagerState();
@@ -41,8 +34,6 @@ class _BackgroundManagerState extends State<BackgroundManager> {
             _videoController!.play();
             setState(() {});
           }
-        }).catchError((e) {
-          debugPrint('Video failed to load: $e');
         });
     }
   }
@@ -57,30 +48,22 @@ class _BackgroundManagerState extends State<BackgroundManager> {
   Widget build(BuildContext context) {
     final isVideo = _selectedBackground.endsWith('.mp4');
 
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      appBar: widget.appBar,
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: isVideo
-                ? (_videoController != null && _videoController!.value.isInitialized)
-                    ? VideoPlayer(_videoController!)
-                    : const SizedBox()
-                : Image.asset(
-                    _selectedBackground,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => const ColoredBox(color: Colors.black),
-                  ),
-          ),
-          Positioned.fill(
-            child: Container(color: Colors.black.withOpacity(0.4)),
-          ),
-          Positioned.fill(
-            child: widget.body,
-          ),
-        ],
-      ),
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: isVideo
+              ? (_videoController != null && _videoController!.value.isInitialized)
+                  ? VideoPlayer(_videoController!)
+                  : const SizedBox()
+              : Image.asset(
+                  _selectedBackground,
+                  fit: BoxFit.cover,
+                ),
+        ),
+        Positioned.fill(
+          child: Container(color: Colors.black.withOpacity(0.4)),
+        ),
+      ],
     );
   }
 }
