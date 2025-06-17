@@ -27,7 +27,7 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
         appBar: AppBar(title: const Text("Downloads")),
         backgroundColor: Colors.transparent,
         body: FutureBuilder<List<Map<String, dynamic>>>(
-          future: DownloadManager().getDownloadedSongs(),
+          future: DownloadManager.getDownloadedSongs(), // ✅ Fixed here
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
