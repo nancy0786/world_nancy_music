@@ -77,7 +77,7 @@ class _NancyMusicWorldAppState extends State<NancyMusicWorldApp> {
       initialRoute: '/',
       routes: {
         '/': (context) => const SplashScreen(),
-        '/home': (context) => const HomePage(),
+        '/home': (context) => const HomePageWithNav(), // ✅ The one with bottom navigation
         '/profile': (context) => const ProfileScreen(),
         '/createPlaylist': (context) => const CreatePlaylistScreen(),
         '/downloads': (context) => const DownloadsScreen(),
