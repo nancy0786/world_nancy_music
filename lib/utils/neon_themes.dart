@@ -46,4 +46,7 @@ class NeonThemes {
       ),
     );
   }
+
+  /// ✅ Add this getter to be used from screens
+  static Map<String, ThemeData> get availableNeonThemes => themes;
 }
