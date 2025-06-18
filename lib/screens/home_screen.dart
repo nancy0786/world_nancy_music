@@ -22,7 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _loadData();
-    _loadLast();
+    _loadLastPlayed();
   }
 
   Future<void> _loadData() async {
@@ -42,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  Future<void> _loadLast() async {
+  Future<void> _loadLastPlayed() async {
     final data = await StorageService.getLastPlayed();
     setState(() => _lastPlayed = data);
   }
@@ -70,28 +70,28 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             const SectionTitle(title: "Recently Played"),
             ..._recentlyPlayed.map((song) => ListTile(
-                  leading: Image.network(song.thumbnailUrl ?? '', width: 50, height: 50, fit: BoxFit.cover),
-                  title: Text(song.title ?? '', style: const TextStyle(color: Colors.white)),
-                  subtitle: Text(song.artist ?? '', style: const TextStyle(color: Colors.white70)),
-                  onTap: () {
-                    // TODO: Play song
-                  },
-                )),
-
+              leading: Image.network(song.thumbnailUrl ?? '', width: 50, height: 50, fit: BoxFit.cover),
+              title: Text(song.title ?? '', style: const TextStyle(color: Colors.white)),
+              subtitle: Text(song.artist ?? '', style: const TextStyle(color: Colors.white70)),
+              onTap: () {
+                // TODO: Play song
+              },
+            )),
             const SizedBox(height: 20),
+
             const SectionTitle(title: "🔥 Top 20 Weekly"),
             SizedBox(
               height: 150,
               child: ListView(
                 scrollDirection: Axis.horizontal,
-                children: _playlists.map<Widget>((playlist) {
+                children: _playlists.map((playlist) {
                   final firstSong = (playlist['songs'] as List).isNotEmpty ? playlist['songs'][0] : null;
                   final thumb = firstSong != null ? firstSong['thumbnail'] ?? '' : '';
                   return PlaylistCard(
                     title: playlist['title'] ?? '',
-                    thumbnailUrl: thumb,
+                    imageUrl: thumb,
                     onTap: () {
-                      // TODO: Navigate to playlist screen
+                      // TODO: Open playlist
                     },
                   );
                 }).toList(),
@@ -106,13 +106,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 scrollDirection: Axis.horizontal,
                 children: _playlists
                     .where((p) => (p['title'] ?? '').toLowerCase().contains("romantic"))
-                    .map<Widget>((playlist) {
+                    .map((playlist) {
                       final first = playlist['songs'].isNotEmpty ? playlist['songs'][0] : null;
+                      final thumb = first != null ? first['thumbnail'] ?? '' : '';
                       return PlaylistCard(
                         title: playlist['title'] ?? '',
-                        thumbnailUrl: first != null ? first['thumbnail'] ?? '' : '',
+                        imageUrl: thumb,
                         onTap: () {
-                          // TODO: Navigate to playlist
+                          // TODO: Open romantic playlist
                         },
                       );
                     }).toList(),
@@ -121,7 +122,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 30),
 
-            /// ✅ Mini Now Playing Card at bottom
+            /// ✅ Now Playing Card at bottom
             NowPlayingCard(
               title: _lastPlayed?['title'],
               artist: _lastPlayed?['channel'],
