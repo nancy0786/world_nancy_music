@@ -5,6 +5,7 @@ import 'package:world_music_nancy/services/storage_service.dart';
 import 'package:world_music_nancy/models/song_model.dart';
 import 'package:world_music_nancy/components/base_screen.dart';
 import 'package:world_music_nancy/widgets/now_playing_card.dart';
+import 'package:world_music_nancy/screens/player_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,7 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _loadData();
-    loadLast();
+    _loadLastPlayed();
   }
 
   Future<void> _loadData() async {
@@ -42,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  Future<void> loadLast() async {
+  Future<void> _loadLastPlayed() async {
     final data = await StorageService.getLastPlayed();
     setState(() => _lastPlayed = data);
   }
@@ -74,7 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
               title: Text(song.title ?? '', style: const TextStyle(color: Colors.white)),
               subtitle: Text(song.artist ?? '', style: const TextStyle(color: Colors.white70)),
               onTap: () {
-                // TODO: Implement play song here
+                // TODO: Implement playback
               },
             )),
 
@@ -121,18 +122,31 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
 
             const SizedBox(height: 30),
-            _lastPlayed != null
+
+            /// ✅ Now Playing Card at the bottom
+            _lastPlayed != null && _lastPlayed!['title'] != null
               ? NowPlayingCard(
                   title: _lastPlayed?['title'],
                   artist: _lastPlayed?['channel'],
                   thumbnailUrl: _lastPlayed?['thumbnail'],
                   audioUrl: _lastPlayed?['url'],
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => PlayerScreen(
+                          title: _lastPlayed?['title'] ?? '',
+                          author: _lastPlayed?['channel'] ?? '',
+                          url: _lastPlayed?['url'] ?? '',
+                        ),
+                      ),
+                    );
+                  },
                 )
-              : const Center(
-                  child: Text(
-                    "Nothing is playing",
-                    style: TextStyle(color: Colors.white70),
-                  ),
+              : const Text(
+                  "Nothing is playing",
+                  style: TextStyle(color: Colors.white70),
+                  textAlign: TextAlign.center,
                 ),
           ],
         ),
