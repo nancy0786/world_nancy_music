@@ -30,6 +30,7 @@ final Map<String, WidgetBuilder> appRoutes = {
   '/login': (context) => const LoginScreen(),
   '/register': (context) => const RegisterScreen(),
   '/profile': (context) => const ProfileScreen(),
+  '/appearanceSettings': (context) => const AppearanceSettingsScreen(),
 
   // ✅ Updated route with all required arguments
   '/playlistDetails': (context) {
