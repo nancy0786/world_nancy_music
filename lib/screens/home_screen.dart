@@ -70,13 +70,14 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             const SectionTitle(title: "Recently Played"),
             ..._recentlyPlayed.map((song) => ListTile(
-                  leading: Image.network(song.thumbnailUrl ?? '', width: 50, height: 50, fit: BoxFit.cover),
-                  title: Text(song.title ?? '', style: const TextStyle(color: Colors.white)),
-                  subtitle: Text(song.artist ?? '', style: const TextStyle(color: Colors.white70)),
-                  onTap: () {
-                    // TODO: Play song
-                  },
-                )),
+              leading: Image.network(song.thumbnailUrl ?? '', width: 50, height: 50, fit: BoxFit.cover),
+              title: Text(song.title ?? '', style: const TextStyle(color: Colors.white)),
+              subtitle: Text(song.artist ?? '', style: const TextStyle(color: Colors.white70)),
+              onTap: () {
+                // TODO: Implement play song here
+              },
+            )),
+
             const SizedBox(height: 20),
             const SectionTitle(title: "🔥 Top 20 Weekly"),
             SizedBox(
@@ -96,6 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 }).toList(),
               ),
             ),
+
             const SizedBox(height: 20),
             const SectionTitle(title: "❤️ Romantic Songs"),
             SizedBox(
@@ -117,15 +119,21 @@ class _HomeScreenState extends State<HomeScreen> {
                     .toList(),
               ),
             ),
-            const SizedBox(height: 30),
 
-            /// ✅ Now Playing Card at the bottom
-            NowPlayingCard(
-              title: _lastPlayed?['title'],
-              artist: _lastPlayed?['channel'],
-              thumbnailUrl: _lastPlayed?['thumbnail'],
-              audioUrl: _lastPlayed?['url'],
-            ),
+            const SizedBox(height: 30),
+            _lastPlayed != null
+              ? NowPlayingCard(
+                  title: _lastPlayed?['title'],
+                  artist: _lastPlayed?['channel'],
+                  thumbnailUrl: _lastPlayed?['thumbnail'],
+                  audioUrl: _lastPlayed?['url'],
+                )
+              : const Center(
+                  child: Text(
+                    "Nothing is playing",
+                    style: TextStyle(color: Colors.white70),
+                  ),
+                ),
           ],
         ),
       ),
