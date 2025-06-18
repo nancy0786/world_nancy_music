@@ -94,6 +94,10 @@ class _NancyMusicWorldAppState extends State<NancyMusicWorldApp> {
             '/playlist': (context) => const PlaylistScreen(),
             '/library': (context) => const LibraryScreen(),
             '/search': (context) => const SearchScreen(),
+            '/createPlaylist': (context) => const CreatePlaylistScreen(),
+            '/favorites': (context) => const FavoritesScreen(),
+            '/playlist': (context) => const PlaylistScreen(),
+            '/profile': (context) => const ProfileScreen(),
           },
           onGenerateRoute: onGenerateRoute,
         );
