@@ -2,101 +2,109 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:world_music_nancy/components/base_screen.dart';
 import 'package:world_music_nancy/components/custom_app_bar.dart';
+import 'package:world_music_nancy/screens/settings_screen.dart';
+import 'package:world_music_nancy/widgets/settings_tile.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  _ProfileScreenState createState() => _ProfileScreenState();
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  String name = '';
-  String email = '';
-  String bio = '';
-  String avatarPath = '';
-  bool editingName = false;
-  bool editingBio = false;
+  late TextEditingController _usernameController;
+  late TextEditingController _bioController;
+  late TextEditingController _emailController;
 
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController bioController = TextEditingController();
+  bool _editingName = false;
+  bool _editingBio = false;
 
-  final List<String> avatarOptions = [
-    'assets/avatars/avatar1.png',
-    'assets/avatars/avatar2.png',
-    'assets/avatars/avatar3.png',
-    'assets/avatars/avatar4.png',
-  ];
+  String greeting = '';
+  String? selectedAvatar;
 
   @override
   void initState() {
     super.initState();
-    loadProfile();
+    _usernameController = TextEditingController();
+    _bioController = TextEditingController();
+    _emailController = TextEditingController();
+    _loadProfile();
+    _setGreeting();
   }
 
-  Future<void> loadProfile() async {
+  void _setGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) {
+      greeting = 'Good Morning ☀️';
+    } else if (hour < 18) {
+      greeting = 'Good Afternoon 🌞';
+    } else {
+      greeting = 'Good Evening 🌙';
+    }
+  }
+
+  Future<void> _loadProfile() async {
     final prefs = await SharedPreferences.getInstance();
+    _usernameController.text = prefs.getString('username') ?? '';
+    _emailController.text = prefs.getString('email') ?? '';
+    _bioController.text = prefs.getString('bio') ?? '';
+    selectedAvatar = prefs.getString('avatar');
+    setState(() {});
+  }
+
+  Future<void> _saveProfile() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (_usernameController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Name cannot be empty.")),
+      );
+      return;
+    }
+    await prefs.setString('username', _usernameController.text.trim());
+    await prefs.setString('bio', _bioController.text.trim());
+    await prefs.setString('email', _emailController.text.trim());
+    if (selectedAvatar != null) {
+      await prefs.setString('avatar', selectedAvatar!);
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('✅ Profile Saved!')),
+    );
     setState(() {
-      name = prefs.getString('username') ?? '';
-      email = prefs.getString('email') ?? 'nancy@example.com';
-      bio = prefs.getString('bio') ?? '';
-      avatarPath = prefs.getString('avatar') ?? '';
-      nameController.text = name;
-      bioController.text = bio;
+      _editingName = false;
+      _editingBio = false;
     });
   }
 
-  Future<void> saveProfile() async {
-    final prefs = await SharedPreferences.getInstance();
-    if (nameController.text.trim().isNotEmpty) {
-      await prefs.setString('username', nameController.text.trim());
-      setState(() => name = nameController.text.trim());
-    }
-    await prefs.setString('bio', bioController.text.trim());
-    setState(() => bio = bioController.text.trim());
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('✅ Profile updated!')),
-    );
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _bioController.dispose();
+    _emailController.dispose();
+    super.dispose();
   }
 
-  Future<void> saveAvatar(String path) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('avatar', path);
-    setState(() => avatarPath = path);
-  }
-
-  String getGreeting() {
-    final hour = DateTime.now().hour;
-    if (hour < 12) return 'Good Morning';
-    if (hour < 17) return 'Good Afternoon';
-    if (hour < 20) return 'Good Evening';
-    return 'Good Night';
-  }
-
-  void showAvatarPicker() {
+  void _chooseAvatar() {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.black87,
       builder: (_) {
         return GridView.count(
-          crossAxisCount: 3,
-          padding: const EdgeInsets.all(16),
-          children: avatarOptions.map((avatar) {
+          crossAxisCount: 4,
+          padding: const EdgeInsets.all(12),
+          children: List.generate(8, (index) {
+            final avatar = 'assets/avatars/avatar${index + 1}.png';
             return GestureDetector(
               onTap: () {
-                saveAvatar(avatar);
+                setState(() => selectedAvatar = avatar);
                 Navigator.pop(context);
               },
-              child: Padding(
-                padding: const EdgeInsets.all(8),
-                child: CircleAvatar(
-                  radius: 40,
-                  backgroundImage: AssetImage(avatar),
-                ),
+              child: CircleAvatar(
+                backgroundImage: AssetImage(avatar),
+                radius: 30,
               ),
             );
-          }).toList(),
+          }),
         );
       },
     );
@@ -107,140 +115,114 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return BaseScreen(
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        appBar: const CustomAppBar(title: 'Profile'),
+        appBar: const CustomAppBar(title: 'Your Profile'),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              /// Avatar
-              Stack(
-                children: [
-                  CircleAvatar(
-                    radius: 45,
-                    backgroundImage: avatarPath.isNotEmpty
-                        ? AssetImage(avatarPath)
-                        : const AssetImage('assets/avatars/avatar1.png'),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: IconButton(
-                      icon: const Icon(Icons.edit, color: Colors.pinkAccent),
-                      onPressed: showAvatarPicker,
-                    ),
-                  ),
-                ],
+              const SizedBox(height: 20),
+              CircleAvatar(
+                radius: 45,
+                backgroundImage: selectedAvatar != null
+                    ? AssetImage(selectedAvatar!)
+                    : const AssetImage('assets/avatars/default.png'),
+                backgroundColor: Colors.grey[800],
               ),
-
+              TextButton(
+                onPressed: _chooseAvatar,
+                child: const Text(
+                  'Choose Avatar',
+                  style: TextStyle(color: Colors.cyanAccent),
+                ),
+              ),
               const SizedBox(height: 10),
               Text(
-                '${getGreeting()}, ${name.isNotEmpty ? name : "User"}',
+                greeting,
                 style: const TextStyle(
                   fontSize: 16,
-                  color: Color(0xFF00FFFF),
+                  color: Colors.cyanAccent,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-
-              const SizedBox(height: 30),
-
-              /// Name
-              Row(
-                children: [
-                  Expanded(
-                    child: editingName
-                        ? TextField(
-                            controller: nameController,
-                            style: const TextStyle(color: Colors.white),
-                            decoration: const InputDecoration(
-                              hintText: 'Enter your name',
-                              hintStyle: TextStyle(color: Colors.white38),
-                              enabledBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(color: Colors.white24),
-                              ),
-                            ),
-                          )
-                        : Text(
-                            name.isNotEmpty ? name : 'No name set',
-                            style: const TextStyle(fontSize: 15, color: Colors.white),
-                          ),
-                  ),
-                  IconButton(
-                    icon: Icon(editingName ? Icons.check : Icons.edit, color: Colors.pinkAccent),
-                    onPressed: () {
-                      if (editingName && nameController.text.trim().isNotEmpty) {
-                        saveProfile();
-                      }
-                      setState(() => editingName = !editingName);
-                    },
-                  ),
-                ],
-              ),
-
               const SizedBox(height: 10),
-
-              /// Email
               Row(
-                children: [
-                  const Icon(Icons.email, size: 16, color: Colors.cyanAccent),
-                  const SizedBox(width: 8),
-                  Text(
-                    email,
-                    style: const TextStyle(fontSize: 13, color: Colors.white70),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 20),
-
-              /// Bio
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
-                    child: editingBio
-                        ? TextField(
-                            controller: bioController,
-                            style: const TextStyle(color: Colors.white),
-                            maxLines: 2,
-                            decoration: const InputDecoration(
-                              hintText: 'Add something cool (optional)',
-                              hintStyle: TextStyle(color: Colors.white54),
-                              enabledBorder: OutlineInputBorder(
-                                borderSide: BorderSide(color: Colors.white24),
-                              ),
-                            ),
-                          )
-                        : Text(
-                            bio.isNotEmpty ? bio : 'No bio added',
-                            style: const TextStyle(fontSize: 13, color: Colors.white70),
-                          ),
+                    child: TextField(
+                      controller: _usernameController,
+                      enabled: _editingName,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: const InputDecoration(
+                        labelText: 'Name',
+                        labelStyle: TextStyle(color: Colors.white70),
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white24),
+                        ),
+                      ),
+                    ),
                   ),
                   IconButton(
-                    icon: Icon(editingBio ? Icons.check : Icons.edit, color: Colors.pinkAccent),
+                    icon: const Icon(Icons.edit, color: Colors.white54),
                     onPressed: () {
-                      if (editingBio) saveProfile();
-                      setState(() => editingBio = !editingBio);
+                      setState(() => _editingName = !_editingName);
                     },
                   ),
                 ],
               ),
-
-              const SizedBox(height: 30),
-
-              /// Settings Button
-              ElevatedButton.icon(
+              const SizedBox(height: 10),
+              TextField(
+                controller: _emailController,
+                enabled: false,
+                style: const TextStyle(color: Colors.white54),
+                decoration: const InputDecoration(
+                  labelText: 'Email ID',
+                  labelStyle: TextStyle(color: Colors.white38),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _bioController,
+                      maxLines: 2,
+                      enabled: _editingBio,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: const InputDecoration(
+                        labelText: 'Bio (optional)',
+                        labelStyle: TextStyle(color: Colors.white70),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white24),
+                        ),
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.edit, color: Colors.white54),
+                    onPressed: () {
+                      setState(() => _editingBio = !_editingBio);
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _saveProfile,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.pinkAccent,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
                 ),
-                icon: const Icon(Icons.settings, color: Colors.black),
-                label: const Text(
-                  'Open Settings',
-                  style: TextStyle(color: Colors.black),
-                ),
-                onPressed: () {
-                  // TODO: Implement settings navigation
+                child: const Text('Save Changes'),
+              ),
+              const SizedBox(height: 30),
+              SettingsTile(
+                icon: Icons.settings,
+                title: 'Open Settings',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                  );
                 },
               ),
             ],
