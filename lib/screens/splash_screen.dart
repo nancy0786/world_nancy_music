@@ -1,9 +1,8 @@
 import 'package:world_music_nancy/widgets/neon_aware_container.dart';
-import 'package:world_music_nancy/widgets/neon_aware_container.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:lottie/lottie.dart';
-import 'package:world_music_nancy/screens/home_page_with_nav.dart'; // ✅ Correct file
+import 'package:world_music_nancy/screens/home_page_with_nav.dart';
 import 'package:world_music_nancy/components/base_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -19,7 +18,7 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
     Timer(const Duration(seconds: 4), () {
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const HomePageWithNav()), // ✅ FIXED HERE
+        MaterialPageRoute(builder: (_) => const HomePageWithNav()),
       );
     });
   }
@@ -32,7 +31,10 @@ class _SplashScreenState extends State<SplashScreen> {
         body: Stack(
           fit: StackFit.expand,
           children: [
-            NeonAwareContainer(color: Colors.black.withOpacity(0.5)),
+            NeonAwareContainer(
+              color: Colors.black.withOpacity(0.5),
+              child: const SizedBox(), // ✅ added required child
+            ),
             Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
