@@ -142,7 +142,7 @@ class _PlayerControlsState extends State<PlayerControls> {
         ),
         const SizedBox(height: 10),
         NeonAwareButton(
-          onPressed: () {
+          onTap: () {
             showModalBottomSheet(
               context: context,
               backgroundColor: Colors.black87,
