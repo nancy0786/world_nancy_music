@@ -1,3 +1,4 @@
+import 'package:world_music_nancy/widgets/neon_aware_button.dart';
 
 import 'package:flutter/material.dart';
 
@@ -15,7 +16,7 @@ class NeonButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton.icon(
+    return NeonAwareButton(
       icon: icon != null
           ? Icon(icon, color: Colors.cyanAccent)
           : const SizedBox.shrink(),
