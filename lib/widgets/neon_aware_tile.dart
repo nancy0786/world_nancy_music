@@ -1,3 +1,4 @@
+import 'package:world_music_nancy/widgets/neon_aware_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:world_music_nancy/providers/preferences_provider.dart';
@@ -22,7 +23,7 @@ class NeonAwareTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final isFuturistic = Provider.of<PreferencesProvider>(context).isFuturistic;
 
-    return ListTile(
+    return NeonAwareTile(
       onTap: onTap,
       leading: leading,
       trailing: trailing,

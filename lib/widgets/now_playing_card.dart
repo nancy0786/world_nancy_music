@@ -1,5 +1,7 @@
 import 'package:world_music_nancy/widgets/neon_aware_tile.dart';
 import 'package:world_music_nancy/widgets/neon_aware_card.dart';
+import 'package:world_music_nancy/widgets/neon_aware_tile.dart';
+import 'package:world_music_nancy/widgets/neon_aware_card.dart';
 import 'package:flutter/material.dart';
 
 class NowPlayingCard extends StatelessWidget {
