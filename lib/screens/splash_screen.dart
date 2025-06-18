@@ -1,3 +1,4 @@
+import 'package:world_music_nancy/widgets/neon_aware_container.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:lottie/lottie.dart';
@@ -30,7 +31,7 @@ class _SplashScreenState extends State<SplashScreen> {
         body: Stack(
           fit: StackFit.expand,
           children: [
-            Container(color: Colors.black.withOpacity(0.5)),
+            NeonAwareContainer(color: Colors.black.withOpacity(0.5)),
             Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,

@@ -1,3 +1,4 @@
+import 'package:world_music_nancy/widgets/neon_aware_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:world_music_nancy/components/base_screen.dart';
 import 'package:world_music_nancy/services/queue_service.dart';
@@ -23,7 +24,7 @@ class HistoryScreen extends StatelessWidget {
               itemCount: history.length,
               itemBuilder: (context, index) {
                 final song = history[index];
-                return ListTile(
+                return NeonAwareTile(
                   leading: Image.network(song['thumb'] ?? ''),
                   title: Text(song['title'] ?? 'Unknown Title'),
                   subtitle: Text(song['artist'] ?? ''),

@@ -1,3 +1,4 @@
+import 'package:world_music_nancy/widgets/neon_aware_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:world_music_nancy/models/playlist.dart';
 
@@ -15,7 +16,7 @@ class PlaylistTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
+    return NeonAwareTile(
       leading: const Icon(Icons.queue_music, color: Colors.pinkAccent),
       title: Text(
         playlist.title,

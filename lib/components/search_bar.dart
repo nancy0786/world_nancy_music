@@ -1,3 +1,4 @@
+import 'package:world_music_nancy/widgets/neon_aware_container.dart';
 
 import 'package:flutter/material.dart';
 
@@ -13,7 +14,7 @@ class SearchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return NeonAwareContainer(
       margin: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.grey[900],

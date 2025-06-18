@@ -1,3 +1,4 @@
+import 'package:world_music_nancy/widgets/neon_aware_container.dart';
 import 'package:flutter/material.dart';
 
 class PlaylistCard extends StatelessWidget {
@@ -25,7 +26,7 @@ class PlaylistCard extends StatelessWidget {
               width: 160,
               height: 160,
               fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => Container(
+              errorBuilder: (context, error, stackTrace) => NeonAwareContainer(
                 width: 160,
                 height: 160,
                 color: Colors.grey[800],
@@ -33,7 +34,7 @@ class PlaylistCard extends StatelessWidget {
               ),
               loadingBuilder: (context, child, loadingProgress) {
                 if (loadingProgress == null) return child;
-                return Container(
+                return NeonAwareContainer(
                   width: 160,
                   height: 160,
                   alignment: Alignment.center,
@@ -44,7 +45,7 @@ class PlaylistCard extends StatelessWidget {
                 );
               },
             ),
-            Container(
+            NeonAwareContainer(
               width: 160,
               height: 160,
               decoration: BoxDecoration(

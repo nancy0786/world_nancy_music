@@ -1,3 +1,4 @@
+import 'package:world_music_nancy/widgets/neon_aware_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:world_music_nancy/components/base_screen.dart';
@@ -148,7 +149,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   duration: const Duration(milliseconds: 300),
                   child: Column(
                     key: ValueKey(_suggestions.length),
-                    children: _suggestions.map((s) => ListTile(
+                    children: _suggestions.map((s) => NeonAwareTile(
                       title: Text(s, style: const TextStyle(color: Colors.white)),
                       leading: const Icon(Icons.search, color: Colors.cyanAccent),
                       onTap: () {
@@ -182,7 +183,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         itemCount: _history.length,
                         itemBuilder: (_, index) {
                           final item = _history[index];
-                          return ListTile(
+                          return NeonAwareTile(
                             title: Text(item, style: const TextStyle(color: Colors.white)),
                             leading: const Icon(Icons.history, color: Colors.cyan),
                             trailing: IconButton(
@@ -213,7 +214,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   itemCount: _results.length,
                   itemBuilder: (context, index) {
                     final video = _results[index];
-                    return ListTile(
+                    return NeonAwareTile(
                       leading: Image.network(
                         video['thumbnail'] ?? '',
                         width: 60,

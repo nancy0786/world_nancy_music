@@ -1,3 +1,4 @@
+import 'package:world_music_nancy/widgets/neon_aware_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:world_music_nancy/models/song_model.dart';
 
@@ -13,7 +14,7 @@ class HistoryTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
+    return NeonAwareTile(
       leading: song.thumbnailUrl != null && song.thumbnailUrl!.isNotEmpty
           ? Image.network(
               song.thumbnailUrl!,

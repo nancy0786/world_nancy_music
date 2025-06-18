@@ -1,3 +1,4 @@
+import 'package:world_music_nancy/widgets/neon_aware_container.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -25,7 +26,7 @@ class _CategorySelectorState extends State<CategorySelector> {
       children: categories.map((cat) {
         return GestureDetector(
           onTap: () => _saveSelection(cat),
-          child: Container(
+          child: NeonAwareContainer(
             margin: const EdgeInsets.symmetric(horizontal: 10),
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
             decoration: BoxDecoration(

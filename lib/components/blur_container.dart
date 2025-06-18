@@ -1,3 +1,4 @@
+import 'package:world_music_nancy/widgets/neon_aware_container.dart';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 
@@ -23,7 +24,7 @@ class BlurContainer extends StatelessWidget {
       borderRadius: BorderRadius.circular(borderRadius),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
-        child: Container(
+        child: NeonAwareContainer(
           padding: padding,
           decoration: BoxDecoration(
             color: backgroundColor.withOpacity(0.4),

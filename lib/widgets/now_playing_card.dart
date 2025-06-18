@@ -1,3 +1,5 @@
+import 'package:world_music_nancy/widgets/neon_aware_tile.dart';
+import 'package:world_music_nancy/widgets/neon_aware_card.dart';
 import 'package:flutter/material.dart';
 
 class NowPlayingCard extends StatelessWidget {
@@ -24,11 +26,11 @@ class NowPlayingCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: Card(
+      child: NeonAwareCard(
         color: Colors.black.withOpacity(0.7),
         margin: const EdgeInsets.only(bottom: 12),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: ListTile(
+        child: NeonAwareTile(
           leading: thumbnailUrl != null && thumbnailUrl!.isNotEmpty
               ? Image.network(thumbnailUrl!, width: 50, height: 50, fit: BoxFit.cover)
               : const Icon(Icons.music_note, color: Colors.white),

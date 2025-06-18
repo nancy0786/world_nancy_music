@@ -1,3 +1,5 @@
+import 'package:world_music_nancy/widgets/neon_aware_tile.dart';
+import 'package:world_music_nancy/widgets/neon_aware_card.dart';
 
 import 'package:flutter/material.dart';
 
@@ -17,7 +19,7 @@ class CyberpunkCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return NeonAwareCard(
       color: Colors.black,
       shape: RoundedRectangleBorder(
         side: const BorderSide(color: Colors.deepPurpleAccent, width: 2),
@@ -25,7 +27,7 @@ class CyberpunkCard extends StatelessWidget {
       ),
       elevation: 8,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: ListTile(
+      child: NeonAwareTile(
         leading: Icon(
           icon,
           color: Colors.deepPurpleAccent,

@@ -1,3 +1,4 @@
+import 'package:world_music_nancy/widgets/neon_aware_container.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -128,7 +129,7 @@ class _SavedPlaylistsScreenState extends State<SavedPlaylistsScreen> {
                                       File(playlist['imagePath']!),
                                       fit: BoxFit.cover,
                                     )
-                                  : Container(
+                                  : NeonAwareContainer(
                                       color: Colors.grey[800],
                                       child: const Icon(Icons.music_note, color: Colors.white70, size: 40),
                                     ),

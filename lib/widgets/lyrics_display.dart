@@ -1,3 +1,4 @@
+import 'package:world_music_nancy/widgets/neon_aware_container.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -43,7 +44,7 @@ class _LyricsDisplayState extends State<LyricsDisplay> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return NeonAwareContainer(
       height: 180,
       padding: const EdgeInsets.all(16),
       child: ListView.builder(

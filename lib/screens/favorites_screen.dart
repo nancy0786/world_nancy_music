@@ -1,3 +1,5 @@
+import 'package:world_music_nancy/widgets/neon_aware_tile.dart';
+import 'package:world_music_nancy/widgets/neon_aware_container.dart';
 import 'package:flutter/material.dart';
 import 'package:world_music_nancy/components/base_screen.dart';
 import 'package:world_music_nancy/services/storage_service.dart';
@@ -78,14 +80,14 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                   return Dismissible(
                     key: Key(song['id'] ?? '$index'),
                     direction: DismissDirection.endToStart,
-                    background: Container(
+                    background: NeonAwareContainer(
                       padding: const EdgeInsets.only(right: 20),
                       alignment: Alignment.centerRight,
                       color: Colors.redAccent,
                       child: const Icon(Icons.delete, color: Colors.white, size: 28),
                     ),
                     onDismissed: (_) => _removeFavorite(index),
-                    child: ListTile(
+                    child: NeonAwareTile(
                       contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                       leading: YouTubeThumbnail(videoId: song['id'] ?? ''),
                       title: Text(

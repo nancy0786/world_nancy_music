@@ -1,3 +1,4 @@
+import 'package:world_music_nancy/widgets/neon_aware_tile.dart';
 
 import 'package:flutter/material.dart';
 
@@ -15,7 +16,7 @@ class SettingsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
+    return NeonAwareTile(
       leading: Icon(icon, color: Colors.cyanAccent),
       title: Text(
         title,

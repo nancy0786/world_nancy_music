@@ -1,3 +1,4 @@
+import 'package:world_music_nancy/widgets/neon_aware_container.dart';
 
 import 'package:flutter/material.dart';
 
@@ -34,7 +35,7 @@ class YouTubeThumbnailWrapper extends StatelessWidget {
               fit: BoxFit.cover,
               loadingBuilder: (context, child, loadingProgress) {
                 if (loadingProgress == null) return child;
-                return Container(
+                return NeonAwareContainer(
                   width: width,
                   height: height,
                   color: Colors.black12,
@@ -46,7 +47,7 @@ class YouTubeThumbnailWrapper extends StatelessWidget {
                 );
               },
               errorBuilder: (context, error, stackTrace) {
-                return Container(
+                return NeonAwareContainer(
                   width: width,
                   height: height,
                   color: Colors.grey[900],

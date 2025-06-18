@@ -1,3 +1,4 @@
+import 'package:world_music_nancy/widgets/neon_aware_tile.dart';
 import 'package:flutter/material.dart';
 
 class SongTile extends StatelessWidget {
@@ -16,7 +17,7 @@ class SongTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
+    return NeonAwareTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       tileColor: Colors.grey[900],
       shape: RoundedRectangleBorder(

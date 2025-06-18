@@ -1,3 +1,4 @@
+import 'package:world_music_nancy/widgets/neon_aware_tile.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
@@ -44,7 +45,7 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
               itemCount: songs.length,
               itemBuilder: (context, index) {
                 final song = songs[index];
-                return ListTile(
+                return NeonAwareTile(
                   leading: song['thumb'] != null
                       ? Image.network(song['thumb'], width: 50, height: 50, fit: BoxFit.cover)
                       : const Icon(Icons.music_note, color: Colors.white),

@@ -1,3 +1,4 @@
+import 'package:world_music_nancy/widgets/neon_aware_container.dart';
 import 'package:flutter/material.dart';
 import '../widgets/background_manager.dart';
 
@@ -12,7 +13,7 @@ class AnimatedBackground extends StatelessWidget {
       children: [
         const BackgroundManager(),
         Positioned.fill(
-          child: Container(
+          child: NeonAwareContainer(
             color: Colors.black.withOpacity(0.6),
           ),
         ),

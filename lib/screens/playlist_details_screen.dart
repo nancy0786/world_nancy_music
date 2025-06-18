@@ -1,3 +1,4 @@
+import 'package:world_music_nancy/widgets/neon_aware_container.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:world_music_nancy/components/base_screen.dart';
@@ -33,7 +34,7 @@ class PlaylistDetailsScreen extends StatelessWidget {
                   child: Image.file(File(imagePath), height: 200, fit: BoxFit.cover),
                 )
               else
-                Container(
+                NeonAwareContainer(
                   height: 200,
                   color: Colors.grey[800],
                   alignment: Alignment.center,

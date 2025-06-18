@@ -1,3 +1,4 @@
+import 'package:world_music_nancy/widgets/neon_aware_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:world_music_nancy/components/base_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -17,7 +18,7 @@ class SettingsScreen extends StatelessWidget {
         ),
         body: ListView(
           children: [
-            ListTile(
+            NeonAwareTile(
               title: const Text("Theme"),
               subtitle: const Text("Switch between neon, dark and light"),
               trailing: Icon(Icons.color_lens),
@@ -25,14 +26,14 @@ class SettingsScreen extends StatelessWidget {
                 // Handle theme switching
               },
             ),
-            ListTile(
+            NeonAwareTile(
               title: const Text("Clear Cache"),
               trailing: Icon(Icons.delete),
               onTap: () {
                 // Clear cache functionality
               },
             ),
-            ListTile(
+            NeonAwareTile(
               title: const Text("App Info"),
               trailing: Icon(Icons.info_outline),
               onTap: () {

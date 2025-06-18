@@ -1,3 +1,4 @@
+import 'package:world_music_nancy/widgets/neon_aware_container.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -99,7 +100,7 @@ class _BackgroundManagerState extends State<BackgroundManager> {
               errorBuilder: (_, __, ___) => const ColoredBox(color: Colors.black),
             ),
 
-          Container(color: Colors.black.withOpacity(0.4)),
+          NeonAwareContainer(color: Colors.black.withOpacity(0.4)),
         ],
       ),
     );

@@ -1,3 +1,4 @@
+import 'package:world_music_nancy/widgets/neon_aware_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -40,7 +41,7 @@ class CustomDrawer extends StatelessWidget {
               ),
             ),
           ),
-          ListTile(
+          NeonAwareTile(
             leading: const Icon(Icons.brightness_6, color: Colors.cyanAccent),
             title: const Text(
               'Toggle Theme',
@@ -48,7 +49,7 @@ class CustomDrawer extends StatelessWidget {
             ),
             onTap: onThemeToggle,
           ),
-          ListTile(
+          NeonAwareTile(
             leading: const Icon(Icons.info_outline, color: Colors.tealAccent),
             title: const Text(
               'About App',

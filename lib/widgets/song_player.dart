@@ -1,3 +1,4 @@
+import 'package:world_music_nancy/widgets/neon_aware_container.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 
@@ -27,7 +28,7 @@ class SongPlayer extends StatelessWidget {
             height: 200,
             width: 200,
             fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => Container(
+            errorBuilder: (_, __, ___) => NeonAwareContainer(
               height: 200,
               width: 200,
               color: Colors.grey[800],

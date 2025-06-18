@@ -1,3 +1,4 @@
+import 'package:world_music_nancy/widgets/neon_aware_tile.dart';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -39,28 +40,28 @@ class CustomDrawer extends StatelessWidget {
               color: Colors.deepPurple,
             ),
           ),
-          ListTile(
+          NeonAwareTile(
             leading: const Icon(Icons.home, color: Colors.white),
             title: const Text('Home', style: TextStyle(color: Colors.white)),
             onTap: () => Navigator.pushNamed(context, '/'),
           ),
-          ListTile(
+          NeonAwareTile(
             leading: const Icon(Icons.library_music, color: Colors.white),
             title: const Text('Library', style: TextStyle(color: Colors.white)),
             onTap: () => Navigator.pushNamed(context, '/library'),
           ),
-          ListTile(
+          NeonAwareTile(
             leading: const Icon(Icons.download, color: Colors.white),
             title: const Text('Downloads', style: TextStyle(color: Colors.white)),
             onTap: () => Navigator.pushNamed(context, '/downloads'),
           ),
-          ListTile(
+          NeonAwareTile(
             leading: const Icon(Icons.color_lens, color: Colors.white),
             title: const Text('Toggle Theme', style: TextStyle(color: Colors.white)),
             onTap: () => themeProvider.toggleTheme(),
           ),
           if (isLoggedIn)
-            ListTile(
+            NeonAwareTile(
               leading: const Icon(Icons.logout, color: Colors.white),
               title: const Text('Logout', style: TextStyle(color: Colors.white)),
               onTap: () {

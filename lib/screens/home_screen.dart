@@ -1,3 +1,4 @@
+import 'package:world_music_nancy/widgets/neon_aware_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:world_music_nancy/widgets/section_title.dart';
 import 'package:world_music_nancy/widgets/playlist_card.dart';
@@ -69,7 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: const EdgeInsets.all(16),
           children: [
             const SectionTitle(title: "Recently Played"),
-            ..._recentlyPlayed.map((song) => ListTile(
+            ..._recentlyPlayed.map((song) => NeonAwareTile(
               leading: Image.network(song.thumbnailUrl ?? '', width: 50, height: 50, fit: BoxFit.cover),
               title: Text(song.title ?? '', style: const TextStyle(color: Colors.white)),
               subtitle: Text(song.artist ?? '', style: const TextStyle(color: Colors.white70)),

@@ -1,3 +1,5 @@
+import 'package:world_music_nancy/widgets/neon_aware_tile.dart';
+import 'package:world_music_nancy/widgets/neon_aware_container.dart';
 import 'package:flutter/material.dart';
 
 class QueueSheet extends StatelessWidget {
@@ -19,7 +21,7 @@ class QueueSheet extends StatelessWidget {
       minChildSize: 0.3,
       maxChildSize: 0.9,
       builder: (context, scrollController) {
-        return Container(
+        return NeonAwareContainer(
           decoration: BoxDecoration(
             color: Colors.black.withOpacity(0.9),
             borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
@@ -31,7 +33,7 @@ class QueueSheet extends StatelessWidget {
               final song = queue[index];
               final isCurrent = index == currentIndex;
 
-              return ListTile(
+              return NeonAwareTile(
                 title: Text(
                   song['title'] ?? 'Unknown',
                   style: TextStyle(
