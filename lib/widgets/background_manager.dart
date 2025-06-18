@@ -12,42 +12,44 @@ class BackgroundManager extends StatefulWidget {
 }
 
 class _BackgroundManagerState extends State<BackgroundManager> {
-  late String _selectedBackground;
+  String? _selectedBackground;
   VideoPlayerController? _videoController;
 
   @override
   void initState() {
     super.initState();
-    _initializeBackground();
-  }
-
-  void _initializeBackground() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = Provider.of<PreferencesProvider>(context, listen: false);
-      final String category = provider.backgroundCategory;
-
-      final List<String> selectedList = _getBackgroundList(category);
-
-      _selectedBackground = selectedList[Random().nextInt(selectedList.length)];
-
-      if (_selectedBackground.endsWith('.mp4')) {
-        _videoController = VideoPlayerController.asset(_selectedBackground)
-          ..setLooping(true)
-          ..initialize().then((_) {
-            if (mounted) {
-              _videoController!.play();
-              setState(() {});
-            }
-          }).catchError((e) {
-            debugPrint('Video load error: $e');
-          });
-      } else {
-        setState(() {});
-      }
+      _loadBackground();
     });
   }
 
-  List<String> _getBackgroundList(String category) {
+  void _loadBackground() async {
+    final provider = Provider.of<PreferencesProvider>(context, listen: false);
+    final category = provider.backgroundCategory;
+
+    final backgrounds = _getCategoryBackgrounds(category);
+    final selected = backgrounds[Random().nextInt(backgrounds.length)];
+
+    if (selected.endsWith('.mp4')) {
+      final controller = VideoPlayerController.asset(selected);
+      await controller.initialize().catchError((e) {
+        debugPrint("Video init error: $e");
+      });
+      controller.setLooping(true);
+      controller.play();
+
+      setState(() {
+        _selectedBackground = selected;
+        _videoController = controller;
+      });
+    } else {
+      setState(() {
+        _selectedBackground = selected;
+      });
+    }
+  }
+
+  List<String> _getCategoryBackgrounds(String category) {
     switch (category) {
       case 'cyberpunk':
         return [
@@ -58,6 +60,8 @@ class _BackgroundManagerState extends State<BackgroundManager> {
         return [
           for (int i = 1; i <= 26; i++) 'assets/backgrounds/nature/nature$i.mp4',
         ];
+      case 'dark':
+        return ['assets/backgrounds/dark.jpg'];
       case 'girls':
       default:
         return [
@@ -75,20 +79,26 @@ class _BackgroundManagerState extends State<BackgroundManager> {
 
   @override
   Widget build(BuildContext context) {
-    final isVideo = _selectedBackground.endsWith('.mp4');
+    final isVideo = _selectedBackground?.endsWith('.mp4') ?? false;
 
     return Positioned.fill(
       child: Stack(
         children: [
-          isVideo
-              ? (_videoController != null && _videoController!.value.isInitialized)
-                  ? VideoPlayer(_videoController!)
-                  : const SizedBox()
-              : Image.asset(
-                  _selectedBackground,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => const ColoredBox(color: Colors.black),
-                ),
+          if (_selectedBackground == null)
+            const ColoredBox(color: Colors.black)
+
+          else if (isVideo)
+            (_videoController != null && _videoController!.value.isInitialized)
+                ? VideoPlayer(_videoController!)
+                : const ColoredBox(color: Colors.black)
+
+          else
+            Image.asset(
+              _selectedBackground!,
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => const ColoredBox(color: Colors.black),
+            ),
+
           Container(color: Colors.black.withOpacity(0.4)),
         ],
       ),
