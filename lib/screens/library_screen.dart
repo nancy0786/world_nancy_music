@@ -9,6 +9,7 @@ import 'package:world_music_nancy/components/custom_app_bar.dart';
 import 'package:world_music_nancy/utils/neon_themes.dart';
 import 'package:world_music_nancy/models/song_model.dart';
 import 'package:world_music_nancy/widgets/playlist_card.dart';
+import 'package:world_music_nancy/widgets/neon_aware_button.dart';
 
 class LibraryScreen extends StatelessWidget {
   const LibraryScreen({super.key});
@@ -41,7 +42,7 @@ class LibraryScreen extends StatelessWidget {
 
             /// 🔥 Saved Playlists Section (YouTube style)
             _sectionHeader(context, "Saved Playlists", onViewAll: () {
-              // TODO: Navigate to AllPlaylistsScreen
+              Navigator.pushNamed(context, '/playlist');
             }),
             const SizedBox(height: 10),
             SizedBox(
@@ -72,30 +73,27 @@ class LibraryScreen extends StatelessWidget {
 
             const SizedBox(height: 30),
 
-            _buildNeonButton(
-              context,
+            NeonAwareButton(
               icon: Icons.playlist_add,
-              label: "Create Playlist",
-              onPressed: () {
-                // TODO: Navigate to CreatePlaylistScreen
+              text: "Create Playlist",
+              onTap: () {
+                Navigator.pushNamed(context, '/createPlaylist');
               },
             ),
             const SizedBox(height: 10),
-            _buildNeonButton(
-              context,
+            NeonAwareButton(
               icon: Icons.favorite,
-              label: "Favourite Songs",
-              onPressed: () {
-                // TODO: Navigate to FavoriteSongsScreen
+              text: "Favourite Songs",
+              onTap: () {
+                Navigator.pushNamed(context, '/favorites');
               },
             ),
             const SizedBox(height: 10),
-            _buildNeonButton(
-              context,
+            NeonAwareButton(
               icon: Icons.edit_note_rounded,
-              label: "View / Edit Playlists",
-              onPressed: () {
-                // TODO: Navigate to EditPlaylistsScreen
+              text: "View / Edit Playlists",
+              onTap: () {
+                Navigator.pushNamed(context, '/playlist');
               },
             ),
 
@@ -106,7 +104,7 @@ class LibraryScreen extends StatelessWidget {
               icon: Icons.settings,
               title: 'App Settings',
               onTap: () {
-                // TODO: Implement settings navigation
+                Navigator.pushNamed(context, '/profile'); // change to /settings if needed
               },
             ),
           ],
@@ -134,29 +132,6 @@ class LibraryScreen extends StatelessWidget {
             child: const Text("View All", style: TextStyle(color: Colors.pinkAccent)),
           ),
       ],
-    );
-  }
-
-  Widget _buildNeonButton(
-    BuildContext context, {
-    required IconData icon,
-    required String label,
-    required VoidCallback onPressed,
-  }) {
-    return ElevatedButton.icon(
-      icon: Icon(icon, color: Colors.cyanAccent),
-      label: Text(
-        label,
-        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
-      ),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.black.withOpacity(0.4),
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        shadowColor: Colors.pinkAccent,
-        elevation: 8,
-      ),
-      onPressed: onPressed,
     );
   }
 }
