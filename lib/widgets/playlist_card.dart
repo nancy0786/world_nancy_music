@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 
 class PlaylistCard extends StatelessWidget {
   final String title;
-  final String image;
+  final String imageUrl;
   final VoidCallback onTap;
 
   const PlaylistCard({
     super.key,
     required this.title,
-    required this.image,
+    required this.imageUrl,
     required this.onTap,
   });
 
@@ -20,8 +20,8 @@ class PlaylistCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         child: Stack(
           children: [
-            Image.asset(
-              image,
+            Image.network(
+              imageUrl,
               width: 160,
               height: 160,
               fit: BoxFit.cover,
@@ -31,16 +31,25 @@ class PlaylistCard extends StatelessWidget {
                 color: Colors.grey[800],
                 child: const Icon(Icons.music_note, color: Colors.white70, size: 50),
               ),
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) return child;
+                return Container(
+                  width: 160,
+                  height: 160,
+                  alignment: Alignment.center,
+                  color: Colors.black45,
+                  child: const CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.pinkAccent),
+                  ),
+                );
+              },
             ),
             Container(
               width: 160,
               height: 160,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [
-                    Colors.black.withOpacity(0.6),
-                    Colors.transparent,
-                  ],
+                  colors: [Colors.black.withOpacity(0.6), Colors.transparent],
                   begin: Alignment.bottomCenter,
                   end: Alignment.topCenter,
                 ),
@@ -55,6 +64,9 @@ class PlaylistCard extends StatelessWidget {
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
+                      shadows: const [
+                        Shadow(color: Colors.pinkAccent, blurRadius: 4),
+                      ],
                     ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
