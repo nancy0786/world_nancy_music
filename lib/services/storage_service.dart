@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class StorageService {
-  // 🔁 Already present – unchanged
   static Future<void> saveFavoriteSongs(List<Map<String, String>> songs) async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setString('favorites', jsonEncode(songs));
@@ -47,7 +46,7 @@ class StorageService {
     return prefs.getString('backgroundCategory') ?? 'girls';
   }
 
-  // ✅ NEW: History support
+  // ✅ History
   static Future<void> saveToHistory(Map<String, String> song) async {
     final prefs = await SharedPreferences.getInstance();
     final historyJson = prefs.getStringList('song_history') ?? [];
@@ -61,11 +60,11 @@ class StorageService {
     return historyJson.map((e) => Map<String, String>.from(json.decode(e))).toList();
   }
 
-  // ✅ NEW: Dummy playlists (you can replace with real backend logic later)
+  // ✅ Dummy playlists
   static Future<List<Map<String, dynamic>>> getPlaylists() async {
     return [
       {
-        "title": "🔥 Top 20 Weekly",
+        "name": "🔥 Top 20 Weekly",
         "songs": [
           {
             "title": "Love Dose",
@@ -74,7 +73,7 @@ class StorageService {
         ]
       },
       {
-        "title": "❤️ Romantic",
+        "name": "❤️ Romantic",
         "songs": [
           {
             "title": "Tum Hi Ho",
