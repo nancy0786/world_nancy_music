@@ -30,18 +30,14 @@ final Map<String, WidgetBuilder> appRoutes = {
   '/login': (context) => const LoginScreen(),
   '/register': (context) => const RegisterScreen(),
   '/profile': (context) => const ProfileScreen(),
-};
 
-/// Separate `onGenerateRoute` needed for passing arguments to PlaylistDetailsScreen
-Route<dynamic>? onGenerateRoute(RouteSettings settings) {
-  if (settings.name == '/playlistDetails') {
-    final args = settings.arguments as Map<String, dynamic>;
-    return MaterialPageRoute(
-      builder: (context) => PlaylistDetailsScreen(
-        playlistName: args['playlistName'],
-        imagePath: args['imagePath'],
-      ),
+  // ✅ Updated route with all required arguments
+  '/playlistDetails': (context) {
+    final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    return PlaylistDetailsScreen(
+      playlistName: args['playlistName'] ?? '',
+      imagePath: args['imagePath'] ?? '',
+      visibility: args['visibility'] ?? 'private', // Default fallback if null
     );
-  }
-  return null;
-}
+  },
+};
