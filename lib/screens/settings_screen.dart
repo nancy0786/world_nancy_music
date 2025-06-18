@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:world_music_nancy/providers/preferences_provider.dart';
 import 'package:world_music_nancy/widgets/neon_aware_tile.dart';
+import 'package:world_music_nancy/widgets/option_preview_tile.dart';
 import 'package:world_music_nancy/components/base_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -26,7 +27,7 @@ class SettingsScreen extends StatelessWidget {
               subtitle: const Text("Switch between neon, dark and light"),
               trailing: const Icon(Icons.color_lens),
               onTap: () {
-                // TODO: Implement theme switching if needed
+                // TODO: Implement if needed
               },
             ),
             NeonAwareTile(
@@ -48,56 +49,69 @@ class SettingsScreen extends StatelessWidget {
                 );
               },
             ),
-            const SizedBox(height: 20),
 
-            // UI Style Toggle Section
+            const SizedBox(height: 30),
             const Text(
               '🎨 Interface Style',
               style: TextStyle(color: Colors.cyanAccent, fontSize: 16, fontWeight: FontWeight.bold),
             ),
-            RadioListTile<String>(
-              title: const Text('Futuristic', style: TextStyle(color: Colors.white)),
-              value: 'futuristic',
-              groupValue: prefs.uiStyle,
-              onChanged: (val) => prefs.setUIStyle(val!),
-            ),
-            RadioListTile<String>(
-              title: const Text('Normal', style: TextStyle(color: Colors.white)),
-              value: 'normal',
-              groupValue: prefs.uiStyle,
-              onChanged: (val) => prefs.setUIStyle(val!),
+            const SizedBox(height: 10),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  OptionPreviewTile(
+                    label: "Futuristic",
+                    imagePath: 'assets/previews/futuristic_style.png',
+                    selected: prefs.uiStyle == 'futuristic',
+                    onTap: () => prefs.setUIStyle('futuristic'),
+                  ),
+                  OptionPreviewTile(
+                    label: "Normal",
+                    imagePath: 'assets/previews/normal_style.png',
+                    selected: prefs.uiStyle == 'normal',
+                    onTap: () => prefs.setUIStyle('normal'),
+                  ),
+                ],
+              ),
             ),
 
-            const SizedBox(height: 20),
-
-            // Background Selection
+            const SizedBox(height: 30),
             const Text(
               '🖼️ Background Theme',
               style: TextStyle(color: Colors.cyanAccent, fontSize: 16, fontWeight: FontWeight.bold),
             ),
-            RadioListTile<String>(
-              title: const Text('Girls', style: TextStyle(color: Colors.white)),
-              value: 'girls',
-              groupValue: prefs.backgroundCategory,
-              onChanged: (val) => prefs.setBackgroundCategory(val!),
-            ),
-            RadioListTile<String>(
-              title: const Text('Cyberpunk', style: TextStyle(color: Colors.white)),
-              value: 'cyberpunk',
-              groupValue: prefs.backgroundCategory,
-              onChanged: (val) => prefs.setBackgroundCategory(val!),
-            ),
-            RadioListTile<String>(
-              title: const Text('Nature', style: TextStyle(color: Colors.white)),
-              value: 'nature',
-              groupValue: prefs.backgroundCategory,
-              onChanged: (val) => prefs.setBackgroundCategory(val!),
-            ),
-            RadioListTile<String>(
-              title: const Text('Dark', style: TextStyle(color: Colors.white)),
-              value: 'dark',
-              groupValue: prefs.backgroundCategory,
-              onChanged: (val) => prefs.setBackgroundCategory(val!),
+            const SizedBox(height: 10),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  OptionPreviewTile(
+                    label: "Girls",
+                    imagePath: 'assets/previews/girls_preview.jpg',
+                    selected: prefs.backgroundCategory == 'girls',
+                    onTap: () => prefs.setBackgroundCategory('girls'),
+                  ),
+                  OptionPreviewTile(
+                    label: "Cyberpunk",
+                    imagePath: 'assets/previews/cyberpunk_preview.jpg',
+                    selected: prefs.backgroundCategory == 'cyberpunk',
+                    onTap: () => prefs.setBackgroundCategory('cyberpunk'),
+                  ),
+                  OptionPreviewTile(
+                    label: "Nature",
+                    imagePath: 'assets/previews/nature_preview.jpg',
+                    selected: prefs.backgroundCategory == 'nature',
+                    onTap: () => prefs.setBackgroundCategory('nature'),
+                  ),
+                  OptionPreviewTile(
+                    label: "Dark",
+                    imagePath: 'assets/previews/dark_preview.jpg',
+                    selected: prefs.backgroundCategory == 'dark',
+                    onTap: () => prefs.setBackgroundCategory('dark'),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
