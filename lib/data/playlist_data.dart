@@ -1,5 +1,3 @@
-// lib/data/playlist_data.dart
-
 import 'package:world_music_nancy/models/playlist.dart';
 import 'package:world_music_nancy/models/song.dart';
 
