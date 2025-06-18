@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:world_music_nancy/components/base_screen.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:world_music_nancy/components/base_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class PlayerScreen extends StatefulWidget {
   final String title;
@@ -21,26 +23,50 @@ class PlayerScreen extends StatefulWidget {
 class _PlayerScreenState extends State<PlayerScreen> {
   late AudioPlayer _player;
   bool _isPlaying = false;
+  bool _isFavorited = false;
+  bool _showHeartAnimation = false;
+  PageController _pageController = PageController();
 
   @override
   void initState() {
     super.initState();
     _player = AudioPlayer();
+    _loadFavoriteStatus();
     _initPlayer();
   }
 
   Future<void> _initPlayer() async {
     try {
       await _player.setUrl(widget.url);
+      await _player.play();
+      setState(() => _isPlaying = true);
     } catch (e) {
-      debugPrint("Failed to load audio: $e");
+      debugPrint("Audio error: $e");
     }
   }
 
-  @override
-  void dispose() {
-    _player.dispose();
-    super.dispose();
+  Future<void> _loadFavoriteStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final favorites = prefs.getStringList('favorites_list') ?? [];
+    setState(() => _isFavorited = favorites.contains(widget.url));
+  }
+
+  Future<void> _toggleFavorite() async {
+    final prefs = await SharedPreferences.getInstance();
+    final favorites = prefs.getStringList('favorites_list') ?? [];
+
+    if (_isFavorited) {
+      favorites.remove(widget.url);
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("❌ Removed from favorites")));
+    } else {
+      favorites.add(widget.url);
+      setState(() => _showHeartAnimation = true);
+      Future.delayed(const Duration(seconds: 1), () => setState(() => _showHeartAnimation = false));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("❤️ Added to favorites")));
+    }
+
+    await prefs.setStringList('favorites_list', favorites);
+    setState(() => _isFavorited = !_isFavorited);
   }
 
   void _togglePlayback() async {
@@ -49,9 +75,14 @@ class _PlayerScreenState extends State<PlayerScreen> {
     } else {
       await _player.play();
     }
-    setState(() {
-      _isPlaying = _player.playing;
-    });
+    setState(() => _isPlaying = _player.playing);
+  }
+
+  @override
+  void dispose() {
+    _player.dispose();
+    _pageController.dispose();
+    super.dispose();
   }
 
   @override
@@ -59,33 +90,90 @@ class _PlayerScreenState extends State<PlayerScreen> {
     return BaseScreen(
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        appBar: AppBar(
-          title: Text(widget.title),
-          backgroundColor: Colors.black,
-        ),
-        body: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+        body: GestureDetector(
+          onVerticalDragEnd: (_) => Navigator.pop(context),
+          child: PageView(
+            controller: _pageController,
+            scrollDirection: Axis.vertical,
             children: [
-              Icon(
-                _isPlaying ? Icons.pause_circle_filled : Icons.play_circle_fill,
-                size: 100,
-                color: Colors.cyanAccent,
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (_showHeartAnimation)
+                    const Icon(Icons.favorite, size: 100, color: Colors.pinkAccent),
+                  Container(
+                    width: 240,
+                    height: 240,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.cyanAccent, width: 2),
+                      boxShadow: [BoxShadow(color: Colors.pinkAccent.withOpacity(0.4), blurRadius: 20)],
+                      image: DecorationImage(
+                        image: NetworkImage("https://img.youtube.com/vi/${widget.url.split("v=").last}/0.jpg"),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                  Text(widget.title,
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.orbitron(
+                        fontSize: 22,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        shadows: [const Shadow(color: Colors.cyanAccent, blurRadius: 6)],
+                      )),
+                  const SizedBox(height: 6),
+                  Text(widget.author,
+                      style: GoogleFonts.orbitron(
+                        fontSize: 14,
+                        color: Colors.white70,
+                        letterSpacing: 1.2,
+                      )),
+                  const SizedBox(height: 30),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.skip_previous, color: Colors.cyanAccent, size: 40),
+                        onPressed: () {}, // Add skip logic
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          _isPlaying ? Icons.pause_circle_filled : Icons.play_circle_fill,
+                          size: 64,
+                          color: Colors.white,
+                        ),
+                        onPressed: _togglePlayback,
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.skip_next, color: Colors.cyanAccent, size: 40),
+                        onPressed: () {}, // Add skip logic
+                      ),
+                      const SizedBox(width: 16),
+                      IconButton(
+                        icon: Icon(
+                          _isFavorited ? Icons.favorite : Icons.favorite_border,
+                          size: 36,
+                          color: _isFavorited ? Colors.pinkAccent : Colors.white70,
+                        ),
+                        onPressed: _toggleFavorite,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  const Text("⬆️ Scroll up for lyrics, ⬅️ for queue", style: TextStyle(color: Colors.white54, fontSize: 12)),
+                ],
               ),
-              const SizedBox(height: 20),
-              Text(
-                widget.title,
-                style: const TextStyle(color: Colors.white, fontSize: 24),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                widget.author,
-                style: const TextStyle(color: Colors.white70, fontSize: 18),
-              ),
-              const SizedBox(height: 30),
-              ElevatedButton(
-                onPressed: _togglePlayback,
-                child: Text(_isPlaying ? 'Pause' : 'Play'),
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(24),
+                  child: Text(
+                    '🎶 Lyrics will appear here...\n(Coming Soon)',
+                    style: TextStyle(color: Colors.white70, fontSize: 16),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
               ),
             ],
           ),
