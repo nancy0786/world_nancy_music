@@ -1,10 +1,12 @@
-import 'package:world_music_nancy/widgets/neon_aware_container.dart';
-import 'package:world_music_nancy/widgets/neon_aware_container.dart';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:world_music_nancy/components/base_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:world_music_nancy/widgets/neon_aware_container.dart';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 
 class PlayerScreen extends StatefulWidget {
   final String title;
@@ -78,6 +80,30 @@ class _PlayerScreenState extends State<PlayerScreen> {
       await _player.play();
     }
     setState(() => _isPlaying = _player.playing);
+  }
+
+  Future<void> _downloadSong() async {
+    final directory = await getApplicationDocumentsDirectory();
+    final filename = widget.title.replaceAll(' ', '_') + ".mp3";
+    final path = "${directory.path}/$filename";
+
+    try {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("⬇️ Song download started...")));
+
+      final response = await http.get(Uri.parse(widget.url));
+      final file = File(path);
+      await file.writeAsBytes(response.bodyBytes);
+
+      // Save download entry
+      final prefs = await SharedPreferences.getInstance();
+      final downloads = prefs.getStringList('downloaded_songs') ?? [];
+      downloads.add('$filename|${widget.title}|${widget.author}');
+      await prefs.setStringList('downloaded_songs', downloads);
+
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("✅ Song downloaded!")));
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("❌ Download failed")));
+    }
   }
 
   @override
@@ -160,6 +186,10 @@ class _PlayerScreenState extends State<PlayerScreen> {
                           color: _isFavorited ? Colors.pinkAccent : Colors.white70,
                         ),
                         onPressed: _toggleFavorite,
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.download_rounded, color: Colors.cyanAccent, size: 34),
+                        onPressed: _downloadSong,
                       ),
                     ],
                   ),
