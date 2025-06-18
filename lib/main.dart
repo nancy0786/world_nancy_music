@@ -15,6 +15,7 @@ import 'package:world_music_nancy/screens/home_page_with_nav.dart';
 import 'package:world_music_nancy/theme.dart';
 import 'package:world_music_nancy/routes.dart';
 import 'package:world_music_nancy/providers/preferences_provider.dart';
+import 'package:world_music_nancy/screens/favorites_screen.dart';
 
 void main() {
   runApp(const NancyMusicWorldApp());
