@@ -5,7 +5,6 @@ import 'package:world_music_nancy/services/storage_service.dart';
 import 'package:world_music_nancy/models/song_model.dart';
 import 'package:world_music_nancy/components/base_screen.dart';
 import 'package:world_music_nancy/widgets/now_playing_card.dart';
-import 'package:world_music_nancy/screens/player_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -23,7 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _loadData();
-    _loadLastPlayed();
+    _loadLast();
   }
 
   Future<void> _loadData() async {
@@ -43,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  Future<void> _loadLastPlayed() async {
+  Future<void> _loadLast() async {
     final data = await StorageService.getLastPlayed();
     setState(() => _lastPlayed = data);
   }
@@ -71,13 +70,13 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             const SectionTitle(title: "Recently Played"),
             ..._recentlyPlayed.map((song) => ListTile(
-              leading: Image.network(song.thumbnailUrl ?? '', width: 50, height: 50, fit: BoxFit.cover),
-              title: Text(song.title ?? '', style: const TextStyle(color: Colors.white)),
-              subtitle: Text(song.artist ?? '', style: const TextStyle(color: Colors.white70)),
-              onTap: () {
-                // TODO: Implement playback
-              },
-            )),
+                  leading: Image.network(song.thumbnailUrl ?? '', width: 50, height: 50, fit: BoxFit.cover),
+                  title: Text(song.title ?? '', style: const TextStyle(color: Colors.white)),
+                  subtitle: Text(song.artist ?? '', style: const TextStyle(color: Colors.white70)),
+                  onTap: () {
+                    // TODO: Play song
+                  },
+                )),
 
             const SizedBox(height: 20),
             const SectionTitle(title: "🔥 Top 20 Weekly"),
@@ -85,12 +84,12 @@ class _HomeScreenState extends State<HomeScreen> {
               height: 150,
               child: ListView(
                 scrollDirection: Axis.horizontal,
-                children: _playlists.map((playlist) {
+                children: _playlists.map<Widget>((playlist) {
                   final firstSong = (playlist['songs'] as List).isNotEmpty ? playlist['songs'][0] : null;
                   final thumb = firstSong != null ? firstSong['thumbnail'] ?? '' : '';
                   return PlaylistCard(
-                    title: playlist['title'],
-                    image: thumb,
+                    title: playlist['title'] ?? '',
+                    thumbnailUrl: thumb,
                     onTap: () {
                       // TODO: Navigate to playlist screen
                     },
@@ -107,47 +106,28 @@ class _HomeScreenState extends State<HomeScreen> {
                 scrollDirection: Axis.horizontal,
                 children: _playlists
                     .where((p) => (p['title'] ?? '').toLowerCase().contains("romantic"))
-                    .map((playlist) {
+                    .map<Widget>((playlist) {
                       final first = playlist['songs'].isNotEmpty ? playlist['songs'][0] : null;
                       return PlaylistCard(
-                        title: playlist['title'],
-                        image: first != null ? first['thumbnail'] ?? '' : '',
+                        title: playlist['title'] ?? '',
+                        thumbnailUrl: first != null ? first['thumbnail'] ?? '' : '',
                         onTap: () {
                           // TODO: Navigate to playlist
                         },
                       );
-                    })
-                    .toList(),
+                    }).toList(),
               ),
             ),
 
             const SizedBox(height: 30),
 
-            /// ✅ Now Playing Card at the bottom
-            _lastPlayed != null && _lastPlayed!['title'] != null
-              ? NowPlayingCard(
-                  title: _lastPlayed?['title'],
-                  artist: _lastPlayed?['channel'],
-                  thumbnailUrl: _lastPlayed?['thumbnail'],
-                  audioUrl: _lastPlayed?['url'],
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => PlayerScreen(
-                          title: _lastPlayed?['title'] ?? '',
-                          author: _lastPlayed?['channel'] ?? '',
-                          url: _lastPlayed?['url'] ?? '',
-                        ),
-                      ),
-                    );
-                  },
-                )
-              : const Text(
-                  "Nothing is playing",
-                  style: TextStyle(color: Colors.white70),
-                  textAlign: TextAlign.center,
-                ),
+            /// ✅ Mini Now Playing Card at bottom
+            NowPlayingCard(
+              title: _lastPlayed?['title'],
+              artist: _lastPlayed?['channel'],
+              thumbnailUrl: _lastPlayed?['thumbnail'],
+              audioUrl: _lastPlayed?['url'],
+            ),
           ],
         ),
       ),
