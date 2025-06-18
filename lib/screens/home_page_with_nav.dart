@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:world_music_nancy/widgets/background_manager.dart';
+import 'package:world_music_nancy/screens/home_screen.dart'; // ✅ Home screen added
 import 'package:world_music_nancy/screens/search_screen.dart';
 import 'package:world_music_nancy/screens/library_screen.dart';
 import 'package:world_music_nancy/screens/profile_screen.dart';
@@ -16,6 +17,7 @@ class _HomePageWithNavState extends State<HomePageWithNav> {
   int _selectedIndex = 0;
 
   final List<Widget> _screens = [
+    const HomeScreen(),     // 🏠 Home is now first
     const SearchScreen(),
     const LibraryScreen(),
     const DownloadsScreen(),
@@ -32,7 +34,7 @@ class _HomePageWithNavState extends State<HomePageWithNav> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        const BackgroundManager(), // ✅ Set background globally only once
+        const BackgroundManager(),
         Scaffold(
           backgroundColor: Colors.transparent,
           body: _screens[_selectedIndex],
@@ -43,6 +45,10 @@ class _HomePageWithNavState extends State<HomePageWithNav> {
             unselectedItemColor: Colors.grey,
             backgroundColor: Colors.black,
             items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home),
+                label: 'Home',
+              ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.search),
                 label: 'Search',
