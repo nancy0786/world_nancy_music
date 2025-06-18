@@ -14,6 +14,7 @@ import 'package:world_music_nancy/screens/library_screen.dart';
 import 'package:world_music_nancy/screens/search_screen.dart';
 import 'package:world_music_nancy/routes.dart';
 import 'package:world_music_nancy/screens/home_page_with_nav.dart';
+import 'package:world_music_nancy/screens/playlist_details_screen.dart'; // ✅ Required for onGenerateRoute
 
 void main() {
   runApp(const NancyMusicWorldApp());
@@ -45,18 +46,6 @@ class _NancyMusicWorldAppState extends State<NancyMusicWorldApp> {
     }
   }
 
-  Future<void> _changeTheme(String themeName) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('neonTheme', themeName);
-    setState(() {
-      _currentTheme = themeName;
-    });
-  }
-
-  void _toggleTheme() {
-    // Optional logic to cycle through themes can be added here
-  }
-
   ThemeData getCurrentTheme() {
     switch (_currentTheme.toLowerCase()) {
       case 'light':
@@ -74,11 +63,11 @@ class _NancyMusicWorldAppState extends State<NancyMusicWorldApp> {
     return MaterialApp(
       title: 'Nancy Music World',
       debugShowCheckedModeBanner: false,
-      theme: getCurrentTheme(), // Fixed this line
+      theme: getCurrentTheme(),
       initialRoute: '/',
       routes: {
         '/': (context) => const SplashScreen(),
-        '/home': (context) => const HomePageWithNav(), // ✅ The one with bottom navigation
+        '/home': (context) => const HomePageWithNav(),
         '/profile': (context) => const ProfileScreen(),
         '/createPlaylist': (context) => const CreatePlaylistScreen(),
         '/downloads': (context) => const DownloadsScreen(),
@@ -87,6 +76,8 @@ class _NancyMusicWorldAppState extends State<NancyMusicWorldApp> {
         '/library': (context) => const LibraryScreen(),
         '/search': (context) => const SearchScreen(),
       },
+      // ✅ Handles dynamic route like /playlistDetails with args
+      onGenerateRoute: onGenerateRoute,
     );
   }
 }
