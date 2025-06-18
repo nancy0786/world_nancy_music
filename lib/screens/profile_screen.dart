@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:world_music_nancy/components/base_screen.dart';
 import 'package:world_music_nancy/components/custom_app_bar.dart';
 import 'package:world_music_nancy/screens/settings_screen.dart';
-import 'package:world_music_nancy/widgets/settings_tile.dart';
+import 'package:world_music_nancy/components/settings_tile.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
