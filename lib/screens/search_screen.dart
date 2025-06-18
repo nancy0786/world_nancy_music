@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:world_music_nancy/components/base_screen.dart';
 import 'package:world_music_nancy/services/youtube_service.dart';
+import 'package:world_music_nancy/services/youtube_autocomplete_service.dart';
 import 'package:world_music_nancy/screens/player_screen.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -31,10 +32,10 @@ class _SearchScreenState extends State<SearchScreen> {
       setState(() => _suggestions = []);
       return;
     }
-
-    // Show history suggestions that match the input
+    final onlineSuggestions =
+        await YouTubeAutocompleteService.fetchSuggestions(text);
     setState(() {
-      _suggestions = _history.where((q) => q.toLowerCase().startsWith(text.toLowerCase())).toList();
+      _suggestions = onlineSuggestions.take(8).toList();
     });
   }
 
@@ -46,7 +47,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
   Future<void> _saveSearchHistory(String query) async {
     final prefs = await SharedPreferences.getInstance();
-    _history.remove(query); // Avoid duplicate
+    _history.remove(query);
     _history.insert(0, query);
     await prefs.setStringList('search_history', _history.take(20).toList());
     _loadSearchHistory();
@@ -143,15 +144,19 @@ class _SearchScreenState extends State<SearchScreen> {
             if (_suggestions.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 10),
-                child: Column(
-                  children: _suggestions.map((s) => ListTile(
-                    title: Text(s, style: const TextStyle(color: Colors.white)),
-                    leading: const Icon(Icons.history, color: Colors.pinkAccent),
-                    onTap: () {
-                      _controller.text = s;
-                      _search(s);
-                    },
-                  )).toList(),
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  child: Column(
+                    key: ValueKey(_suggestions.length),
+                    children: _suggestions.map((s) => ListTile(
+                      title: Text(s, style: const TextStyle(color: Colors.white)),
+                      leading: const Icon(Icons.search, color: Colors.cyanAccent),
+                      onTap: () {
+                        _controller.text = s;
+                        _search(s);
+                      },
+                    )).toList(),
+                  ),
                 ),
               ),
 
