@@ -31,7 +31,11 @@ final Map<String, WidgetBuilder> appRoutes = {
   '/register': (context) => const RegisterScreen(),
   '/profile': (context) => const ProfileScreen(),
   '/appearanceSettings': (context) => const AppearanceSettingsScreen(),
-
+  '/createPlaylist': (context) => const CreatePlaylistScreen(),
+  '/favorites': (context) => const FavoritesScreen(),
+  '/playlist': (context) => const PlaylistScreen(),
+  '/profile': (context) => const ProfileScreen(),
+  
   // ✅ Updated route with all required arguments
   '/playlistDetails': (context) {
     final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
