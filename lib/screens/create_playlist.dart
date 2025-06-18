@@ -1,3 +1,4 @@
+import 'package:world_music_nancy/widgets/neon_aware_button.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
@@ -96,7 +97,7 @@ class _CreatePlaylistScreenState extends State<CreatePlaylistScreen> {
                 ],
               ),
               const SizedBox(height: 10),
-              ElevatedButton.icon(
+              NeonAwareButton(
                 onPressed: _pickImage,
                 icon: const Icon(Icons.image, color: Colors.white),
                 label: const Text("Pick Thumbnail", style: TextStyle(color: Colors.white)),

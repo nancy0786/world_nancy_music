@@ -1,3 +1,4 @@
+import 'package:world_music_nancy/widgets/neon_aware_button.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:world_music_nancy/services/youtube_service.dart';
@@ -140,7 +141,7 @@ class _PlayerControlsState extends State<PlayerControls> {
           ],
         ),
         const SizedBox(height: 10),
-        ElevatedButton.icon(
+        NeonAwareButton(
           onPressed: () {
             showModalBottomSheet(
               context: context,
