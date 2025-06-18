@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:world_music_nancy/components/base_screen.dart';
 import 'package:world_music_nancy/services/youtube_service.dart';
 import 'package:world_music_nancy/screens/player_screen.dart';
-import 'package:world_music_nancy/components/custom_app_bar.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -14,10 +14,65 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _controller = TextEditingController();
   List<Map<String, String>> _results = [];
+  List<String> _history = [];
+  List<String> _suggestions = [];
   bool _isLoading = false;
 
+  @override
+  void initState() {
+    super.initState();
+    _loadSearchHistory();
+    _controller.addListener(_onTyping);
+  }
+
+  void _onTyping() async {
+    final text = _controller.text.trim();
+    if (text.isEmpty) {
+      setState(() => _suggestions = []);
+      return;
+    }
+
+    // Show history suggestions that match the input
+    setState(() {
+      _suggestions = _history.where((q) => q.toLowerCase().startsWith(text.toLowerCase())).toList();
+    });
+  }
+
+  Future<void> _loadSearchHistory() async {
+    final prefs = await SharedPreferences.getInstance();
+    final stored = prefs.getStringList('search_history') ?? [];
+    setState(() => _history = stored);
+  }
+
+  Future<void> _saveSearchHistory(String query) async {
+    final prefs = await SharedPreferences.getInstance();
+    _history.remove(query); // Avoid duplicate
+    _history.insert(0, query);
+    await prefs.setStringList('search_history', _history.take(20).toList());
+    _loadSearchHistory();
+  }
+
+  Future<void> _clearHistory() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('search_history');
+    setState(() => _history = []);
+  }
+
+  Future<void> _deleteHistoryItem(String query) async {
+    final prefs = await SharedPreferences.getInstance();
+    _history.remove(query);
+    await prefs.setStringList('search_history', _history);
+    _loadSearchHistory();
+  }
+
   Future<void> _search(String query) async {
-    setState(() => _isLoading = true);
+    if (query.trim().isEmpty) return;
+    setState(() {
+      _isLoading = true;
+      _suggestions = [];
+    });
+
+    await _saveSearchHistory(query);
     final results = await YouTubeService.search(query);
     setState(() {
       _results = results;
@@ -25,7 +80,7 @@ class _SearchScreenState extends State<SearchScreen> {
     });
   }
 
-  Future<void> _play(String videoId, String title) async {
+  Future<void> _play(String videoId) async {
     final data = await YouTubeService.getAudioStream(videoId);
     if (data == null) return;
 
@@ -46,11 +101,11 @@ class _SearchScreenState extends State<SearchScreen> {
     return BaseScreen(
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        appBar: CustomAppBar(title: 'Search Songs'),
         body: Column(
           children: [
+            const SizedBox(height: 40),
             Padding(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: TextField(
                 controller: _controller,
                 style: const TextStyle(color: Colors.white),
@@ -64,30 +119,114 @@ class _SearchScreenState extends State<SearchScreen> {
                   filled: true,
                   fillColor: Colors.black.withOpacity(0.6),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(14),
                     borderSide: BorderSide.none,
                   ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 ),
                 onSubmitted: _search,
               ),
             ),
+
+            const SizedBox(height: 6),
+            const Text(
+              "Nancy Music World",
+              style: TextStyle(
+                fontFamily: 'DancingScript',
+                fontSize: 22,
+                color: Colors.cyanAccent,
+                fontWeight: FontWeight.bold,
+                shadows: [Shadow(color: Colors.pinkAccent, blurRadius: 8)],
+              ),
+            ),
+
+            if (_suggestions.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: Column(
+                  children: _suggestions.map((s) => ListTile(
+                    title: Text(s, style: const TextStyle(color: Colors.white)),
+                    leading: const Icon(Icons.history, color: Colors.pinkAccent),
+                    onTap: () {
+                      _controller.text = s;
+                      _search(s);
+                    },
+                  )).toList(),
+                ),
+              ),
+
+            if (_results.isEmpty && !_isLoading && _controller.text.isEmpty)
+              Expanded(
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 20, 16, 4),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text("Search History", style: TextStyle(color: Colors.white70, fontSize: 16)),
+                          TextButton(
+                            onPressed: _clearHistory,
+                            child: const Text("Clear", style: TextStyle(color: Colors.redAccent)),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: _history.length,
+                        itemBuilder: (_, index) {
+                          final item = _history[index];
+                          return ListTile(
+                            title: Text(item, style: const TextStyle(color: Colors.white)),
+                            leading: const Icon(Icons.history, color: Colors.cyan),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.close, color: Colors.redAccent),
+                              onPressed: () => _deleteHistoryItem(item),
+                            ),
+                            onTap: () {
+                              _controller.text = item;
+                              _search(item);
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
             if (_isLoading)
-              const CircularProgressIndicator()
-            else if (_results.isEmpty)
-              const Text("No results yet", style: TextStyle(color: Colors.white))
-            else
+              const Padding(
+                padding: EdgeInsets.all(20),
+                child: CircularProgressIndicator(color: Colors.cyanAccent),
+              ),
+
+            if (!_isLoading && _results.isNotEmpty)
               Expanded(
                 child: ListView.builder(
                   itemCount: _results.length,
                   itemBuilder: (context, index) {
                     final video = _results[index];
                     return ListTile(
-                      title: Text(video['title'] ?? 'No Title', style: const TextStyle(color: Colors.white)),
+                      leading: Image.network(
+                        video['thumbnail'] ?? '',
+                        width: 60,
+                        height: 60,
+                        fit: BoxFit.cover,
+                      ),
+                      title: Text(video['title'] ?? '', style: const TextStyle(color: Colors.white)),
                       subtitle: Text(video['channel'] ?? '', style: const TextStyle(color: Colors.white70)),
-                      onTap: () => _play(video['videoId']!, video['title']!), // ✅ fixed here
+                      onTap: () => _play(video['videoId']!),
                     );
                   },
                 ),
+              ),
+
+            if (!_isLoading && _results.isEmpty && _controller.text.isNotEmpty)
+              const Padding(
+                padding: EdgeInsets.all(20),
+                child: Text("🚫 No results found", style: TextStyle(color: Colors.white70)),
               ),
           ],
         ),
