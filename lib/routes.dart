@@ -15,20 +15,25 @@ import 'package:world_music_nancy/screens/splash_screen.dart';
 
 final Map<String, WidgetBuilder> appRoutes = {
   '/': (context) => const SplashScreen(),
-  '/home': (context) => const HomeScreen(),  
+  '/home': (context) => const HomeScreen(),
   '/player': (context) => const PlayerScreen(
-  title: 'Now Playing',
-  author: 'Unknown',
-  url: 'https://youtube.com/watch?v=dQw4w9WgXcQ',
-),
+        title: 'Now Playing',
+        author: 'Unknown',
+        url: 'https://youtube.com/watch?v=dQw4w9WgXcQ',
+      ),
   '/search': (context) => const SearchScreen(),
   '/library': (context) => const LibraryScreen(),
   '/playlist': (context) => const PlaylistScreen(),
   '/favorites': (context) => const FavoritesScreen(),
   '/downloads': (context) => const DownloadsScreen(),
   '/history': (context) => const HistoryScreen(),
-  '/playlistDetails': (context) => const PlaylistDetailsScreen(),
   '/login': (context) => const LoginScreen(),
   '/register': (context) => const RegisterScreen(),
   '/profile': (context) => const ProfileScreen(),
+
+  // ✅ Updated route to support passing argument (playlistName)
+  '/playlistDetails': (context) {
+    final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    return PlaylistDetailsScreen(playlistName: args['playlistName']);
+  },
 };
