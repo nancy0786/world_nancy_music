@@ -33,7 +33,7 @@ class _SplashScreenState extends State<SplashScreen> {
           children: [
             NeonAwareContainer(
               color: Colors.black.withOpacity(0.5),
-              child: const SizedBox(), // ✅ added required child
+              child: const SizedBox(), // ✅ Fixed error by adding required child
             ),
             Center(
               child: Column(
