@@ -1,5 +1,4 @@
 import 'package:world_music_nancy/widgets/neon_aware_container.dart';
-import 'package:world_music_nancy/widgets/neon_aware_container.dart';
 import 'package:flutter/material.dart';
 
 class PlaylistCard extends StatelessWidget {
@@ -56,6 +55,7 @@ class PlaylistCard extends StatelessWidget {
                   end: Alignment.topCenter,
                 ),
               ),
+              child: const SizedBox.shrink(), // ✅ FIXED: required child added
             ),
             Positioned(
               bottom: 10,
