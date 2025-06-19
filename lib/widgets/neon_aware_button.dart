@@ -4,13 +4,15 @@ import 'package:world_music_nancy/providers/preferences_provider.dart';
 import 'neon_button.dart';
 
 class NeonAwareButton extends StatelessWidget {
-  final String text;
+  final String? text; // Optional
+  final Widget? label; // ✅ NEW: Allows custom widget as label
   final VoidCallback onTap;
   final IconData? icon;
 
   const NeonAwareButton({
     super.key,
-    required this.text,
+    this.text,
+    this.label,
     required this.onTap,
     this.icon,
   });
@@ -20,11 +22,15 @@ class NeonAwareButton extends StatelessWidget {
     final isFuturistic = Provider.of<PreferencesProvider>(context).isFuturistic;
 
     return isFuturistic
-        ? NeonButton(text: text, icon: icon, onTap: onTap)
-        : ElevatedButton.icon(
+        ? NeonButton(
+            text: text ?? (label is Text ? (label as Text).data ?? '' : ''),
+            icon: icon,
             onTap: onTap,
+          )
+        : ElevatedButton.icon(
+            onPressed: onTap,
             icon: Icon(icon),
-            label: Text(text),
+            label: label ?? Text(text ?? ''),
           );
   }
 }
