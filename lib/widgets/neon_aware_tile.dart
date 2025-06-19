@@ -10,6 +10,7 @@ class NeonAwareTile extends StatelessWidget {
   final VoidCallback? onTap;
   final EdgeInsetsGeometry? contentPadding;
   final Color? tileColor;
+  final ShapeBorder? shape; // ✅ Added to allow custom shape
 
   const NeonAwareTile({
     super.key,
@@ -20,6 +21,7 @@ class NeonAwareTile extends StatelessWidget {
     this.onTap,
     this.contentPadding,
     this.tileColor,
+    this.shape, // ✅ Optional shape input
   });
 
   @override
@@ -47,12 +49,13 @@ class NeonAwareTile extends StatelessWidget {
           : null,
       contentPadding: contentPadding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       tileColor: tileColor ?? (isFuturistic ? Colors.black54 : Colors.grey[850]),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: isFuturistic
-            ? BorderSide(color: Colors.cyanAccent.withOpacity(0.5))
-            : BorderSide.none,
-      ),
+      shape: shape ??
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: isFuturistic
+                ? BorderSide(color: Colors.cyanAccent.withOpacity(0.5))
+                : BorderSide.none,
+          ),
     );
   }
 }
