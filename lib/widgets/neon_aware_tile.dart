@@ -1,4 +1,3 @@
-import 'package:world_music_nancy/widgets/neon_aware_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:world_music_nancy/providers/preferences_provider.dart';
@@ -9,6 +8,8 @@ class NeonAwareTile extends StatelessWidget {
   final Widget? leading;
   final Widget? trailing;
   final VoidCallback? onTap;
+  final EdgeInsetsGeometry? contentPadding;
+  final Color? tileColor;
 
   const NeonAwareTile({
     super.key,
@@ -17,13 +18,15 @@ class NeonAwareTile extends StatelessWidget {
     this.leading,
     this.trailing,
     this.onTap,
+    this.contentPadding,
+    this.tileColor,
   });
 
   @override
   Widget build(BuildContext context) {
     final isFuturistic = Provider.of<PreferencesProvider>(context).isFuturistic;
 
-    return NeonAwareTile(
+    return ListTile(
       onTap: onTap,
       leading: leading,
       trailing: trailing,
@@ -42,7 +45,8 @@ class NeonAwareTile extends StatelessWidget {
               child: subtitle!,
             )
           : null,
-      tileColor: isFuturistic ? Colors.black54 : Colors.grey[850],
+      contentPadding: contentPadding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      tileColor: tileColor ?? (isFuturistic ? Colors.black54 : Colors.grey[850]),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: isFuturistic
