@@ -1,13 +1,12 @@
-
 import 'package:flutter/material.dart';
 
 class DownloadButton extends StatelessWidget {
-  final VoidCallback onPressed;
+  final VoidCallback onTap;
   final bool isDownloaded;
 
   const DownloadButton({
     super.key,
-    required this.onPressed,
+    required this.onTap,
     this.isDownloaded = false,
   });
 
@@ -18,7 +17,7 @@ class DownloadButton extends StatelessWidget {
         isDownloaded ? Icons.download_done : Icons.download,
         color: isDownloaded ? Colors.greenAccent : Colors.white,
       ),
-      onPressed: onPressed,
+      onPressed: onTap,
       tooltip: isDownloaded ? 'Downloaded' : 'Download',
     );
   }
