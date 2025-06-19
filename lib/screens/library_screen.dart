@@ -37,7 +37,7 @@ class LibraryScreen extends StatelessWidget {
             const SizedBox(height: 10),
             HistoryTile(song: dummySong, onTap: () {}),
             const SizedBox(height: 10),
-            DownloadButton(onPressed: () {}),
+            DownloadButton(onTap: () {}),
             const SizedBox(height: 20),
 
             /// 🔥 Saved Playlists Section (YouTube style)
@@ -128,7 +128,7 @@ class LibraryScreen extends StatelessWidget {
         ),
         if (onViewAll != null)
           TextButton(
-            onPressed: onViewAll,
+            onTap: onViewAll,
             child: const Text("View All", style: TextStyle(color: Colors.pinkAccent)),
           ),
       ],

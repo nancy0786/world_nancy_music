@@ -122,21 +122,21 @@ class _PlayerControlsState extends State<PlayerControls> {
           children: [
             IconButton(
               icon: const Icon(Icons.skip_previous, color: Colors.white),
-              onPressed: () => queue.skipPrevious(),
+              onTap: () => queue.skipPrevious(),
             ),
             IconButton(
               icon: const Icon(Icons.play_arrow, color: Colors.tealAccent),
               iconSize: 32,
-              onPressed: () => _player.play(),
+              onTap: () => _player.play(),
             ),
             IconButton(
               icon: const Icon(Icons.pause, color: Colors.cyanAccent),
               iconSize: 28,
-              onPressed: () => _player.pause(),
+              onTap: () => _player.pause(),
             ),
             IconButton(
               icon: const Icon(Icons.skip_next, color: Colors.white),
-              onPressed: () => queue.skipNext(),
+              onTap: () => queue.skipNext(),
             ),
           ],
         ),

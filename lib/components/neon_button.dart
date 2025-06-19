@@ -39,7 +39,7 @@ class NeonButton extends StatelessWidget {
         ),
         side: const BorderSide(color: Colors.cyanAccent, width: 2),
       ),
-      onPressed: onPressed,
+      onTap: onPressed,
     );
   }
 }

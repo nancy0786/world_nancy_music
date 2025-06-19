@@ -22,7 +22,7 @@ class NeonAwareButton extends StatelessWidget {
     return isFuturistic
         ? NeonButton(text: text, icon: icon, onTap: onTap)
         : ElevatedButton.icon(
-            onPressed: onTap,
+            onTap: onTap,
             icon: Icon(icon),
             label: Text(text),
           );

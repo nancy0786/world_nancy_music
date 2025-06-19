@@ -121,7 +121,7 @@ class _CreatePlaylistScreenState extends State<CreatePlaylistScreen> {
 
               const Spacer(),
               ElevatedButton(
-                onPressed: _savePlaylist,
+                onTap: _savePlaylist,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.cyanAccent,
                   padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 14),
