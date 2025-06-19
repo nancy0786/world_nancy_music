@@ -140,7 +140,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                         fit: BoxFit.cover,
                       ),
                     ),
-                    child: const SizedBox.shrink(), // ✅ required child to avoid error
+                    child: const SizedBox.shrink(), // ✅ Error 8 FIXED
                   ),
                   const SizedBox(height: 30),
                   Text(widget.title,

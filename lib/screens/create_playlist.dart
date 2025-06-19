@@ -97,6 +97,8 @@ class _CreatePlaylistScreenState extends State<CreatePlaylistScreen> {
                 ],
               ),
               const SizedBox(height: 10),
+
+              // ✅ NeonAwareButton with style now accepted
               NeonAwareButton(
                 onTap: _pickImage,
                 icon: const Icon(Icons.image, color: Colors.white),
@@ -105,6 +107,7 @@ class _CreatePlaylistScreenState extends State<CreatePlaylistScreen> {
                   backgroundColor: Colors.pinkAccent,
                 ),
               ),
+
               if (_thumbnail != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 10),
@@ -120,8 +123,10 @@ class _CreatePlaylistScreenState extends State<CreatePlaylistScreen> {
                 Text(_error!, style: const TextStyle(color: Colors.redAccent)),
 
               const Spacer(),
+
+              // ✅ Fixed: Use onPressed, not onTap
               ElevatedButton(
-                onTap: _savePlaylist,
+                onPressed: _savePlaylist,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.cyanAccent,
                   padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 14),
