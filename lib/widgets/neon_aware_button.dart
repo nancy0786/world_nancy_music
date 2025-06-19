@@ -8,7 +8,6 @@ class NeonAwareButton extends StatelessWidget {
   final Widget? label;
   final VoidCallback onTap;
   final IconData? icon;
-  final ButtonStyle? style; // ✅ Added for ElevatedButton styling
 
   const NeonAwareButton({
     super.key,
@@ -16,7 +15,6 @@ class NeonAwareButton extends StatelessWidget {
     this.label,
     required this.onTap,
     this.icon,
-    this.style,
   });
 
   @override
@@ -30,10 +28,9 @@ class NeonAwareButton extends StatelessWidget {
             onTap: onTap,
           )
         : ElevatedButton.icon(
-            onPressed: onTap, // ✅ Fixed: no asterisks!
+            onPressed: onTap, // ✅ fixed Error 5 here
             icon: Icon(icon),
             label: label ?? Text(text ?? ''),
-            style: style, // ✅ Apply style if provided
           );
   }
 }
