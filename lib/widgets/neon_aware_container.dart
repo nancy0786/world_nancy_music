@@ -1,10 +1,9 @@
-import 'package:world_music_nancy/widgets/neon_aware_container.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:world_music_nancy/providers/preferences_provider.dart';
 
 class NeonAwareContainer extends StatelessWidget {
-  final Widget child;
+  final Widget child; // ✅ Required child
   final EdgeInsetsGeometry? padding;
   final EdgeInsetsGeometry? margin;
   final Color? color;
@@ -15,7 +14,7 @@ class NeonAwareContainer extends StatelessWidget {
 
   const NeonAwareContainer({
     super.key,
-    required this.child,
+    required this.child, // ✅ Error 6: Required named parameter added
     this.padding,
     this.margin,
     this.color,
@@ -39,7 +38,9 @@ class NeonAwareContainer extends StatelessWidget {
           BoxDecoration(
             color: color ?? (isFuturistic ? Colors.black.withOpacity(0.5) : Colors.grey.shade900),
             borderRadius: BorderRadius.circular(16),
-            border: isFuturistic ? Border.all(color: Colors.cyanAccent, width: 1.5) : null,
+            border: isFuturistic
+                ? Border.all(color: Colors.cyanAccent, width: 1.5)
+                : null,
             boxShadow: isFuturistic
                 ? [
                     BoxShadow(
