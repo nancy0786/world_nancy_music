@@ -94,7 +94,6 @@ class _PlayerScreenState extends State<PlayerScreen> {
       final file = File(path);
       await file.writeAsBytes(response.bodyBytes);
 
-      // Save download entry
       final prefs = await SharedPreferences.getInstance();
       final downloads = prefs.getStringList('downloaded_songs') ?? [];
       downloads.add('$filename|${widget.title}|${widget.author}');
@@ -141,6 +140,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                         fit: BoxFit.cover,
                       ),
                     ),
+                    child: const SizedBox.shrink(), // ✅ required child to avoid error
                   ),
                   const SizedBox(height: 30),
                   Text(widget.title,
@@ -164,7 +164,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                     children: [
                       IconButton(
                         icon: const Icon(Icons.skip_previous, color: Colors.cyanAccent, size: 40),
-                        onPressed: () {}, // Add skip logic
+                        onPressed: () {},
                       ),
                       IconButton(
                         icon: Icon(
@@ -176,7 +176,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                       ),
                       IconButton(
                         icon: const Icon(Icons.skip_next, color: Colors.cyanAccent, size: 40),
-                        onPressed: () {}, // Add skip logic
+                        onPressed: () {},
                       ),
                       const SizedBox(width: 16),
                       IconButton(
