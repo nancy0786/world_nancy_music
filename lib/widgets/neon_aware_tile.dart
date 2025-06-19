@@ -10,7 +10,8 @@ class NeonAwareTile extends StatelessWidget {
   final VoidCallback? onTap;
   final EdgeInsetsGeometry? contentPadding;
   final Color? tileColor;
-  final ShapeBorder? shape; // ✅ Added to allow custom shape
+  final ShapeBorder? shape; // ✅ Optional shape input
+  final double? horizontalTitleGap; // ✅ Added for Error 4 fix
 
   const NeonAwareTile({
     super.key,
@@ -21,7 +22,8 @@ class NeonAwareTile extends StatelessWidget {
     this.onTap,
     this.contentPadding,
     this.tileColor,
-    this.shape, // ✅ Optional shape input
+    this.shape,
+    this.horizontalTitleGap, // ✅ Accept param
   });
 
   @override
@@ -32,6 +34,7 @@ class NeonAwareTile extends StatelessWidget {
       onTap: onTap,
       leading: leading,
       trailing: trailing,
+      horizontalTitleGap: horizontalTitleGap, // ✅ Apply param
       title: DefaultTextStyle(
         style: TextStyle(
           color: isFuturistic ? Colors.cyanAccent : Colors.white,
