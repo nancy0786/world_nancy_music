@@ -101,7 +101,7 @@ class _CreatePlaylistScreenState extends State<CreatePlaylistScreen> {
               // ✅ NeonAwareButton with style now accepted
               NeonAwareButton(
                 onTap: _pickImage,
-                icon: const Icon(Icons.image, color: Colors.white),
+                icon: Icons.image,
                 label: const Text("Pick Thumbnail", style: TextStyle(color: Colors.white)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.pinkAccent,
