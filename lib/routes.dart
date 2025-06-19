@@ -12,6 +12,7 @@ import 'package:world_music_nancy/screens/login_screen.dart';
 import 'package:world_music_nancy/screens/register_screen.dart';
 import 'package:world_music_nancy/screens/profile_screen.dart';
 import 'package:world_music_nancy/screens/splash_screen.dart';
+import 'package:world_music_nancy/screens/appearance_settings_screen.dart';
 
 final Map<String, WidgetBuilder> appRoutes = {
   '/': (context) => const SplashScreen(),
