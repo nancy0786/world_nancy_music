@@ -4,8 +4,8 @@ import 'package:world_music_nancy/providers/preferences_provider.dart';
 import 'neon_button.dart';
 
 class NeonAwareButton extends StatelessWidget {
-  final String? text; // Optional
-  final Widget? label; // ✅ NEW: Allows custom widget as label
+  final String? text;
+  final Widget? label;
   final VoidCallback onTap;
   final IconData? icon;
 
@@ -28,7 +28,7 @@ class NeonAwareButton extends StatelessWidget {
             onTap: onTap,
           )
         : ElevatedButton.icon(
-            onPressed: onTap,
+            **onPressed: onTap,** // ✅ Correct parameter for ElevatedButton
             icon: Icon(icon),
             label: label ?? Text(text ?? ''),
           );
