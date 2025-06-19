@@ -37,13 +37,13 @@ class LibraryScreen extends StatelessWidget {
             const SizedBox(height: 10),
             HistoryTile(song: dummySong, onTap: () {}),
             const SizedBox(height: 10),
-            DownloadButton(onTap: () {}),
+            DownloadButton(onPressed: () {}), // ✅ fixed: used onPressed
             const SizedBox(height: 20),
 
-            /// 🔥 Saved Playlists Section (YouTube style)
             _sectionHeader(context, "Saved Playlists", onViewAll: () {
               Navigator.pushNamed(context, '/playlist');
             }),
+
             const SizedBox(height: 10),
             SizedBox(
               height: 180,
@@ -104,7 +104,7 @@ class LibraryScreen extends StatelessWidget {
               icon: Icons.settings,
               title: 'App Settings',
               onTap: () {
-                Navigator.pushNamed(context, '/profile'); // change to /settings if needed
+                Navigator.pushNamed(context, '/profile'); // Update route if needed
               },
             ),
           ],
@@ -128,7 +128,7 @@ class LibraryScreen extends StatelessWidget {
         ),
         if (onViewAll != null)
           TextButton(
-            onTap: onViewAll,
+            onPressed: onViewAll, // ✅ fixed: was `onTap`
             child: const Text("View All", style: TextStyle(color: Colors.pinkAccent)),
           ),
       ],
