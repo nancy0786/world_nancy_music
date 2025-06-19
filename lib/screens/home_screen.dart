@@ -1,9 +1,9 @@
-import 'package:world_music_nancy/widgets/neon_aware_tile.dart';
-import 'package:world_music_nancy/widgets/neon_aware_tile.dart';
 import 'package:flutter/material.dart';
+import 'package:world_music_nancy/widgets/neon_aware_tile.dart';
 import 'package:world_music_nancy/widgets/section_title.dart';
 import 'package:world_music_nancy/widgets/playlist_card.dart';
 import 'package:world_music_nancy/services/storage_service.dart';
+import 'package:world_music_nancy/services/youtube_service.dart';
 import 'package:world_music_nancy/models/song_model.dart';
 import 'package:world_music_nancy/components/base_screen.dart';
 import 'package:world_music_nancy/widgets/now_playing_card.dart';
@@ -18,6 +18,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<SongModel> _recentlyPlayed = [];
   List<Map<String, dynamic>> _playlists = [];
+  List<Map<String, String>> _ytRecommendations = [];
   Map<String, String>? _lastPlayed;
 
   @override
@@ -25,13 +26,14 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _loadData();
     _loadLastPlayed();
+    _loadRecommendations();
   }
 
   Future<void> _loadData() async {
     final recents = await StorageService.getHistory();
     final customPlaylists = await StorageService.getPlaylists();
     setState(() {
-      _recentlyPlayed = recents.map((e) => SongModel(
+      _recentlyPlayed = recents.take(30).map((e) => SongModel(
         title: e['title'] ?? '',
         artist: e['channel'] ?? '',
         thumbnailUrl: e['thumbnail'] ?? '',
@@ -49,46 +51,120 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() => _lastPlayed = data);
   }
 
+  Future<void> _loadRecommendations() async {
+    final ytRecs = await YouTubeService.getMusicPlaylists();
+    setState(() => _ytRecommendations = ytRecs);
+  }
+
   @override
   Widget build(BuildContext context) {
     return BaseScreen(
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
-          backgroundColor: Colors.black,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
           centerTitle: true,
           title: const Text(
-            '🎵 Nancy Music World',
+            '🎶 Nancy Music World',
             style: TextStyle(
-              color: Color(0xFF00FFFF),
+              fontFamily: 'DancingScript', // make sure font added
+              color: Colors.cyanAccent,
+              fontSize: 30,
               fontWeight: FontWeight.bold,
-              fontSize: 22,
-              letterSpacing: 1.5,
+              shadows: [Shadow(color: Colors.pinkAccent, blurRadius: 4)],
             ),
           ),
         ),
         body: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            const SectionTitle(title: "Recently Played"),
-            ..._recentlyPlayed.map((song) => NeonAwareTile(
-              leading: Image.network(song.thumbnailUrl ?? '', width: 50, height: 50, fit: BoxFit.cover),
-              title: Text(song.title ?? '', style: const TextStyle(color: Colors.white)),
-              subtitle: Text(song.artist ?? '', style: const TextStyle(color: Colors.white70)),
-              onTap: () {
-                // TODO: Play song
-              },
-            )),
-            const SizedBox(height: 20),
-
-            const SectionTitle(title: "🔥 Top 20 Weekly"),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: const [
+                SectionTitle(title: "Recently Played"),
+                Text("View All", style: TextStyle(color: Colors.cyanAccent)),
+              ],
+            ),
             SizedBox(
-              height: 150,
+              height: 120,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: _recentlyPlayed.map((song) {
+                  return NeonAwareTile(
+                    title: Text(song.title, style: const TextStyle(color: Colors.white)),
+                    subtitle: Text(song.artist, style: const TextStyle(color: Colors.white70)),
+                    leading: Image.network(song.thumbnailUrl ?? '', width: 50, height: 50),
+                    onTap: () {
+                      // TODO: Play this song
+                    },
+                    trailing: IconButton(
+                      icon: const Icon(Icons.close, color: Colors.redAccent),
+                      onPressed: () {
+                        // TODO: Remove from history + undo Snackbar
+                      },
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: const [
+                SectionTitle(title: "Recommended"),
+                Text("View All", style: TextStyle(color: Colors.cyanAccent)),
+              ],
+            ),
+
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: _playlists.take(5).map((playlist) {
+                      final first = playlist['songs'].isNotEmpty ? playlist['songs'][0] : null;
+                      final thumb = first != null ? first['thumbnail'] ?? '' : '';
+                      return PlaylistCard(
+                        title: playlist['title'] ?? '',
+                        imageUrl: thumb,
+                        onTap: () {
+                          // TODO: open local playlist
+                        },
+                      );
+                    }).toList(),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: _ytRecommendations.take(5).map((item) {
+                      return PlaylistCard(
+                        title: item['title'] ?? '',
+                        imageUrl: item['thumbnail'] ?? '',
+                        onTap: () {
+                          // TODO: Play YouTube song
+                        },
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 30),
+            const SectionTitle(title: "🎧 Explore Playlists"),
+
+            SizedBox(
+              height: 160,
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 children: _playlists.map((playlist) {
-                  final firstSong = (playlist['songs'] as List).isNotEmpty ? playlist['songs'][0] : null;
-                  final thumb = firstSong != null ? firstSong['thumbnail'] ?? '' : '';
+                  final first = playlist['songs'].isNotEmpty ? playlist['songs'][0] : null;
+                  final thumb = first != null ? first['thumbnail'] ?? '' : '';
                   return PlaylistCard(
                     title: playlist['title'] ?? '',
                     imageUrl: thumb,
@@ -101,30 +177,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
 
             const SizedBox(height: 20),
-            const SectionTitle(title: "❤️ Romantic Songs"),
-            SizedBox(
-              height: 150,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: _playlists
-                    .where((p) => (p['title'] ?? '').toLowerCase().contains("romantic"))
-                    .map((playlist) {
-                      final first = playlist['songs'].isNotEmpty ? playlist['songs'][0] : null;
-                      final thumb = first != null ? first['thumbnail'] ?? '' : '';
-                      return PlaylistCard(
-                        title: playlist['title'] ?? '',
-                        imageUrl: thumb,
-                        onTap: () {
-                          // TODO: Open romantic playlist
-                        },
-                      );
-                    }).toList(),
-              ),
-            ),
-
-            const SizedBox(height: 30),
-
-            /// ✅ Now Playing Card at bottom
             NowPlayingCard(
               title: _lastPlayed?['title'],
               artist: _lastPlayed?['channel'],
