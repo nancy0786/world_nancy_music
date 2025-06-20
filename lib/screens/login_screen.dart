@@ -1,9 +1,11 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:world_music_nancy/components/base_screen.dart';
 import 'package:world_music_nancy/screens/home_page_with_nav.dart';
 import 'package:world_music_nancy/screens/register_screen.dart';
 import 'package:world_music_nancy/screens/forgot_password_screen.dart';
+import 'package:world_music_nancy/services/email_service.dart'; // 🔁 New
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -15,14 +17,14 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  String? _error;
+  bool _loading = false;
 
   Future<void> _login() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 
     if (email.isEmpty || password.isEmpty || !email.contains('@')) {
-      setState(() => _error = "Enter valid email & password.");
+      _showMessage("⚠️ Enter a valid email and password");
       return;
     }
 
@@ -31,28 +33,44 @@ class _LoginScreenState extends State<LoginScreen> {
     final storedPassword = prefs.getString('user_password');
 
     if (storedEmail == null || storedPassword == null) {
-      setState(() => _error = "Account not found. Please sign up.");
+      _showMessage("❌ Account not found. Please sign up.");
       return;
     }
 
     if (email != storedEmail) {
-      setState(() => _error = "Account with this email does not exist.");
+      _showMessage("❌ No account with this email.");
       return;
     }
 
     if (password != storedPassword) {
-      setState(() => _error = "Incorrect password.");
+      _showMessage("❌ Incorrect password.");
       return;
     }
 
-    // Save session
+    // ✅ Login success - save session
     await prefs.setString('active_user', email);
+
+    // 📨 Send login code via email
+    final code = _generateCode();
+    final success = await EmailService.sendLoginCode(email, code);
+    if (success) {
+      _showMessage("📨 Login code sent to your email");
+    }
 
     if (!mounted) return;
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (_) => const HomePageWithNav()),
     );
+  }
+
+  String _generateCode() {
+    final r = Random();
+    return (100000 + r.nextInt(900000)).toString();
+  }
+
+  void _showMessage(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
   @override
@@ -73,9 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       fontSize: 24,
                       color: Colors.cyanAccent,
                       fontWeight: FontWeight.bold,
-                      shadows: [
-                        Shadow(color: Colors.pinkAccent, blurRadius: 10),
-                      ],
+                      shadows: [Shadow(color: Colors.pinkAccent, blurRadius: 10)],
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -104,19 +120,15 @@ class _LoginScreenState extends State<LoginScreen> {
                       fillColor: Colors.black54,
                     ),
                   ),
-                  if (_error != null) ...[
-                    const SizedBox(height: 10),
-                    Text(_error!, style: const TextStyle(color: Colors.redAccent)),
-                  ],
                   const SizedBox(height: 24),
                   ElevatedButton(
-                    onPressed: _login,
+                    onPressed: _loading ? null : _login,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.pinkAccent,
                       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
-                    child: const Text("Login", style: TextStyle(fontSize: 16)),
+                    child: Text(_loading ? "Logging in..." : "Login", style: const TextStyle(fontSize: 16)),
                   ),
                   TextButton(
                     onPressed: () {
