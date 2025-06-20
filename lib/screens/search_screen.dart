@@ -1,11 +1,10 @@
-import 'package:world_music_nancy/widgets/neon_aware_tile.dart';
-import 'package:world_music_nancy/widgets/neon_aware_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:world_music_nancy/components/base_screen.dart';
 import 'package:world_music_nancy/services/youtube_service.dart';
 import 'package:world_music_nancy/services/youtube_autocomplete_service.dart';
 import 'package:world_music_nancy/screens/player_screen.dart';
+import 'package:world_music_nancy/widgets/neon_aware_tile.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -76,7 +75,7 @@ class _SearchScreenState extends State<SearchScreen> {
     });
 
     await _saveSearchHistory(query);
-    final results = await YouTubeService.search(query);
+    final results = await YouTubeService.search(query); // <-- API v3 now
     setState(() {
       _results = results;
       _isLoading = false;
