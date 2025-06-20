@@ -11,8 +11,7 @@ class YouTubeAutocompleteService {
 
       if (response.statusCode == 200) {
         final body = json.decode(response.body);
-        final suggestions = List<String>.from(body[1]);
-        return suggestions;
+        return List<String>.from(body[1]);
       } else {
         return [];
       }
