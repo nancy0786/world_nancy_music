@@ -7,6 +7,8 @@ import 'package:world_music_nancy/services/youtube_service.dart';
 import 'package:world_music_nancy/models/song_model.dart';
 import 'package:world_music_nancy/components/base_screen.dart';
 import 'package:world_music_nancy/widgets/now_playing_card.dart';
+import 'package:world_music_nancy/screens/playlist_details_screen.dart';
+import 'package:world_music_nancy/services/mood_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,6 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, dynamic>> _playlists = [];
   List<Map<String, String>> _ytRecommendations = [];
   Map<String, String>? _lastPlayed;
+  List<Map<String, String>> _moodSongs = [];
 
   @override
   void initState() {
@@ -27,6 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _loadData();
     _loadLastPlayed();
     _loadRecommendations();
+    _loadMoodSongs();
   }
 
   Future<void> _loadData() async {
@@ -56,6 +60,30 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() => _ytRecommendations = ytRecs);
   }
 
+  Future<void> _loadMoodSongs() async {
+    final mood = MoodService.getCurrentMood();
+    final moodQueries = MoodService.getSongsForMood(mood);
+    List<Map<String, String>> all = [];
+    for (final query in moodQueries) {
+      final result = await YouTubeService.search(query);
+      all.addAll(result.take(3));
+    }
+    setState(() => _moodSongs = all);
+  }
+
+  void _openPlaylist(Map<String, dynamic> playlist) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PlaylistDetailsScreen(
+          playlistName: playlist['title'],
+          imagePath: '',
+          visibility: playlist['visibility'] ?? 'private',
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BaseScreen(
@@ -68,7 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
           title: const Text(
             '🎶 Nancy Music World',
             style: TextStyle(
-              fontFamily: 'DancingScript', // make sure font added
+              fontFamily: 'DancingScript',
               color: Colors.cyanAccent,
               fontSize: 30,
               fontWeight: FontWeight.bold,
@@ -79,6 +107,8 @@ class _HomeScreenState extends State<HomeScreen> {
         body: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+
+            /// 🔁 Recently Played
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: const [
@@ -98,18 +128,40 @@ class _HomeScreenState extends State<HomeScreen> {
                     onTap: () {
                       // TODO: Play this song
                     },
-                    trailing: IconButton(
-                      icon: const Icon(Icons.close, color: Colors.redAccent),
-                      onPressed: () {
-                        // TODO: Remove from history + undo Snackbar
-                      },
-                    ),
                   );
                 }).toList(),
               ),
             ),
+
             const SizedBox(height: 24),
 
+            /// 🧠 Mood-Based Playlist
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                SectionTitle(title: "Mood: ${MoodService.getCurrentMood()}"),
+                const Text("View All", style: TextStyle(color: Colors.cyanAccent)),
+              ],
+            ),
+            SizedBox(
+              height: 140,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: _moodSongs.map((song) {
+                  return PlaylistCard(
+                    title: song['title'] ?? '',
+                    imageUrl: song['thumbnail'] ?? '',
+                    onTap: () {
+                      // TODO: Play song
+                    },
+                  );
+                }).toList(),
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            /// 📺 YouTube Music Playlists
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: const [
@@ -117,7 +169,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 Text("View All", style: TextStyle(color: Colors.cyanAccent)),
               ],
             ),
-
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -130,9 +181,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       return PlaylistCard(
                         title: playlist['title'] ?? '',
                         imageUrl: thumb,
-                        onTap: () {
-                          // TODO: open local playlist
-                        },
+                        onTap: () => _openPlaylist(playlist),
                       );
                     }).toList(),
                   ),
@@ -146,7 +195,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         title: item['title'] ?? '',
                         imageUrl: item['thumbnail'] ?? '',
                         onTap: () {
-                          // TODO: Play YouTube song
+                          // TODO: Play YouTube playlist
                         },
                       );
                     }).toList(),
@@ -156,8 +205,9 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
 
             const SizedBox(height: 30),
-            const SectionTitle(title: "🎧 Explore Playlists"),
 
+            /// 🎧 Explore All Playlists
+            const SectionTitle(title: "🎧 Explore Playlists"),
             SizedBox(
               height: 160,
               child: ListView(
@@ -168,15 +218,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   return PlaylistCard(
                     title: playlist['title'] ?? '',
                     imageUrl: thumb,
-                    onTap: () {
-                      // TODO: Open playlist
-                    },
+                    onTap: () => _openPlaylist(playlist),
                   );
                 }).toList(),
               ),
             ),
 
             const SizedBox(height: 20),
+
+            /// ▶️ Now Playing
             NowPlayingCard(
               title: _lastPlayed?['title'],
               artist: _lastPlayed?['channel'],
