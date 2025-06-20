@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:share/share.dart';
 import 'package:world_music_nancy/components/base_screen.dart';
 import 'package:world_music_nancy/widgets/neon_aware_tile.dart';
 import 'package:world_music_nancy/screens/player_screen.dart';
@@ -10,7 +11,7 @@ class PlaylistDetailsScreen extends StatefulWidget {
   final String playlistName;
   final String imagePath;
   final String visibility;
-  final String? youtubePlaylistId; // Optional YouTube playlist support
+  final String? youtubePlaylistId;
 
   const PlaylistDetailsScreen({
     super.key,
@@ -26,6 +27,7 @@ class PlaylistDetailsScreen extends StatefulWidget {
 
 class _PlaylistDetailsScreenState extends State<PlaylistDetailsScreen> {
   List<Map<String, String>> _songs = [];
+  List<Map<String, String>> _removedSongs = [];
 
   @override
   void initState() {
@@ -56,6 +58,38 @@ class _PlaylistDetailsScreenState extends State<PlaylistDetailsScreen> {
     }
   }
 
+  void _deleteSong(int index) {
+    final removed = _songs.removeAt(index);
+    _removedSongs.add(removed);
+    setState(() {});
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('🗑️ Song removed'),
+        duration: const Duration(seconds: 5),
+        action: SnackBarAction(
+          label: 'Undo',
+          onPressed: () {
+            setState(() {
+              _songs.insert(index, removed);
+              _removedSongs.remove(removed);
+            });
+          },
+        ),
+      ),
+    );
+  }
+
+  void _sharePlaylist() {
+    final songLinks = _songs.map((s) => s['url']).join('\n');
+    final message = '🎵 Check out my playlist: ${widget.playlistName}\n\n$songLinks';
+    Share.share(message);
+  }
+
+  String _getDurationText() {
+    return "${_songs.length} song${_songs.length == 1 ? '' : 's'}";
+  }
+
   @override
   Widget build(BuildContext context) {
     return BaseScreen(
@@ -63,6 +97,12 @@ class _PlaylistDetailsScreenState extends State<PlaylistDetailsScreen> {
         appBar: AppBar(
           title: Text(widget.playlistName),
           backgroundColor: Colors.black,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.share),
+              onPressed: _sharePlaylist,
+            )
+          ],
         ),
         backgroundColor: Colors.transparent,
         body: Padding(
@@ -84,7 +124,12 @@ class _PlaylistDetailsScreenState extends State<PlaylistDetailsScreen> {
                   alignment: Alignment.center,
                   child: const Icon(Icons.music_note, color: Colors.white70, size: 60),
                 ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
+              Text(
+                _getDurationText(),
+                style: const TextStyle(color: Colors.white70, fontSize: 14),
+              ),
+              const SizedBox(height: 6),
               Text(
                 "Visibility: ${widget.visibility.toUpperCase()}",
                 style: const TextStyle(color: Colors.white70, fontSize: 16),
@@ -106,6 +151,10 @@ class _PlaylistDetailsScreenState extends State<PlaylistDetailsScreen> {
                             ),
                             title: Text(song['title'] ?? '', style: const TextStyle(color: Colors.white)),
                             subtitle: Text(song['channel'] ?? '', style: const TextStyle(color: Colors.white70)),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.redAccent),
+                              onPressed: () => _deleteSong(i),
+                            ),
                             onTap: () {
                               Navigator.push(context, MaterialPageRoute(
                                 builder: (_) => PlayerScreen(
