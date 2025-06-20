@@ -8,6 +8,7 @@ import 'package:world_music_nancy/widgets/neon_aware_container.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:world_music_nancy/screens/lyrics_screen.dart';
+import 'package:share_plus/share_plus.dart';
 
 class PlayerScreen extends StatefulWidget {
   final String title;
@@ -32,6 +33,8 @@ class _PlayerScreenState extends State<PlayerScreen> {
   bool _isPlaying = false;
   bool _isFavorited = false;
   bool _showHeartAnimation = false;
+  bool _isShuffling = false;
+  bool _isRepeating = false;
   Duration _position = Duration.zero;
   Duration _duration = Duration.zero;
 
@@ -46,6 +49,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
   Future<void> _initPlayer() async {
     try {
       await _player.setUrl(widget.url);
+      _player.setLoopMode(LoopMode.off);
       _player.play();
       setState(() => _isPlaying = true);
 
@@ -91,13 +95,18 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
   Future<void> _downloadSong() async {
     final directory = await getApplicationDocumentsDirectory();
-    final filename = widget.title.replaceAll(' ', '_') + ".mp3";
+    final filename = widget.title.replaceAll(RegExp(r'[^\w\s-]'), '_') + ".mp3";
     final path = "${directory.path}/$filename";
 
+    final file = File(path);
+    if (file.existsSync()) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("✅ Already downloaded")));
+      return;
+    }
+
     try {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("⬇️ Song download started...")));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("⬇️ Downloading...")));
       final response = await http.get(Uri.parse(widget.url));
-      final file = File(path);
       await file.writeAsBytes(response.bodyBytes);
 
       final prefs = await SharedPreferences.getInstance();
@@ -105,14 +114,31 @@ class _PlayerScreenState extends State<PlayerScreen> {
       downloads.add('$filename|${widget.title}|${widget.author}');
       await prefs.setStringList('downloaded_songs', downloads);
 
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("✅ Song downloaded!")));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("✅ Download complete")));
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("❌ Download failed")));
     }
   }
 
-  String _formatTime(Duration d) {
-    return d.toString().split('.').first.padLeft(8, "0");
+  void _shareSong() {
+    Share.share("${widget.title} - ${widget.author}\n${widget.url}", subject: "Listen on Nancy Music World");
+  }
+
+  void _toggleShuffle() {
+    setState(() => _isShuffling = !_isShuffling);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(_isShuffling ? "🔀 Shuffle ON" : "➡️ Shuffle OFF")),
+    );
+  }
+
+  void _toggleRepeat() {
+    setState(() {
+      _isRepeating = !_isRepeating;
+      _player.setLoopMode(_isRepeating ? LoopMode.one : LoopMode.off);
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(_isRepeating ? "🔁 Repeat ON" : "⏹ Repeat OFF")),
+    );
   }
 
   void _openLyrics() {
@@ -129,18 +155,14 @@ class _PlayerScreenState extends State<PlayerScreen> {
   }
 
   void _openQueue() {
+    final queue = widget.queue ?? [];
+    final current = {'title': widget.title, 'channel': widget.author, 'url': widget.url};
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.black87,
       isScrollControlled: true,
       builder: (_) {
-        final queue = widget.queue ?? [];
-        final current = {
-          'title': widget.title,
-          'channel': widget.author,
-          'url': widget.url,
-        };
-
         return DraggableScrollableSheet(
           expand: false,
           initialChildSize: 0.8,
@@ -152,10 +174,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
               children: [
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  child: Text(
-                    "🎧 Now Playing Queue",
-                    style: TextStyle(color: Colors.white, fontSize: 18),
-                  ),
+                  child: Text("🎧 Now Playing Queue", style: TextStyle(color: Colors.white, fontSize: 18)),
                 ),
                 Expanded(
                   child: ReorderableListView.builder(
@@ -170,19 +189,12 @@ class _PlayerScreenState extends State<PlayerScreen> {
                     itemBuilder: (_, i) {
                       final song = queue[i];
                       final isCurrent = song['url'] == current['url'];
+                      final videoId = song['url']!.split("v=").last;
 
                       return ListTile(
                         key: ValueKey(song['url']),
-                        leading: isCurrent
-                            ? const Icon(Icons.graphic_eq, color: Colors.cyanAccent)
-                            : const Icon(Icons.music_note, color: Colors.white54),
-                        title: Text(
-                          song['title'] ?? '',
-                          style: TextStyle(
-                            color: isCurrent ? Colors.cyanAccent : Colors.white,
-                            fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
-                          ),
-                        ),
+                        leading: Image.network("https://img.youtube.com/vi/$videoId/0.jpg", width: 48),
+                        title: Text(song['title'] ?? '', style: TextStyle(color: isCurrent ? Colors.cyanAccent : Colors.white)),
                         subtitle: Text(song['channel'] ?? '', style: const TextStyle(color: Colors.white54)),
                         trailing: const Icon(Icons.drag_handle, color: Colors.white30),
                         onTap: () {
@@ -211,6 +223,8 @@ class _PlayerScreenState extends State<PlayerScreen> {
     );
   }
 
+  String _formatTime(Duration d) => d.toString().split('.').first.padLeft(8, "0");
+
   @override
   void dispose() {
     _player.dispose();
@@ -232,8 +246,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                if (_showHeartAnimation)
-                  const Icon(Icons.favorite, size: 100, color: Colors.pinkAccent),
+                if (_showHeartAnimation) const Icon(Icons.favorite, size: 100, color: Colors.pinkAccent),
                 NeonAwareContainer(
                   width: 240,
                   height: 240,
@@ -266,7 +279,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                     )),
                 const SizedBox(height: 30),
                 Slider(
-                  value: _position.inSeconds.toDouble(),
+                  value: _position.inSeconds.clamp(0, _duration.inSeconds).toDouble(),
                   min: 0,
                   max: _duration.inSeconds.toDouble(),
                   onChanged: (val) {
@@ -291,33 +304,26 @@ class _PlayerScreenState extends State<PlayerScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.skip_previous, color: Colors.cyanAccent, size: 40),
-                      onPressed: () {},
+                      icon: Icon(_isShuffling ? Icons.shuffle_on : Icons.shuffle, color: _isShuffling ? Colors.cyanAccent : Colors.white38),
+                      onPressed: _toggleShuffle,
                     ),
+                    IconButton(icon: const Icon(Icons.skip_previous, color: Colors.cyanAccent, size: 40), onPressed: () {}),
                     IconButton(
-                      icon: Icon(
-                        _isPlaying ? Icons.pause_circle_filled : Icons.play_circle_fill,
-                        size: 64,
-                        color: Colors.white,
-                      ),
+                      icon: Icon(_isPlaying ? Icons.pause_circle_filled : Icons.play_circle_fill, size: 64, color: Colors.white),
                       onPressed: _togglePlayback,
                     ),
+                    IconButton(icon: const Icon(Icons.skip_next, color: Colors.cyanAccent, size: 40), onPressed: () {}),
                     IconButton(
-                      icon: const Icon(Icons.skip_next, color: Colors.cyanAccent, size: 40),
-                      onPressed: () {},
-                    ),
-                    const SizedBox(width: 16),
-                    IconButton(
-                      icon: Icon(
-                        _isFavorited ? Icons.favorite : Icons.favorite_border,
-                        size: 36,
-                        color: _isFavorited ? Colors.pinkAccent : Colors.white70,
-                      ),
+                      icon: Icon(_isFavorited ? Icons.favorite : Icons.favorite_border,
+                          size: 36, color: _isFavorited ? Colors.pinkAccent : Colors.white70),
                       onPressed: _toggleFavorite,
                     ),
+                    IconButton(icon: const Icon(Icons.download_rounded, color: Colors.cyanAccent, size: 34), onPressed: _downloadSong),
+                    IconButton(icon: const Icon(Icons.share, color: Colors.white70), onPressed: _shareSong),
                     IconButton(
-                      icon: const Icon(Icons.download_rounded, color: Colors.cyanAccent, size: 34),
-                      onPressed: _downloadSong,
+                      icon: Icon(_isRepeating ? Icons.repeat_one : Icons.repeat,
+                          color: _isRepeating ? Colors.cyanAccent : Colors.white38),
+                      onPressed: _toggleRepeat,
                     ),
                   ],
                 ),
