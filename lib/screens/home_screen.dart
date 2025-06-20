@@ -46,13 +46,13 @@ class _HomeScreenState extends State<HomeScreen> {
         id: e['id'] ?? '',
         thumbnail: e['thumbnail'] ?? '',
       )).toList();
-      _playlists = customPlaylists;
+      _playlists = List<Map<String, dynamic>>.from(customPlaylists);
     });
   }
 
   Future<void> _loadLastPlayed() async {
     final data = await StorageService.getLastPlayed();
-    setState(() => _lastPlayed = data);
+    setState(() => _lastPlayed = Map<String, String>.from(data ?? {}));
   }
 
   Future<void> _loadRecommendations() async {
@@ -76,7 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
       context,
       MaterialPageRoute(
         builder: (_) => PlaylistDetailsScreen(
-          playlistName: playlist['title'],
+          playlistName: playlist['title'] ?? '',
           imagePath: '',
           visibility: playlist['visibility'] ?? 'private',
         ),
@@ -176,7 +176,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: _playlists.take(5).map((playlist) {
-                      final first = playlist['songs'].isNotEmpty ? playlist['songs'][0] : null;
+                      final songs = List<Map<String, dynamic>>.from(playlist['songs'] ?? []);
+                      final first = songs.isNotEmpty ? songs[0] : null;
                       final thumb = first != null ? first['thumbnail'] ?? '' : '';
                       return PlaylistCard(
                         title: playlist['title'] ?? '',
@@ -213,7 +214,8 @@ class _HomeScreenState extends State<HomeScreen> {
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 children: _playlists.map((playlist) {
-                  final first = playlist['songs'].isNotEmpty ? playlist['songs'][0] : null;
+                  final songs = List<Map<String, dynamic>>.from(playlist['songs'] ?? []);
+                  final first = songs.isNotEmpty ? songs[0] : null;
                   final thumb = first != null ? first['thumbnail'] ?? '' : '';
                   return PlaylistCard(
                     title: playlist['title'] ?? '',
