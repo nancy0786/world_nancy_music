@@ -1,6 +1,3 @@
-#!/usr/bin/env bash
-# 📂 lib/services/storage_service.dart
-
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
