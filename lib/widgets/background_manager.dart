@@ -1,3 +1,5 @@
+📄 lib/widgets/background_manager.dart
+
 import 'package:world_music_nancy/widgets/neon_aware_container.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
@@ -12,14 +14,13 @@ class BackgroundManager extends StatefulWidget {
   State<BackgroundManager> createState() => _BackgroundManagerState();
 }
 
-class _BackgroundManagerState extends State<BackgroundManager> with WidgetsBindingObserver {
+class _BackgroundManagerState extends State<BackgroundManager> {
   String? _selectedBackground;
   VideoPlayerController? _videoController;
 
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     _loadBackground();
   }
 
@@ -27,16 +28,8 @@ class _BackgroundManagerState extends State<BackgroundManager> with WidgetsBindi
     final provider = Provider.of<PreferencesProvider>(context, listen: false);
     final category = provider.backgroundCategory;
 
-    if (category == 'dark') {
-      setState(() {
-        _selectedBackground = null;
-        _videoController?.dispose();
-        _videoController = null;
-      });
-      return;
-    }
-
     final backgrounds = _getCategoryBackgrounds(category);
+    if (backgrounds.isEmpty) return;
     final selected = backgrounds[Random().nextInt(backgrounds.length)];
 
     if (selected.endsWith('.mp4')) {
@@ -44,17 +37,16 @@ class _BackgroundManagerState extends State<BackgroundManager> with WidgetsBindi
       await controller.initialize().catchError((e) {
         debugPrint("Video init error: $e");
       });
+
       controller.setLooping(true);
+      controller.setVolume(0); // 🔇 Mute video audio
       controller.play();
 
       setState(() {
         _selectedBackground = selected;
-        _videoController?.dispose();
         _videoController = controller;
       });
     } else {
-      _videoController?.dispose();
-      _videoController = null;
       setState(() {
         _selectedBackground = selected;
       });
@@ -73,7 +65,7 @@ class _BackgroundManagerState extends State<BackgroundManager> with WidgetsBindi
           for (int i = 1; i <= 26; i++) 'assets/backgrounds/nature/nature$i.mp4',
         ];
       case 'dark':
-        return ['black']; // flag for pure black screen
+        return ['assets/backgrounds/dark.jpg'];
       case 'girls':
       default:
         return [
@@ -84,15 +76,7 @@ class _BackgroundManagerState extends State<BackgroundManager> with WidgetsBindi
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Rebuild background immediately on hot reload or theme change
-    _loadBackground();
-  }
-
-  @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
     _videoController?.dispose();
     super.dispose();
   }
@@ -103,16 +87,14 @@ class _BackgroundManagerState extends State<BackgroundManager> with WidgetsBindi
 
     return Positioned.fill(
       child: Stack(
-        fit: StackFit.expand,
         children: [
-          if (_selectedBackground == null || _selectedBackground == 'black')
+          if (_selectedBackground == null)
             const ColoredBox(color: Colors.black)
 
           else if (isVideo)
             (_videoController != null && _videoController!.value.isInitialized)
                 ? FittedBox(
                     fit: BoxFit.cover,
-                    clipBehavior: Clip.hardEdge,
                     child: SizedBox(
                       width: _videoController!.value.size.width,
                       height: _videoController!.value.size.height,
@@ -127,17 +109,12 @@ class _BackgroundManagerState extends State<BackgroundManager> with WidgetsBindi
               fit: BoxFit.cover,
               width: double.infinity,
               height: double.infinity,
-              alignment: Alignment.center,
               errorBuilder: (_, __, ___) => const ColoredBox(color: Colors.black),
             ),
 
-          // 🔮 Neon overlay
-          IgnorePointer(
-            ignoring: true,
-            child: NeonAwareContainer(
-              color: Colors.black.withOpacity(0.35),
-              child: const SizedBox.expand(),
-            ),
+          NeonAwareContainer(
+            color: Colors.black.withOpacity(0.4),
+            child: const SizedBox.shrink(),
           ),
         ],
       ),
