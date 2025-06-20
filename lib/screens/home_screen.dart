@@ -123,7 +123,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: _recentlyPlayed.map((song) {
                   return NeonAwareTile(
                     title: Text(song.title, style: const TextStyle(color: Colors.white)),
-                    subtitle: Text(song.artist, style: const TextStyle(color: Colors.white70)),
+                    subtitle: Text(song.artist ?? '', style: const TextStyle(color: Colors.white70)),
                     leading: Image.network(song.thumbnailUrl ?? '', width: 50, height: 50),
                     onTap: () {
                       // TODO: Play this song
