@@ -129,89 +129,88 @@ class _PlayerScreenState extends State<PlayerScreen> {
   }
 
   void _openQueue() {
-  void _openQueue() {
-  showModalBottomSheet(
-    context: context,
-    backgroundColor: Colors.black87,
-    isScrollControlled: true,
-    builder: (_) {
-      final queue = widget.queue ?? [];
-      final current = {
-        'title': widget.title,
-        'channel': widget.author,
-        'url': widget.url,
-      };
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.black87,
+      isScrollControlled: true,
+      builder: (_) {
+        final queue = widget.queue ?? [];
+        final current = {
+          'title': widget.title,
+          'channel': widget.author,
+          'url': widget.url,
+        };
 
-      return DraggableScrollableSheet(
-        expand: false,
-        initialChildSize: 0.8,
-        minChildSize: 0.4,
-        maxChildSize: 0.95,
-        builder: (_, controller) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                child: Text(
-                  "🎧 Now Playing Queue",
-                  style: TextStyle(color: Colors.white, fontSize: 18),
+        return DraggableScrollableSheet(
+          expand: false,
+          initialChildSize: 0.8,
+          minChildSize: 0.4,
+          maxChildSize: 0.95,
+          builder: (_, controller) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Text(
+                    "🎧 Now Playing Queue",
+                    style: TextStyle(color: Colors.white, fontSize: 18),
+                  ),
                 ),
-              ),
-              Expanded(
-                child: ReorderableListView.builder(
-                  controller: controller,
-                  itemCount: queue.length,
-                  onReorder: (oldIndex, newIndex) {
-                    setState(() {
-                      if (newIndex > oldIndex) newIndex -= 1;
-                      final song = queue.removeAt(oldIndex);
-                      queue.insert(newIndex, song);
-                    });
-                  },
-                  itemBuilder: (_, i) {
-                    final song = queue[i];
-                    final isCurrent = song['url'] == current['url'];
+                Expanded(
+                  child: ReorderableListView.builder(
+                    controller: controller,
+                    itemCount: queue.length,
+                    onReorder: (oldIndex, newIndex) {
+                      setState(() {
+                        if (newIndex > oldIndex) newIndex -= 1;
+                        final song = queue.removeAt(oldIndex);
+                        queue.insert(newIndex, song);
+                      });
+                    },
+                    itemBuilder: (_, i) {
+                      final song = queue[i];
+                      final isCurrent = song['url'] == current['url'];
 
-                    return ListTile(
-                      key: ValueKey(song['url']),
-                      leading: isCurrent
-                          ? const Icon(Icons.graphic_eq, color: Colors.cyanAccent)
-                          : const Icon(Icons.music_note, color: Colors.white54),
-                      title: Text(
-                        song['title'] ?? '',
-                        style: TextStyle(
-                          color: isCurrent ? Colors.cyanAccent : Colors.white,
-                          fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
-                        ),
-                      ),
-                      subtitle: Text(song['channel'] ?? '', style: const TextStyle(color: Colors.white54)),
-                      trailing: const Icon(Icons.drag_handle, color: Colors.white30),
-                      onTap: () {
-                        Navigator.pop(context);
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => PlayerScreen(
-                              title: song['title']!,
-                              author: song['channel']!,
-                              url: song['url']!,
-                              queue: queue,
-                            ),
+                      return ListTile(
+                        key: ValueKey(song['url']),
+                        leading: isCurrent
+                            ? const Icon(Icons.graphic_eq, color: Colors.cyanAccent)
+                            : const Icon(Icons.music_note, color: Colors.white54),
+                        title: Text(
+                          song['title'] ?? '',
+                          style: TextStyle(
+                            color: isCurrent ? Colors.cyanAccent : Colors.white,
+                            fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
                           ),
-                        );
-                      },
-                    );
-                  },
+                        ),
+                        subtitle: Text(song['channel'] ?? '', style: const TextStyle(color: Colors.white54)),
+                        trailing: const Icon(Icons.drag_handle, color: Colors.white30),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => PlayerScreen(
+                                title: song['title']!,
+                                author: song['channel']!,
+                                url: song['url']!,
+                                queue: queue,
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
                 ),
-              ),
-            ],
-          );
-        },
-      );
-    },
-  );
-}
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
 
   @override
   void dispose() {
