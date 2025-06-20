@@ -12,21 +12,29 @@ class BackgroundManager extends StatefulWidget {
   State<BackgroundManager> createState() => _BackgroundManagerState();
 }
 
-class _BackgroundManagerState extends State<BackgroundManager> {
+class _BackgroundManagerState extends State<BackgroundManager> with WidgetsBindingObserver {
   String? _selectedBackground;
   VideoPlayerController? _videoController;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadBackground();
-    });
+    WidgetsBinding.instance.addObserver(this);
+    _loadBackground();
   }
 
   void _loadBackground() async {
     final provider = Provider.of<PreferencesProvider>(context, listen: false);
     final category = provider.backgroundCategory;
+
+    if (category == 'dark') {
+      setState(() {
+        _selectedBackground = null;
+        _videoController?.dispose();
+        _videoController = null;
+      });
+      return;
+    }
 
     final backgrounds = _getCategoryBackgrounds(category);
     final selected = backgrounds[Random().nextInt(backgrounds.length)];
@@ -41,9 +49,12 @@ class _BackgroundManagerState extends State<BackgroundManager> {
 
       setState(() {
         _selectedBackground = selected;
+        _videoController?.dispose();
         _videoController = controller;
       });
     } else {
+      _videoController?.dispose();
+      _videoController = null;
       setState(() {
         _selectedBackground = selected;
       });
@@ -62,7 +73,7 @@ class _BackgroundManagerState extends State<BackgroundManager> {
           for (int i = 1; i <= 26; i++) 'assets/backgrounds/nature/nature$i.mp4',
         ];
       case 'dark':
-        return ['assets/backgrounds/dark.jpg'];
+        return ['black']; // flag for pure black screen
       case 'girls':
       default:
         return [
@@ -73,7 +84,15 @@ class _BackgroundManagerState extends State<BackgroundManager> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Rebuild background immediately on hot reload or theme change
+    _loadBackground();
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _videoController?.dispose();
     super.dispose();
   }
@@ -84,26 +103,41 @@ class _BackgroundManagerState extends State<BackgroundManager> {
 
     return Positioned.fill(
       child: Stack(
+        fit: StackFit.expand,
         children: [
-          if (_selectedBackground == null)
+          if (_selectedBackground == null || _selectedBackground == 'black')
             const ColoredBox(color: Colors.black)
 
           else if (isVideo)
             (_videoController != null && _videoController!.value.isInitialized)
-                ? VideoPlayer(_videoController!)
+                ? FittedBox(
+                    fit: BoxFit.cover,
+                    clipBehavior: Clip.hardEdge,
+                    child: SizedBox(
+                      width: _videoController!.value.size.width,
+                      height: _videoController!.value.size.height,
+                      child: VideoPlayer(_videoController!),
+                    ),
+                  )
                 : const ColoredBox(color: Colors.black)
 
           else
             Image.asset(
               _selectedBackground!,
               fit: BoxFit.cover,
+              width: double.infinity,
+              height: double.infinity,
+              alignment: Alignment.center,
               errorBuilder: (_, __, ___) => const ColoredBox(color: Colors.black),
             ),
 
-          // ✅ Error 4 fixed: child is required
-          NeonAwareContainer(
-            color: Colors.black.withOpacity(0.4),
-            child: const SizedBox.shrink(),
+          // 🔮 Neon overlay
+          IgnorePointer(
+            ignoring: true,
+            child: NeonAwareContainer(
+              color: Colors.black.withOpacity(0.35),
+              child: const SizedBox.expand(),
+            ),
           ),
         ],
       ),
