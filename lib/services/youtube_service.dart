@@ -6,11 +6,10 @@ import 'package:http/http.dart' as http;
 class YouTubeService {
   static final YoutubeExplode _yt = YoutubeExplode();
 
-  // 🔐 Replace with your actual API key
   static const String apiKey = 'AIzaSyCrKr-n_iRaLmLjT-qwKnYe_b6BHatvGl8';
   static const String baseUrl = 'https://www.googleapis.com/youtube/v3';
 
-  /// 🔊 Get direct audio stream for a YouTube video
+  /// 🔊 Direct audio stream (still using youtube_explode_dart)
   static Future<Map<String, String>?> getAudioStream(String videoId) async {
     try {
       final video = await _yt.videos.get('https://www.youtube.com/watch?v=$videoId');
@@ -23,21 +22,34 @@ class YouTubeService {
         'thumbnail': video.thumbnails.highResUrl,
       };
     } catch (e) {
-      debugPrint('Error fetching YouTube stream: $e');
+      debugPrint('Error fetching audio stream: $e');
       return null;
     }
   }
 
-  /// 🔍 Search videos using youtube_explode_dart (no quota)
+  /// 🔍 Search YouTube using API v3
   static Future<List<Map<String, String>>> search(String query) async {
     try {
-      final results = await _yt.search.getVideos(query);
-      return results.map((video) {
+      final url = Uri.parse(
+        '$baseUrl/search?part=snippet&type=video&maxResults=25&q=$query&key=$apiKey',
+      );
+      final response = await http.get(url);
+
+      if (response.statusCode != 200) {
+        debugPrint('Search failed: ${response.body}');
+        return [];
+      }
+
+      final data = jsonDecode(response.body);
+      final List items = data['items'];
+
+      return items.map<Map<String, String>>((item) {
+        final snippet = item['snippet'];
         return {
-          'videoId': video.id.value,
-          'title': video.title,
-          'thumbnail': video.thumbnails.highResUrl,
-          'channel': video.author,
+          'videoId': item['id']['videoId'],
+          'title': snippet['title'],
+          'thumbnail': snippet['thumbnails']['high']['url'],
+          'channel': snippet['channelTitle'],
         };
       }).toList();
     } catch (e) {
@@ -46,7 +58,7 @@ class YouTubeService {
     }
   }
 
-  /// 📺 Get videos from a YouTube playlist using official API
+  /// 📺 Playlist videos via API
   static Future<List<Map<String, String>>> getSongsFromPlaylist(String playlistId) async {
     try {
       final url = Uri.parse(
@@ -55,7 +67,7 @@ class YouTubeService {
 
       final response = await http.get(url);
       if (response.statusCode != 200) {
-        debugPrint("YouTube API Error: ${response.statusCode}");
+        debugPrint("Playlist error: ${response.statusCode}");
         return [];
       }
 
@@ -78,7 +90,7 @@ class YouTubeService {
     }
   }
 
-  /// 🎵 Return a curated list of music categories with playlist ID (you can expand this)
+  /// 🎵 Hardcoded playlists
   static Future<List<Map<String, String>>> getMusicPlaylists() async {
     final List<Map<String, String>> playlists = [
       {
@@ -101,9 +113,10 @@ class YouTubeService {
     return playlists;
   }
 
-  /// 🧠 Smart Autocomplete Suggestions (used in search)
+  /// 🧠 Autocomplete suggestions via unofficial endpoint
   static Future<List<String>> fetchSuggestions(String query) async {
-    final suggestUrl = Uri.parse('http://suggestqueries.google.com/complete/search?client=firefox&ds=yt&q=$query');
+    final suggestUrl = Uri.parse(
+        'https://suggestqueries.google.com/complete/search?client=firefox&ds=yt&q=$query');
     try {
       final res = await http.get(suggestUrl);
       if (res.statusCode == 200) {
@@ -116,7 +129,6 @@ class YouTubeService {
     return [];
   }
 
-  /// ❌ Clean-up
   static void dispose() {
     _yt.close();
   }
