@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:share/share.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:world_music_nancy/components/base_screen.dart';
 import 'package:world_music_nancy/widgets/neon_aware_tile.dart';
 import 'package:world_music_nancy/screens/player_screen.dart';
@@ -48,13 +48,16 @@ class _PlaylistDetailsScreenState extends State<PlaylistDetailsScreen> {
 
       final localSongs = (matched['songs'] ?? []) as List<dynamic>;
       setState(() {
-        _songs = localSongs.map((e) => {
-              'title': e['title'] ?? '',
-              'thumbnail': e['thumbnail'] ?? '',
-              'channel': e['channel'] ?? '',
-              'url': e['url'] ?? '',
-              'videoId': e['videoId'] ?? '',
-            }).toList();
+        _songs = localSongs.map((e) {
+          final song = Map<String, String>.from(e);
+          return {
+            'title': song['title'] ?? '',
+            'thumbnail': song['thumbnail'] ?? '',
+            'channel': song['channel'] ?? '',
+            'url': song['url'] ?? '',
+            'videoId': song['videoId'] ?? '',
+          };
+        }).toList();
       });
     }
   }
@@ -108,7 +111,7 @@ Open in app: $link
     for (var song in _songs) {
       if (song['videoId'] != null) {
         final data = await YouTubeService.getAudioStream(song['videoId']!);
-        if (data != null) {
+        if (data != null && data['url'] != null && data['title'] != null) {
           await StorageService.downloadAudio(data['url']!, data['title']!);
         }
       }
