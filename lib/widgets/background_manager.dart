@@ -1,5 +1,3 @@
-📄 lib/widgets/background_manager.dart
-
 import 'package:world_music_nancy/widgets/neon_aware_container.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
