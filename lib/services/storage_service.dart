@@ -1,4 +1,7 @@
 import 'dart:convert';
+import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'database_service.dart';
 
@@ -103,5 +106,25 @@ class StorageService {
     final email = await getCurrentUser();
     if (email == null) return;
     await DatabaseService.savePlaylists(email, playlists);
+  }
+
+  // ⬇️ DOWNLOAD SONG
+  static Future<void> downloadAudio(String url, String title) async {
+    try {
+      final response = await http.get(Uri.parse(url));
+      final directory = await getApplicationDocumentsDirectory();
+      final filename = title.replaceAll(' ', '_') + '.mp3';
+      final filePath = '${directory.path}/$filename';
+
+      final file = File(filePath);
+      await file.writeAsBytes(response.bodyBytes);
+
+      final prefs = await SharedPreferences.getInstance();
+      final downloaded = prefs.getStringList('downloaded_songs') ?? [];
+      downloaded.add('$filename|$title');
+      await prefs.setStringList('downloaded_songs', downloaded);
+    } catch (e) {
+      print('Download failed: $e');
+    }
   }
 }
