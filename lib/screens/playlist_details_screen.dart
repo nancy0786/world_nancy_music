@@ -49,11 +49,12 @@ class _PlaylistDetailsScreenState extends State<PlaylistDetailsScreen> {
       final localSongs = (matched['songs'] ?? []) as List<dynamic>;
       setState(() {
         _songs = localSongs.map((e) => {
-          'title': e['title'] ?? '',
-          'thumbnail': e['thumbnail'] ?? '',
-          'channel': e['channel'] ?? '',
-          'url': e['url'] ?? '',
-        }).toList();
+              'title': e['title'] ?? '',
+              'thumbnail': e['thumbnail'] ?? '',
+              'channel': e['channel'] ?? '',
+              'url': e['url'] ?? '',
+              'videoId': e['videoId'] ?? '',
+            }).toList();
       });
     }
   }
@@ -62,7 +63,6 @@ class _PlaylistDetailsScreenState extends State<PlaylistDetailsScreen> {
     final removed = _songs.removeAt(index);
     _removedSongs.add(removed);
     setState(() {});
-
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Text('🗑️ Song removed'),
@@ -81,9 +81,41 @@ class _PlaylistDetailsScreenState extends State<PlaylistDetailsScreen> {
   }
 
   void _sharePlaylist() {
-    final songLinks = _songs.map((s) => s['url']).join('\n');
-    final message = '🎵 Check out my playlist: ${widget.playlistName}\n\n$songLinks';
+    final link = 'nancymusic://playlist?name=${Uri.encodeComponent(widget.playlistName)}';
+    final message = '''
+🎵 Check out my playlist on Nancy Music World: ${widget.playlistName}
+Open in app: $link
+''';
     Share.share(message);
+  }
+
+  void _playAll() {
+    if (_songs.isEmpty) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PlayerScreen(
+          title: _songs[0]['title']!,
+          author: _songs[0]['channel']!,
+          url: _songs[0]['url']!,
+          queue: _songs,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _downloadAll() async {
+    for (var song in _songs) {
+      if (song['videoId'] != null) {
+        final data = await YouTubeService.getAudioStream(song['videoId']!);
+        if (data != null) {
+          await StorageService.downloadAudio(data['url']!, data['title']!);
+        }
+      }
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("⬇ All songs are being downloaded")),
+    );
   }
 
   String _getDurationText() {
@@ -98,10 +130,9 @@ class _PlaylistDetailsScreenState extends State<PlaylistDetailsScreen> {
           title: Text(widget.playlistName),
           backgroundColor: Colors.black,
           actions: [
-            IconButton(
-              icon: const Icon(Icons.share),
-              onPressed: _sharePlaylist,
-            )
+            IconButton(icon: const Icon(Icons.play_arrow), onPressed: _playAll),
+            IconButton(icon: const Icon(Icons.download), onPressed: _downloadAll),
+            IconButton(icon: const Icon(Icons.share), onPressed: _sharePlaylist),
           ],
         ),
         backgroundColor: Colors.transparent,
@@ -156,18 +187,21 @@ class _PlaylistDetailsScreenState extends State<PlaylistDetailsScreen> {
                               onPressed: () => _deleteSong(i),
                             ),
                             onTap: () {
-                              Navigator.push(context, MaterialPageRoute(
-                                builder: (_) => PlayerScreen(
-                                  title: song['title']!,
-                                  author: song['channel']!,
-                                  url: song['url']!,
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => PlayerScreen(
+                                    title: song['title']!,
+                                    author: song['channel']!,
+                                    url: song['url']!,
+                                  ),
                                 ),
-                              ));
+                              );
                             },
                           );
                         },
                       ),
-              )
+              ),
             ],
           ),
         ),
