@@ -159,7 +159,6 @@ class _PlayerScreenState extends State<PlayerScreen> {
                 ),
                 Expanded(
                   child: ReorderableListView.builder(
-                    controller: controller,
                     itemCount: queue.length,
                     onReorder: (oldIndex, newIndex) {
                       setState(() {
