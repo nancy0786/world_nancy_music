@@ -1,10 +1,10 @@
 import 'package:world_music_nancy/widgets/neon_aware_container.dart';
-import 'package:world_music_nancy/widgets/neon_aware_container.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:world_music_nancy/components/base_screen.dart';
 import 'package:world_music_nancy/screens/playlist_details_screen.dart';
+import 'package:world_music_nancy/widgets/mini_player_bar.dart'; // ✅ Added
 
 class SavedPlaylistsScreen extends StatefulWidget {
   const SavedPlaylistsScreen({super.key});
@@ -97,63 +97,74 @@ class _SavedPlaylistsScreenState extends State<SavedPlaylistsScreen> {
           centerTitle: true,
         ),
         backgroundColor: Colors.transparent,
-        body: _playlists.isEmpty
-            ? const Center(
-                child: Text(
-                  "No playlists saved yet.",
-                  style: TextStyle(color: Colors.white70),
-                ),
-              )
-            : Padding(
-                padding: const EdgeInsets.all(16),
-                child: GridView.builder(
-                  itemCount: _playlists.length,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 0.85,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 16,
-                  ),
-                  itemBuilder: (context, index) {
-                    final playlist = _playlists[index];
-                    return GestureDetector(
-                      onTap: () => _openPlaylist(playlist),
-                      onLongPress: () => _deletePlaylist(index),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Expanded(
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: playlist['imagePath'] != ''
-                                  ? Image.file(
-                                      File(playlist['imagePath']!),
-                                      fit: BoxFit.cover,
-                                    )
-                                  : NeonAwareContainer(
-                                      color: Colors.grey[800],
-                                      child: const Icon(Icons.music_note, color: Colors.white70, size: 40),
-                                    ),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            playlist['name'] ?? '',
-                            style: const TextStyle(
-                              color: Colors.cyanAccent,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
+        body: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: 80), // space for mini player
+              child: _playlists.isEmpty
+                  ? const Center(
+                      child: Text(
+                        "No playlists saved yet.",
+                        style: TextStyle(color: Colors.white70),
                       ),
-                    );
-                  },
-                ),
-              ),
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: GridView.builder(
+                        itemCount: _playlists.length,
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: 0.85,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 16,
+                        ),
+                        itemBuilder: (context, index) {
+                          final playlist = _playlists[index];
+                          return GestureDetector(
+                            onTap: () => _openPlaylist(playlist),
+                            onLongPress: () => _deletePlaylist(index),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Expanded(
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: playlist['imagePath'] != ''
+                                        ? Image.file(
+                                            File(playlist['imagePath']!),
+                                            fit: BoxFit.cover,
+                                          )
+                                        : NeonAwareContainer(
+                                            color: Colors.grey[800],
+                                            child: const Icon(Icons.music_note, color: Colors.white70, size: 40),
+                                          ),
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  playlist['name'] ?? '',
+                                  style: const TextStyle(
+                                    color: Colors.cyanAccent,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+            ),
+            const Align(
+              alignment: Alignment.bottomCenter,
+              child: MiniPlayerBar(), // ✅ Mini player added
+            ),
+          ],
+        ),
       ),
     );
   }
