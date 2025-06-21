@@ -82,7 +82,7 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
         builder: (_) => PlayerScreen(
           title: song['title'] ?? 'No Title',
           author: song['author'] ?? 'Unknown',
-          url: path, // local path
+          url: path,
         ),
       ),
     );
@@ -100,51 +100,81 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
       child: Scaffold(
         appBar: AppBar(title: const Text("Downloads")),
         backgroundColor: Colors.transparent,
-        body: _songs.isEmpty
-            ? const Center(
-                child: Text("No downloaded songs found.", style: TextStyle(color: Colors.white70)),
-              )
-            : ListView.builder(
-                itemCount: _songs.length,
-                itemBuilder: (context, index) {
-                  final song = _songs[index];
-                  return NeonAwareTile(
-                    leading: song['thumb'] != null
-                        ? Image.network(song['thumb'], width: 50, height: 50, fit: BoxFit.cover)
-                        : const Icon(Icons.music_note, color: Colors.white),
-                    title: Text(song['title'] ?? 'No Title', style: const TextStyle(color: Colors.white)),
-                    subtitle: Text(song['author'] ?? 'Unknown', style: const TextStyle(color: Colors.white54)),
-                    onTap: () => _playSong(song),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (_) => AlertDialog(
-                            backgroundColor: Colors.black87,
-                            title: const Text("Delete Song?", style: TextStyle(color: Colors.white)),
-                            content: const Text("Are you sure you want to delete this song?",
-                                style: TextStyle(color: Colors.white60)),
-                            actions: [
-                              TextButton(
-                                child: const Text("Cancel"),
-                                onPressed: () => Navigator.pop(context),
-                              ),
-                              TextButton(
-                                child: const Text("Delete", style: TextStyle(color: Colors.redAccent)),
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                  _deleteSong(index);
-                                },
-                              ),
-                            ],
+        body: Column(
+          children: [
+            Expanded(
+              child: _songs.isEmpty
+                  ? const Center(
+                      child: Text(
+                        "No downloaded songs found.",
+                        style: TextStyle(color: Colors.white70),
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: _songs.length,
+                      itemBuilder: (context, index) {
+                        final song = _songs[index];
+                        return NeonAwareTile(
+                          leading: song['thumb'] != null
+                              ? Image.network(song['thumb'], width: 50, height: 50, fit: BoxFit.cover)
+                              : const Icon(Icons.music_note, color: Colors.white),
+                          title: Text(song['title'] ?? 'No Title', style: const TextStyle(color: Colors.white)),
+                          subtitle: Text(song['author'] ?? 'Unknown', style: const TextStyle(color: Colors.white54)),
+                          onTap: () => _playSong(song),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (_) => AlertDialog(
+                                  backgroundColor: Colors.black87,
+                                  title: const Text("Delete Song?", style: TextStyle(color: Colors.white)),
+                                  content: const Text(
+                                    "Are you sure you want to delete this song?",
+                                    style: TextStyle(color: Colors.white60),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      child: const Text("Cancel"),
+                                      onPressed: () => Navigator.pop(context),
+                                    ),
+                                    TextButton(
+                                      child: const Text("Delete", style: TextStyle(color: Colors.redAccent)),
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                        _deleteSong(index);
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
                           ),
                         );
                       },
                     ),
-                  );
-                },
+            ),
+
+            // 🎵 Mini Player Placeholder
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => PlayerScreen(title: '', author: '', url: '')),
+                );
+              },
+              child: Container(
+                height: 60,
+                color: Colors.black87,
+                alignment: Alignment.center,
+                child: const Text(
+                  '🎵 Mini Player - Tap to open Player Screen',
+                  style: TextStyle(color: Colors.white70),
+                ),
               ),
+            ),
+          ],
+        ),
       ),
     );
   }
