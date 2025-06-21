@@ -9,7 +9,6 @@ class YouTubeService {
   static const String apiKey = 'AIzaSyCrKr-n_iRaLmLjT-qwKnYe_b6BHatvGl8';
   static const String baseUrl = 'https://www.googleapis.com/youtube/v3';
 
-  /// 🔊 Get high-quality direct audio stream for a YouTube video
   static Future<Map<String, String>?> getAudioStream(String videoId) async {
     try {
       final video = await _yt.videos.get('https://www.youtube.com/watch?v=$videoId');
@@ -27,13 +26,11 @@ class YouTubeService {
     }
   }
 
-  /// 🔍 YouTube search using official API (more stable than youtube_explode_dart)
   static Future<List<Map<String, String>>> search(String query) async {
     try {
       final url = Uri.parse(
         '$baseUrl/search?part=snippet&type=video&maxResults=25&q=${Uri.encodeComponent(query)}&key=$apiKey',
       );
-
       final response = await http.get(url);
       if (response.statusCode != 200) {
         debugPrint('Search failed: ${response.body}');
@@ -42,7 +39,6 @@ class YouTubeService {
 
       final data = jsonDecode(response.body);
       final List items = data['items'];
-
       return items.map<Map<String, String>>((item) {
         final snippet = item['snippet'];
         return {
@@ -58,7 +54,6 @@ class YouTubeService {
     }
   }
 
-  /// 📺 Load all videos from a YouTube playlist using API v3
   static Future<List<Map<String, String>>> getSongsFromPlaylist(String playlistId) async {
     List<Map<String, String>> allVideos = [];
     String? nextPageToken;
@@ -68,7 +63,6 @@ class YouTubeService {
         final url = Uri.parse(
           '$baseUrl/playlistItems?part=snippet&maxResults=50&playlistId=$playlistId&pageToken=${nextPageToken ?? ""}&key=$apiKey',
         );
-
         final response = await http.get(url);
         if (response.statusCode != 200) {
           debugPrint("Playlist error: ${response.statusCode}");
@@ -99,28 +93,48 @@ class YouTubeService {
     return allVideos;
   }
 
-  /// 🎵 Curated playlists to be used on the Home screen (can be dynamic later)
   static Future<List<Map<String, String>>> getMusicPlaylists() async {
-    return [
-      {
-        'title': 'Romantic Hits',
-        'playlistId': 'PLFgquLnL59alCl_2TQvOiD5Vgm1hCaGSI',
-        'thumbnail': 'https://img.youtube.com/vi/8ZcmTl_1ER8/mqdefault.jpg',
-      },
-      {
-        'title': 'Trending India',
-        'playlistId': 'PLrEnWoR732-BHrPp_Pm8_VleD68f9s14-',
-        'thumbnail': 'https://img.youtube.com/vi/DhWFGTSqkCU/mqdefault.jpg',
-      },
-      {
-        'title': 'Bollywood Chill',
-        'playlistId': 'PLRBp0Fe2GpglkQ6w0DLy3ApK_M5BXrbSp',
-        'thumbnail': 'https://img.youtube.com/vi/0J2QdDbelmY/mqdefault.jpg',
-      }
+    final sections = [
+      'Romantic Hits',
+      'Bollywood Chill',
+      'Monsoon Vibes',
+      'Workout Motivation',
+      'Old Hindi Songs',
+      'Top 50 India',
+      'Arijit Singh Hits',
+      '90s Bollywood',
+      'Indie Pop',
+      'Love Anthems',
+      'Sad Songs Hindi',
+      'Desi EDM',
+      'Atif Aslam Special',
+      'Jubin Nautiyal Vibes',
+      'Tulsi Kumar Mix',
     ];
+
+    List<Map<String, String>> playlists = [];
+
+    for (final name in sections) {
+      try {
+        final searchResults = await _yt.search.search(name);
+        final firstPlaylist = searchResults
+            .where((e) => e is Playlist)
+            .cast<Playlist>()
+            .first;
+
+        playlists.add({
+          'title': firstPlaylist.title,
+          'playlistId': firstPlaylist.id.value,
+          'thumbnail': firstPlaylist.thumbnails.highResUrl,
+        });
+      } catch (e) {
+        debugPrint('Could not fetch playlist for "$name": $e');
+      }
+    }
+
+    return playlists;
   }
 
-  /// 🤖 YouTube Autocomplete Suggestions (not from API, but reliable)
   static Future<List<String>> fetchSuggestions(String query) async {
     final suggestUrl = Uri.parse(
       'https://suggestqueries.google.com/complete/search?client=firefox&ds=yt&q=${Uri.encodeComponent(query)}',
@@ -137,7 +151,6 @@ class YouTubeService {
     return [];
   }
 
-  /// 🧹 Clean up
   static void dispose() {
     _yt.close();
   }
