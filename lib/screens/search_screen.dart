@@ -75,7 +75,7 @@ class _SearchScreenState extends State<SearchScreen> {
     });
 
     await _saveSearchHistory(query);
-    final results = await YouTubeService.search(query); // <-- API v3 now
+    final results = await YouTubeService.search(query); // <-- API v3
     setState(() {
       _results = results;
       _isLoading = false;
@@ -234,6 +234,16 @@ class _SearchScreenState extends State<SearchScreen> {
                 padding: EdgeInsets.all(20),
                 child: Text("🚫 No results found", style: TextStyle(color: Colors.white70)),
               ),
+
+            Container(
+              height: 60,
+              alignment: Alignment.center,
+              color: Colors.black87,
+              child: const Text(
+                "🎵 Mini Player - Tap to open",
+                style: TextStyle(color: Colors.white70),
+              ),
+            ),
           ],
         ),
       ),
