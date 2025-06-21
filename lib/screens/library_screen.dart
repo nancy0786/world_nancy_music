@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:world_music_nancy/components/base_screen.dart';
-import 'package:world_music_nancy/components/recently_played_tile.dart';
-import 'package:world_music_nancy/components/history_tile.dart';
 import 'package:world_music_nancy/components/download_button.dart';
 import 'package:world_music_nancy/components/settings_tile.dart';
 import 'package:world_music_nancy/widgets/theme_selector.dart';
 import 'package:world_music_nancy/components/custom_app_bar.dart';
 import 'package:world_music_nancy/utils/neon_themes.dart';
-import 'package:world_music_nancy/models/song_model.dart';
-import 'package:world_music_nancy/widgets/playlist_card.dart';
 import 'package:world_music_nancy/widgets/neon_aware_button.dart';
 
 class LibraryScreen extends StatelessWidget {
@@ -16,96 +12,82 @@ class LibraryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dummySong = SongModel(
-      title: 'Sample Song',
-      artist: 'Unknown Artist',
-      thumbnail: '',
-      thumbnailUrl: '',
-      url: '',
-      channel: '',
-      id: 'dummy-id',
-    );
-
     return BaseScreen(
       child: Scaffold(
         appBar: const CustomAppBar(title: 'Library'),
         backgroundColor: Colors.transparent,
-        body: ListView(
-          padding: const EdgeInsets.all(16),
+        body: Column(
           children: [
-            RecentlyPlayedTile(song: dummySong, onTap: () {}),
-            const SizedBox(height: 10),
-            HistoryTile(song: dummySong, onTap: () {}),
-            const SizedBox(height: 10),
-            DownloadButton(onPressed: () {}), // ✅ fixed: used onPressed
-            const SizedBox(height: 20),
-
-            _sectionHeader(context, "Saved Playlists", onViewAll: () {
-              Navigator.pushNamed(context, '/playlist');
-            }),
-
-            const SizedBox(height: 10),
-            SizedBox(
-              height: 180,
+            Expanded(
               child: ListView(
-                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.all(16),
                 children: [
-                  PlaylistCard(
-                    title: "❤️ Romantic Hits",
-                    imageUrl: "https://img.youtube.com/vi/Umqb9KENgmk/0.jpg",
-                    onTap: () {},
+                  DownloadButton(onPressed: () {}),
+
+                  const SizedBox(height: 20),
+
+                  _sectionHeader(context, "Saved Playlists", onViewAll: () {
+                    Navigator.pushNamed(context, '/savedPlaylists');
+                  }),
+
+                  const SizedBox(height: 10),
+
+                  // Playlist cards will now be fetched dynamically inside savedPlaylists screen
+
+                  const SizedBox(height: 30),
+
+                  NeonAwareButton(
+                    icon: Icons.playlist_add,
+                    text: "Create Playlist",
+                    onTap: () {
+                      Navigator.pushNamed(context, '/createPlaylist');
+                    },
                   ),
-                  const SizedBox(width: 12),
-                  PlaylistCard(
-                    title: "🔥 Workout Bangers",
-                    imageUrl: "https://img.youtube.com/vi/FYVvE4tr2BI/0.jpg",
-                    onTap: () {},
+                  const SizedBox(height: 10),
+                  NeonAwareButton(
+                    icon: Icons.favorite,
+                    text: "Favourite Songs",
+                    onTap: () {
+                      Navigator.pushNamed(context, '/favorites');
+                    },
                   ),
-                  const SizedBox(width: 12),
-                  PlaylistCard(
-                    title: "🌙 Chill Nights",
-                    imageUrl: "https://img.youtube.com/vi/dummy/0.jpg",
-                    onTap: () {},
+                  const SizedBox(height: 10),
+                  NeonAwareButton(
+                    icon: Icons.edit_note_rounded,
+                    text: "View / Edit Playlists",
+                    onTap: () {
+                      Navigator.pushNamed(context, '/savedPlaylists');
+                    },
+                  ),
+
+                  const SizedBox(height: 20),
+                  ThemeSelector(themes: NeonThemes.themes),
+                  const SizedBox(height: 10),
+                  SettingsTile(
+                    icon: Icons.settings,
+                    title: 'App Settings',
+                    onTap: () {
+                      Navigator.pushNamed(context, '/profile');
+                    },
                   ),
                 ],
               ),
             ),
 
-            const SizedBox(height: 30),
-
-            NeonAwareButton(
-              icon: Icons.playlist_add,
-              text: "Create Playlist",
+            // 🎵 Mini Player Placeholder
+            GestureDetector(
               onTap: () {
-                Navigator.pushNamed(context, '/createPlaylist');
+                Navigator.pushNamed(context, '/player');
               },
-            ),
-            const SizedBox(height: 10),
-            NeonAwareButton(
-              icon: Icons.favorite,
-              text: "Favourite Songs",
-              onTap: () {
-                Navigator.pushNamed(context, '/favorites');
-              },
-            ),
-            const SizedBox(height: 10),
-            NeonAwareButton(
-              icon: Icons.edit_note_rounded,
-              text: "View / Edit Playlists",
-              onTap: () {
-                Navigator.pushNamed(context, '/playlist');
-              },
-            ),
-
-            const SizedBox(height: 20),
-            ThemeSelector(themes: NeonThemes.themes),
-            const SizedBox(height: 10),
-            SettingsTile(
-              icon: Icons.settings,
-              title: 'App Settings',
-              onTap: () {
-                Navigator.pushNamed(context, '/profile'); // Update route if needed
-              },
+              child: Container(
+                height: 60,
+                color: Colors.black87,
+                alignment: Alignment.center,
+                child: const Text(
+                  '🎵 Mini Player - Tap to open Player Screen',
+                  style: TextStyle(color: Colors.white70),
+                ),
+              ),
             ),
           ],
         ),
@@ -128,7 +110,7 @@ class LibraryScreen extends StatelessWidget {
         ),
         if (onViewAll != null)
           TextButton(
-            onPressed: onViewAll, // ✅ fixed: was `onTap`
+            onPressed: onViewAll,
             child: const Text("View All", style: TextStyle(color: Colors.pinkAccent)),
           ),
       ],
