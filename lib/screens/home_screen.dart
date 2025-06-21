@@ -23,6 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Map<String, String>? _lastPlayed;
   List<Map<String, String>> _topSongs = [];
   Map<String, List<Map<String, String>>> _exploreSections = {};
+  bool _isLoading = true;
 
   final List<String> _subSections = [
     "Romantic Hits", "Monsoon Melodies", "Bollywood Classics", "Workout Tunes",
@@ -34,11 +35,18 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _loadData();
-    _loadLastPlayed();
-    _loadRecommendations();
-    _loadTopSongs();
-    _loadExploreSections();
+    _loadAllData();
+  }
+
+  Future<void> _loadAllData() async {
+    await Future.wait([
+      _loadData(),
+      _loadLastPlayed(),
+      _loadRecommendations(),
+      _loadTopSongs(),
+      _loadExploreSections(),
+    ]);
+    setState(() => _isLoading = false);
   }
 
   Future<void> _loadData() async {
@@ -109,6 +117,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildTopSongsGrid() {
+    if (_topSongs.isEmpty) return const SizedBox();
     return GridView.builder(
       itemCount: _topSongs.length,
       shrinkWrap: true,
@@ -143,6 +152,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   width: 70,
                   height: 70,
                   fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Container(
+                    color: Colors.grey[800],
+                    width: 70,
+                    height: 70,
+                    child: const Icon(Icons.music_note, color: Colors.white54),
+                  ),
                 ),
               ),
               const SizedBox(height: 4),
@@ -160,6 +175,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildExploreSection(String title, List<Map<String, String>> playlists) {
+    if (playlists.isEmpty) return const SizedBox();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -203,97 +219,99 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ),
-        body: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            if (_recentlyPlayed.isNotEmpty) ...[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  SectionTitle(title: "Recently Played"),
-                  Text("View All", style: TextStyle(color: Colors.cyanAccent)),
+        body: _isLoading
+            ? const Center(child: CircularProgressIndicator(color: Colors.cyanAccent))
+            : ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  if (_recentlyPlayed.isNotEmpty) ...[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: const [
+                        SectionTitle(title: "Recently Played"),
+                        Text("View All", style: TextStyle(color: Colors.cyanAccent)),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 120,
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        children: _recentlyPlayed.map((song) {
+                          return NeonAwareTile(
+                            title: Text(song.title, style: const TextStyle(color: Colors.white)),
+                            subtitle: Text(song.artist ?? '', style: const TextStyle(color: Colors.white70)),
+                            leading: Image.network(
+                              song.thumbnailUrl ?? '',
+                              width: 50,
+                              height: 50,
+                              errorBuilder: (_, __, ___) => const Icon(Icons.music_note, color: Colors.white),
+                            ),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => PlayerScreen(
+                                    title: song.title,
+                                    author: song.artist ?? '',
+                                    url: song.url ?? '',
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+                  const SectionTitle(title: "🔥 Top Music"),
+                  _buildTopSongsGrid(),
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: const [
+                      SectionTitle(title: "Recommended"),
+                      Text("View All", style: TextStyle(color: Colors.cyanAccent)),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 140,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      children: _ytRecommendations.map((item) {
+                        return PlaylistCard(
+                          title: item['title'] ?? '',
+                          imageUrl: item['thumbnail'] ?? '',
+                          onTap: () => _openYTPlaylist(item),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                  const SectionTitle(title: "🎧 Explore Playlists"),
+                  SizedBox(
+                    height: 160,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      children: _playlists.map((playlist) {
+                        final songs = List<Map<String, dynamic>>.from(playlist['songs'] ?? []);
+                        final first = songs.isNotEmpty ? songs[0] : null;
+                        final thumb = first != null ? first['thumbnail'] ?? '' : '';
+                        return PlaylistCard(
+                          title: playlist['title'] ?? '',
+                          imageUrl: thumb,
+                          onTap: () => _openPlaylist(playlist),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                  ..._exploreSections.entries.map((entry) {
+                    return _buildExploreSection(entry.key, entry.value);
+                  }).toList(),
+                  const SizedBox(height: 100),
                 ],
               ),
-              SizedBox(
-                height: 120,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: _recentlyPlayed.map((song) {
-                    return NeonAwareTile(
-                      title: Text(song.title, style: const TextStyle(color: Colors.white)),
-                      subtitle: Text(song.artist ?? '', style: const TextStyle(color: Colors.white70)),
-                      leading: Image.network(song.thumbnailUrl ?? '', width: 50, height: 50),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => PlayerScreen(
-                              title: song.title,
-                              author: song.artist ?? '',
-                              url: song.url ?? '',
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  }).toList(),
-                ),
-              ),
-              const SizedBox(height: 24),
-            ],
-
-            const SectionTitle(title: "🔥 Top Music"),
-            _buildTopSongsGrid(),
-            const SizedBox(height: 24),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
-                SectionTitle(title: "Recommended"),
-                Text("View All", style: TextStyle(color: Colors.cyanAccent)),
-              ],
-            ),
-            SizedBox(
-              height: 140,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: _ytRecommendations.map((item) {
-                  return PlaylistCard(
-                    title: item['title'] ?? '',
-                    imageUrl: item['thumbnail'] ?? '',
-                    onTap: () => _openYTPlaylist(item),
-                  );
-                }).toList(),
-              ),
-            ),
-
-            const SizedBox(height: 30),
-            const SectionTitle(title: "🎧 Explore Playlists"),
-            SizedBox(
-              height: 160,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: _playlists.map((playlist) {
-                  final songs = List<Map<String, dynamic>>.from(playlist['songs'] ?? []);
-                  final first = songs.isNotEmpty ? songs[0] : null;
-                  final thumb = first != null ? first['thumbnail'] ?? '' : '';
-                  return PlaylistCard(
-                    title: playlist['title'] ?? '',
-                    imageUrl: thumb,
-                    onTap: () => _openPlaylist(playlist),
-                  );
-                }).toList(),
-              ),
-            ),
-
-            const SizedBox(height: 30),
-            ..._exploreSections.entries.map((entry) {
-              return _buildExploreSection(entry.key, entry.value);
-            }).toList(),
-
-            const SizedBox(height: 100),
-          ],
-        ),
         bottomNavigationBar: GestureDetector(
           onTap: () {
             if (_lastPlayed != null) {
@@ -322,11 +340,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       width: 50,
                       height: 50,
                       fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => const Icon(Icons.music_note, color: Colors.white),
                     ),
                   )
                 else
                   const SizedBox(width: 50, height: 50),
-
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
