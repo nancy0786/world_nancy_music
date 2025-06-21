@@ -245,7 +245,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 }).toList(),
               ),
             ),
-            const SizedBox(height: 100), # Space for mini player
+            const SizedBox(height: 100), // Space for mini player
           ],
         ),
         bottomNavigationBar: _lastPlayed != null
