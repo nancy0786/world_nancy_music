@@ -11,18 +11,19 @@ import 'package:world_music_nancy/screens/player_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  bool _isLoading = true;
   List<SongModel> _recentlyPlayed = [];
   List<Map<String, dynamic>> _playlists = [];
   List<Map<String, String>> _ytRecommendations = [];
   Map<String, String>? _lastPlayed;
   List<Map<String, String>> _topSongs = [];
   Map<String, List<Map<String, String>>> _exploreSections = {};
-  bool _isLoading = true;
 
   final List<String> _subSections = [
     "Romantic Hits", "Monsoon Melodies", "Bollywood Classics", "Workout Tunes",
@@ -34,60 +35,45 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _loadAllData();
+    _initData();
   }
 
-  Future<void> _loadAllData() async {
+  Future<void> _initData() async {
     try {
-      await Future.wait([
-        _loadData(),
-        _loadLastPlayed(),
-        _loadRecommendations(),
-        _loadTopSongs(),
-        _loadExploreSections(),
-      ]);
+      final recents = await StorageService.getHistory();
+      final customPlaylists = await StorageService.getPlaylists();
+      final lastPlayed = await StorageService.getLastPlayed();
+      final ytRecs = await YouTubeService.getMusicPlaylists();
+      final topHindi = await YouTubeService.search("Top songs by Arijit Singh, Shreya Ghoshal, Jubin Nautiyal");
+
+      final Map<String, List<Map<String, String>>> explore = {};
+      for (final section in _subSections) {
+        final result = await YouTubeService.search("$section music playlist");
+        explore[section] = result.take(10).toList();
+      }
+
+      setState(() {
+        _recentlyPlayed = recents.take(30).map((e) => SongModel(
+          title: e['title'] ?? '',
+          artist: e['channel'] ?? '',
+          thumbnailUrl: e['thumbnail'] ?? '',
+          url: e['url'] ?? '',
+          channel: e['channel'] ?? '',
+          id: e['id'] ?? '',
+          thumbnail: e['thumbnail'] ?? '',
+        )).toList();
+
+        _playlists = List<Map<String, dynamic>>.from(customPlaylists);
+        _lastPlayed = Map<String, String>.from(lastPlayed ?? {});
+        _ytRecommendations = ytRecs;
+        _topSongs = topHindi.take(20).toList();
+        _exploreSections = explore;
+
+        _isLoading = false;
+      });
     } catch (e) {
-      debugPrint('❌ HomeScreen load error: $e');
-    } finally {
+      debugPrint("❌ HomeScreen load error: $e");
       setState(() => _isLoading = false);
-    }
-  }
-
-  Future<void> _loadData() async {
-    final recents = await StorageService.getHistory();
-    final customPlaylists = await StorageService.getPlaylists();
-    _recentlyPlayed = recents.take(30).map((e) => SongModel(
-      title: e['title'] ?? '',
-      artist: e['channel'] ?? '',
-      thumbnailUrl: e['thumbnail'] ?? '',
-      url: e['url'] ?? '',
-      channel: e['channel'] ?? '',
-      id: e['id'] ?? '',
-      thumbnail: e['thumbnail'] ?? '',
-    )).toList();
-    _playlists = List<Map<String, dynamic>>.from(customPlaylists);
-  }
-
-  Future<void> _loadLastPlayed() async {
-    final data = await StorageService.getLastPlayed();
-    _lastPlayed = Map<String, String>.from(data ?? {});
-  }
-
-  Future<void> _loadRecommendations() async {
-    _ytRecommendations = await YouTubeService.getMusicPlaylists();
-  }
-
-  Future<void> _loadTopSongs() async {
-    final topHindi = await YouTubeService.search(
-      "Top songs by Arijit Singh, Shreya Ghoshal, Jubin Nautiyal, Tulsi Kumar, Atif Aslam"
-    );
-    _topSongs = topHindi.take(20).toList();
-  }
-
-  Future<void> _loadExploreSections() async {
-    for (var section in _subSections) {
-      final result = await YouTubeService.search("$section music playlist");
-      _exploreSections[section] = result.take(10).toList();
     }
   }
 
@@ -155,9 +141,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   height: 70,
                   fit: BoxFit.cover,
                   errorBuilder: (_, __, ___) => Container(
+                    color: Colors.grey[800],
                     width: 70,
                     height: 70,
-                    color: Colors.grey[900],
                     child: const Icon(Icons.music_note, color: Colors.white),
                   ),
                 ),
@@ -221,7 +207,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       bottomNavigationBar: GestureDetector(
         onTap: () {
-          if (_lastPlayed != null) {
+          if (_lastPlayed != null && _lastPlayed!['url'] != null) {
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -247,7 +233,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     width: 50,
                     height: 50,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => const Icon(Icons.music_note, color: Colors.white),
+                    errorBuilder: (_, __, ___) =>
+                        const Icon(Icons.music_note, color: Colors.white),
                   ),
                 )
               else
@@ -263,7 +250,9 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               IconButton(
                 icon: Icon(
-                  _lastPlayed != null ? Icons.pause_circle_filled : Icons.play_circle_outline,
+                  _lastPlayed != null
+                      ? Icons.pause_circle_filled
+                      : Icons.play_circle_outline,
                   color: Colors.white,
                 ),
                 onPressed: () {},
@@ -359,9 +348,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 const SizedBox(height: 30),
-                ..._exploreSections.entries.map((entry) {
-                  return _buildExploreSection(entry.key, entry.value);
-                }).toList(),
+                ..._exploreSections.entries.map((entry) => _buildExploreSection(entry.key, entry.value)).toList(),
                 const SizedBox(height: 100),
               ],
             ),
