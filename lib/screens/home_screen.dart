@@ -35,25 +35,29 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _initData();
+    _loadAllData();
   }
 
-  Future<void> _initData() async {
+  Future<void> _loadAllData() async {
     try {
       final recents = await StorageService.getHistory();
       final customPlaylists = await StorageService.getPlaylists();
       final lastPlayed = await StorageService.getLastPlayed();
       final ytRecs = await YouTubeService.getMusicPlaylists();
-      final topHindi = await YouTubeService.search("Top songs by Arijit Singh, Shreya Ghoshal, Jubin Nautiyal");
+      final topSongs = await YouTubeService.search("Top Hindi Songs 2024");
 
       final Map<String, List<Map<String, String>>> explore = {};
       for (final section in _subSections) {
-        final result = await YouTubeService.search("$section music playlist");
-        explore[section] = result.take(10).toList();
+        try {
+          final result = await YouTubeService.search("$section music playlist");
+          explore[section] = result.take(10).toList();
+        } catch (e) {
+          explore[section] = [];
+        }
       }
 
       setState(() {
-        _recentlyPlayed = recents.take(30).map((e) => SongModel(
+        _recentlyPlayed = recents.take(20).map((e) => SongModel(
           title: e['title'] ?? '',
           artist: e['channel'] ?? '',
           thumbnailUrl: e['thumbnail'] ?? '',
@@ -66,13 +70,12 @@ class _HomeScreenState extends State<HomeScreen> {
         _playlists = List<Map<String, dynamic>>.from(customPlaylists);
         _lastPlayed = Map<String, String>.from(lastPlayed ?? {});
         _ytRecommendations = ytRecs;
-        _topSongs = topHindi.take(20).toList();
+        _topSongs = topSongs.take(20).toList();
         _exploreSections = explore;
-
         _isLoading = false;
       });
     } catch (e) {
-      debugPrint("❌ HomeScreen load error: $e");
+      debugPrint("❌ Error loading HomeScreen: $e");
       setState(() => _isLoading = false);
     }
   }
@@ -267,13 +270,8 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: const EdgeInsets.all(16),
               children: [
                 if (_recentlyPlayed.isNotEmpty) ...[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      SectionTitle(title: "Recently Played"),
-                      Text("View All", style: TextStyle(color: Colors.cyanAccent)),
-                    ],
-                  ),
+                  const SectionTitle(title: "Recently Played"),
+                  const SizedBox(height: 6),
                   SizedBox(
                     height: 120,
                     child: ListView(
@@ -309,13 +307,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SectionTitle(title: "🔥 Top Music"),
                 _buildTopSongsGrid(),
                 const SizedBox(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
-                    SectionTitle(title: "Recommended"),
-                    Text("View All", style: TextStyle(color: Colors.cyanAccent)),
-                  ],
-                ),
+                const SectionTitle(title: "Recommended"),
                 SizedBox(
                   height: 140,
                   child: ListView(
