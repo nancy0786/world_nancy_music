@@ -9,7 +9,7 @@ class YouTubeService {
   static const String apiKey = 'AIzaSyCrKr-n_iRaLmLjT-qwKnYe_b6BHatvGl8';
   static const String baseUrl = 'https://www.googleapis.com/youtube/v3';
 
-  /// 🔊 Direct audio stream (still using youtube_explode_dart)
+  /// 🔊 Get high-quality direct audio stream for a YouTube video
   static Future<Map<String, String>?> getAudioStream(String videoId) async {
     try {
       final video = await _yt.videos.get('https://www.youtube.com/watch?v=$videoId');
@@ -27,14 +27,14 @@ class YouTubeService {
     }
   }
 
-  /// 🔍 Search YouTube using API v3
+  /// 🔍 YouTube search using official API (more stable than youtube_explode_dart)
   static Future<List<Map<String, String>>> search(String query) async {
     try {
       final url = Uri.parse(
-        '$baseUrl/search?part=snippet&type=video&maxResults=25&q=$query&key=$apiKey',
+        '$baseUrl/search?part=snippet&type=video&maxResults=25&q=${Uri.encodeComponent(query)}&key=$apiKey',
       );
-      final response = await http.get(url);
 
+      final response = await http.get(url);
       if (response.statusCode != 200) {
         debugPrint('Search failed: ${response.body}');
         return [];
@@ -58,65 +58,73 @@ class YouTubeService {
     }
   }
 
-  /// 📺 Playlist videos via API
+  /// 📺 Load all videos from a YouTube playlist using API v3
   static Future<List<Map<String, String>>> getSongsFromPlaylist(String playlistId) async {
+    List<Map<String, String>> allVideos = [];
+    String? nextPageToken;
+
     try {
-      final url = Uri.parse(
-        '$baseUrl/playlistItems?part=snippet&maxResults=50&playlistId=$playlistId&key=$apiKey',
-      );
+      do {
+        final url = Uri.parse(
+          '$baseUrl/playlistItems?part=snippet&maxResults=50&playlistId=$playlistId&pageToken=${nextPageToken ?? ""}&key=$apiKey',
+        );
 
-      final response = await http.get(url);
-      if (response.statusCode != 200) {
-        debugPrint("Playlist error: ${response.statusCode}");
-        return [];
-      }
+        final response = await http.get(url);
+        if (response.statusCode != 200) {
+          debugPrint("Playlist error: ${response.statusCode}");
+          break;
+        }
 
-      final data = jsonDecode(response.body);
-      final items = data['items'] as List;
+        final data = jsonDecode(response.body);
+        final items = data['items'] as List;
+        nextPageToken = data['nextPageToken'];
 
-      return items.map<Map<String, String>>((item) {
-        final snippet = item['snippet'];
-        return {
-          'title': snippet['title'] ?? '',
-          'channel': snippet['videoOwnerChannelTitle'] ?? '',
-          'videoId': snippet['resourceId']['videoId'] ?? '',
-          'thumbnail': snippet['thumbnails']?['medium']?['url'] ?? '',
-          'url': 'https://www.youtube.com/watch?v=${snippet['resourceId']['videoId']}',
-        };
-      }).toList();
+        final parsedItems = items.map<Map<String, String>>((item) {
+          final snippet = item['snippet'];
+          return {
+            'title': snippet['title'] ?? '',
+            'channel': snippet['videoOwnerChannelTitle'] ?? '',
+            'videoId': snippet['resourceId']['videoId'] ?? '',
+            'thumbnail': snippet['thumbnails']?['medium']?['url'] ?? '',
+            'url': 'https://www.youtube.com/watch?v=${snippet['resourceId']['videoId']}',
+          };
+        }).toList();
+
+        allVideos.addAll(parsedItems);
+      } while (nextPageToken != null);
     } catch (e) {
       debugPrint('getSongsFromPlaylist error: $e');
-      return [];
     }
+
+    return allVideos;
   }
 
-  /// 🎵 Hardcoded playlists
+  /// 🎵 Curated playlists to be used on the Home screen (can be dynamic later)
   static Future<List<Map<String, String>>> getMusicPlaylists() async {
-    final List<Map<String, String>> playlists = [
+    return [
       {
         'title': 'Romantic Hits',
         'playlistId': 'PLFgquLnL59alCl_2TQvOiD5Vgm1hCaGSI',
-        'thumbnail': 'https://img.youtube.com/vi/8ZcmTl_1ER8/mqdefault.jpg'
+        'thumbnail': 'https://img.youtube.com/vi/8ZcmTl_1ER8/mqdefault.jpg',
       },
       {
         'title': 'Trending India',
         'playlistId': 'PLrEnWoR732-BHrPp_Pm8_VleD68f9s14-',
-        'thumbnail': 'https://img.youtube.com/vi/DhWFGTSqkCU/mqdefault.jpg'
+        'thumbnail': 'https://img.youtube.com/vi/DhWFGTSqkCU/mqdefault.jpg',
       },
       {
         'title': 'Bollywood Chill',
         'playlistId': 'PLRBp0Fe2GpglkQ6w0DLy3ApK_M5BXrbSp',
-        'thumbnail': 'https://img.youtube.com/vi/0J2QdDbelmY/mqdefault.jpg'
+        'thumbnail': 'https://img.youtube.com/vi/0J2QdDbelmY/mqdefault.jpg',
       }
     ];
-
-    return playlists;
   }
 
-  /// 🧠 Autocomplete suggestions via unofficial endpoint
+  /// 🤖 YouTube Autocomplete Suggestions (not from API, but reliable)
   static Future<List<String>> fetchSuggestions(String query) async {
     final suggestUrl = Uri.parse(
-        'https://suggestqueries.google.com/complete/search?client=firefox&ds=yt&q=$query');
+      'https://suggestqueries.google.com/complete/search?client=firefox&ds=yt&q=${Uri.encodeComponent(query)}',
+    );
     try {
       final res = await http.get(suggestUrl);
       if (res.statusCode == 200) {
@@ -129,6 +137,7 @@ class YouTubeService {
     return [];
   }
 
+  /// 🧹 Clean up
   static void dispose() {
     _yt.close();
   }
