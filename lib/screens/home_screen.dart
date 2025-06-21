@@ -13,7 +13,6 @@ import 'package:world_music_nancy/screens/player_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
-
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
@@ -23,7 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, dynamic>> _playlists = [];
   List<Map<String, String>> _ytRecommendations = [];
   Map<String, String>? _lastPlayed;
-  List<Map<String, String>> _moodSongs = [];
+  List<Map<String, String>> _topSongs = [];
 
   @override
   void initState() {
@@ -31,7 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _loadData();
     _loadLastPlayed();
     _loadRecommendations();
-    _loadMoodSongs();
+    _loadTopSongs();
   }
 
   Future<void> _loadData() async {
@@ -61,15 +60,9 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() => _ytRecommendations = ytRecs);
   }
 
-  Future<void> _loadMoodSongs() async {
-    final mood = MoodService.getCurrentMood();
-    final moodQueries = MoodService.getSongsForMood(mood);
-    List<Map<String, String>> all = [];
-    for (final query in moodQueries) {
-      final result = await YouTubeService.search(query);
-      all.addAll(result.take(3));
-    }
-    setState(() => _moodSongs = all);
+  Future<void> _loadTopSongs() async {
+    final trending = await YouTubeService.search("top trending music india");
+    setState(() => _topSongs = trending.take(20).toList());
   }
 
   void _openPlaylist(Map<String, dynamic> playlist) {
@@ -85,16 +78,68 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _playSong(Map<String, String> song) {
+  void _openYTPlaylist(Map<String, String> playlist) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => PlayerScreen(
-          title: song['title'] ?? '',
-          author: song['channel'] ?? '',
-          url: song['url'] ?? '',
+        builder: (_) => PlaylistDetailsScreen(
+          playlistName: playlist['title'] ?? '',
+          imagePath: '',
+          visibility: 'public',
+          youtubePlaylistId: playlist['playlistId'],
         ),
       ),
+    );
+  }
+
+  Widget _buildTopSongsGrid() {
+    return GridView.builder(
+      itemCount: _topSongs.length,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 4,
+        crossAxisSpacing: 8,
+        mainAxisSpacing: 8,
+        childAspectRatio: 0.7,
+      ),
+      itemBuilder: (_, i) {
+        final song = _topSongs[i];
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => PlayerScreen(
+                  title: song['title'] ?? '',
+                  author: song['channel'] ?? '',
+                  url: song['url'] ?? '',
+                ),
+              ),
+            );
+          },
+          child: Column(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(
+                  song['thumbnail'] ?? '',
+                  width: 70,
+                  height: 70,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                song['title'] ?? '',
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(color: Colors.white70, fontSize: 12),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -108,77 +153,59 @@ class _HomeScreenState extends State<HomeScreen> {
           elevation: 0,
           centerTitle: true,
           title: const Text(
-            '💫 Nancy Music World',
+            '🎧 Nancy Music World',
             style: TextStyle(
-              fontFamily: 'Orbitron',
               fontSize: 26,
               fontWeight: FontWeight.bold,
               color: Colors.cyanAccent,
-              shadows: [
-                Shadow(blurRadius: 10, color: Colors.pinkAccent),
-              ],
-              letterSpacing: 1.5,
+              fontFamily: 'Orbitron',
+              shadows: [Shadow(blurRadius: 6, color: Colors.pinkAccent)],
             ),
           ),
         ),
         body: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-
-            /// 🔁 Recently Played
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
-                SectionTitle(title: "Recently Played"),
-                Text("View All", style: TextStyle(color: Colors.cyanAccent)),
-              ],
-            ),
-            SizedBox(
-              height: 120,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: _recentlyPlayed.map((song) {
-                  return NeonAwareTile(
-                    title: Text(song.title, style: const TextStyle(color: Colors.white)),
-                    subtitle: Text(song.artist ?? '', style: const TextStyle(color: Colors.white70)),
-                    leading: Image.network(song.thumbnailUrl ?? '', width: 50, height: 50),
-                    onTap: () => _playSong({
-                      'title': song.title,
-                      'channel': song.artist ?? '',
-                      'url': song.url ?? '',
-                    }),
-                  );
-                }).toList(),
+            if (_recentlyPlayed.isNotEmpty) ...[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: const [
+                  SectionTitle(title: "Recently Played"),
+                  Text("View All", style: TextStyle(color: Colors.cyanAccent)),
+                ],
               ),
-            ),
+              SizedBox(
+                height: 120,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: _recentlyPlayed.map((song) {
+                    return NeonAwareTile(
+                      title: Text(song.title, style: const TextStyle(color: Colors.white)),
+                      subtitle: Text(song.artist ?? '', style: const TextStyle(color: Colors.white70)),
+                      leading: Image.network(song.thumbnailUrl ?? '', width: 50, height: 50),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => PlayerScreen(
+                              title: song.title,
+                              author: song.artist ?? '',
+                              url: song.url ?? '',
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  }).toList(),
+                ),
+              ),
+              const SizedBox(height: 24),
+            ],
 
+            const SectionTitle(title: "🔥 Top Music"),
+            _buildTopSongsGrid(),
             const SizedBox(height: 24),
 
-            /// 🧠 Mood-Based Playlist
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                SectionTitle(title: "Mood: ${MoodService.getCurrentMood()}"),
-                const Text("View All", style: TextStyle(color: Colors.cyanAccent)),
-              ],
-            ),
-            SizedBox(
-              height: 140,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: _moodSongs.map((song) {
-                  return PlaylistCard(
-                    title: song['title'] ?? '',
-                    imageUrl: song['thumbnail'] ?? '',
-                    onTap: () => _playSong(song),
-                  );
-                }).toList(),
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            /// 📺 YouTube Music Playlists
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: const [
@@ -187,31 +214,21 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
             SizedBox(
-              height: 160,
+              height: 140,
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 children: _ytRecommendations.map((item) {
                   return PlaylistCard(
                     title: item['title'] ?? '',
                     imageUrl: item['thumbnail'] ?? '',
-                    onTap: () {
-                      // Optionally play or navigate
-                    },
+                    onTap: () => _openYTPlaylist(item),
                   );
                 }).toList(),
               ),
             ),
 
             const SizedBox(height: 30),
-
-            /// 🎧 Explore All Playlists
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
-                SectionTitle(title: "🎧 Explore"),
-                Text("Check All", style: TextStyle(color: Colors.cyanAccent)),
-              ],
-            ),
+            const SectionTitle(title: "🎧 Explore Playlists"),
             SizedBox(
               height: 160,
               child: ListView(
@@ -228,18 +245,57 @@ class _HomeScreenState extends State<HomeScreen> {
                 }).toList(),
               ),
             ),
-
-            const SizedBox(height: 20),
-
-            /// ▶️ Now Playing
-            NowPlayingCard(
-              title: _lastPlayed?['title'],
-              artist: _lastPlayed?['channel'],
-              thumbnailUrl: _lastPlayed?['thumbnail'],
-              audioUrl: _lastPlayed?['url'],
-            ),
+            const SizedBox(height: 100), # Space for mini player
           ],
         ),
+        bottomNavigationBar: _lastPlayed != null
+            ? GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => PlayerScreen(
+                        title: _lastPlayed!['title']!,
+                        author: _lastPlayed!['channel']!,
+                        url: _lastPlayed!['url']!,
+                      ),
+                    ),
+                  );
+                },
+                child: Container(
+                  color: Colors.black87,
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  child: Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(6),
+                        child: Image.network(
+                          _lastPlayed!['thumbnail'] ?? '',
+                          width: 50,
+                          height: 50,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          _lastPlayed!['title'] ?? '',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.pause_circle_filled, color: Colors.white),
+                        onPressed: () {
+                          // toggle play/pause
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            : null,
       ),
     );
   }
