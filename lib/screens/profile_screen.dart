@@ -4,6 +4,7 @@ import 'package:world_music_nancy/components/base_screen.dart';
 import 'package:world_music_nancy/components/custom_app_bar.dart';
 import 'package:world_music_nancy/screens/settings_screen.dart';
 import 'package:world_music_nancy/components/settings_tile.dart';
+import 'package:world_music_nancy/widgets/mini_player_bar.dart'; // ✅ Add this
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -116,117 +117,125 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: const CustomAppBar(title: 'Your Profile'),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              const SizedBox(height: 20),
-              CircleAvatar(
-                radius: 45,
-                backgroundImage: selectedAvatar != null
-                    ? AssetImage(selectedAvatar!)
-                    : const AssetImage('assets/avatars/default.png'),
-                backgroundColor: Colors.grey[800],
-              ),
-              TextButton(
-                onPressed: _chooseAvatar,
-                child: const Text(
-                  'Choose Avatar',
-                  style: TextStyle(color: Colors.cyanAccent),
-                ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                greeting,
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.cyanAccent,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Row(
+        body: Stack(
+          children: [
+            SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
+              child: Column(
                 children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _usernameController,
-                      enabled: _editingName,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: const InputDecoration(
-                        labelText: 'Name',
-                        labelStyle: TextStyle(color: Colors.white70),
-                        enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.white24),
-                        ),
-                      ),
+                  const SizedBox(height: 20),
+                  CircleAvatar(
+                    radius: 45,
+                    backgroundImage: selectedAvatar != null
+                        ? AssetImage(selectedAvatar!)
+                        : const AssetImage('assets/avatars/default.png'),
+                    backgroundColor: Colors.grey[800],
+                  ),
+                  TextButton(
+                    onPressed: _chooseAvatar,
+                    child: const Text(
+                      'Choose Avatar',
+                      style: TextStyle(color: Colors.cyanAccent),
                     ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.edit, color: Colors.white54),
-                    onPressed: () {
-                      setState(() => _editingName = !_editingName);
+                  const SizedBox(height: 10),
+                  Text(
+                    greeting,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Colors.cyanAccent,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _usernameController,
+                          enabled: _editingName,
+                          style: const TextStyle(color: Colors.white),
+                          decoration: const InputDecoration(
+                            labelText: 'Name',
+                            labelStyle: TextStyle(color: Colors.white70),
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white24),
+                            ),
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.edit, color: Colors.white54),
+                        onPressed: () {
+                          setState(() => _editingName = !_editingName);
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: _emailController,
+                    enabled: false,
+                    style: const TextStyle(color: Colors.white54),
+                    decoration: const InputDecoration(
+                      labelText: 'Email ID',
+                      labelStyle: TextStyle(color: Colors.white38),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _bioController,
+                          maxLines: 2,
+                          enabled: _editingBio,
+                          style: const TextStyle(color: Colors.white),
+                          decoration: const InputDecoration(
+                            labelText: 'Bio (optional)',
+                            labelStyle: TextStyle(color: Colors.white70),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white24),
+                            ),
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.edit, color: Colors.white54),
+                        onPressed: () {
+                          setState(() => _editingBio = !_editingBio);
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: _saveProfile,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.pinkAccent,
+                      padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
+                    ),
+                    child: const Text('Save Changes'),
+                  ),
+                  const SizedBox(height: 30),
+                  SettingsTile(
+                    icon: Icons.settings,
+                    title: 'Open Settings',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                      );
                     },
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: _emailController,
-                enabled: false,
-                style: const TextStyle(color: Colors.white54),
-                decoration: const InputDecoration(
-                  labelText: 'Email ID',
-                  labelStyle: TextStyle(color: Colors.white38),
-                ),
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _bioController,
-                      maxLines: 2,
-                      enabled: _editingBio,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: const InputDecoration(
-                        labelText: 'Bio (optional)',
-                        labelStyle: TextStyle(color: Colors.white70),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.white24),
-                        ),
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.edit, color: Colors.white54),
-                    onPressed: () {
-                      setState(() => _editingBio = !_editingBio);
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _saveProfile,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.pinkAccent,
-                  padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
-                ),
-                child: const Text('Save Changes'),
-              ),
-              const SizedBox(height: 30),
-              SettingsTile(
-                icon: Icons.settings,
-                title: 'Open Settings',
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const SettingsScreen()),
-                  );
-                },
-              ),
-            ],
-          ),
+            ),
+            const Align(
+              alignment: Alignment.bottomCenter,
+              child: MiniPlayerBar(), // ✅ Mini player added
+            ),
+          ],
         ),
       ),
     );
