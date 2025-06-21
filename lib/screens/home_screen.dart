@@ -38,46 +38,50 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _loadAllData() async {
-    await Future.wait([
-      _loadData(),
-      _loadLastPlayed(),
-      _loadRecommendations(),
-      _loadTopSongs(),
-      _loadExploreSections(),
-    ]);
-    setState(() => _isLoading = false);
+    try {
+      await Future.wait([
+        _loadData(),
+        _loadLastPlayed(),
+        _loadRecommendations(),
+        _loadTopSongs(),
+        _loadExploreSections(),
+      ]);
+    } catch (e) {
+      debugPrint('❌ HomeScreen load error: $e');
+    } finally {
+      setState(() => _isLoading = false);
+    }
   }
 
   Future<void> _loadData() async {
     final recents = await StorageService.getHistory();
     final customPlaylists = await StorageService.getPlaylists();
-    setState(() {
-      _recentlyPlayed = recents.take(30).map((e) => SongModel(
-        title: e['title'] ?? '',
-        artist: e['channel'] ?? '',
-        thumbnailUrl: e['thumbnail'] ?? '',
-        url: e['url'] ?? '',
-        channel: e['channel'] ?? '',
-        id: e['id'] ?? '',
-        thumbnail: e['thumbnail'] ?? '',
-      )).toList();
-      _playlists = List<Map<String, dynamic>>.from(customPlaylists);
-    });
+    _recentlyPlayed = recents.take(30).map((e) => SongModel(
+      title: e['title'] ?? '',
+      artist: e['channel'] ?? '',
+      thumbnailUrl: e['thumbnail'] ?? '',
+      url: e['url'] ?? '',
+      channel: e['channel'] ?? '',
+      id: e['id'] ?? '',
+      thumbnail: e['thumbnail'] ?? '',
+    )).toList();
+    _playlists = List<Map<String, dynamic>>.from(customPlaylists);
   }
 
   Future<void> _loadLastPlayed() async {
     final data = await StorageService.getLastPlayed();
-    setState(() => _lastPlayed = Map<String, String>.from(data ?? {}));
+    _lastPlayed = Map<String, String>.from(data ?? {});
   }
 
   Future<void> _loadRecommendations() async {
-    final ytRecs = await YouTubeService.getMusicPlaylists();
-    setState(() => _ytRecommendations = ytRecs);
+    _ytRecommendations = await YouTubeService.getMusicPlaylists();
   }
 
   Future<void> _loadTopSongs() async {
-    final topHindi = await YouTubeService.search("Top songs by Arijit Singh, Shreya Ghoshal, Jubin Nautiyal, Tulsi Kumar, Atif Aslam");
-    setState(() => _topSongs = topHindi.take(20).toList());
+    final topHindi = await YouTubeService.search(
+      "Top songs by Arijit Singh, Shreya Ghoshal, Jubin Nautiyal, Tulsi Kumar, Atif Aslam"
+    );
+    _topSongs = topHindi.take(20).toList();
   }
 
   Future<void> _loadExploreSections() async {
@@ -85,7 +89,6 @@ class _HomeScreenState extends State<HomeScreen> {
       final result = await YouTubeService.search("$section music playlist");
       _exploreSections[section] = result.take(10).toList();
     }
-    setState(() {});
   }
 
   void _openPlaylist(Map<String, dynamic> playlist) {
@@ -152,10 +155,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   height: 70,
                   fit: BoxFit.cover,
                   errorBuilder: (_, __, ___) => Container(
-                    color: Colors.grey[800],
                     width: 70,
                     height: 70,
-                    child: const Icon(Icons.music_note, color: Colors.white54),
+                    color: Colors.grey[900],
+                    child: const Icon(Icons.music_note, color: Colors.white),
                   ),
                 ),
               ),
@@ -244,8 +247,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     width: 50,
                     height: 50,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) =>
-                        const Icon(Icons.music_note, color: Colors.white),
+                    errorBuilder: (_, __, ___) => const Icon(Icons.music_note, color: Colors.white),
                   ),
                 )
               else
@@ -253,9 +255,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  _lastPlayed != null
-                      ? _lastPlayed!['title']!
-                      : "Nothing is playing",
+                  _lastPlayed != null ? _lastPlayed!['title']! : "Nothing is playing",
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(color: Colors.white),
@@ -263,9 +263,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               IconButton(
                 icon: Icon(
-                  _lastPlayed != null
-                      ? Icons.pause_circle_filled
-                      : Icons.play_circle_outline,
+                  _lastPlayed != null ? Icons.pause_circle_filled : Icons.play_circle_outline,
                   color: Colors.white,
                 ),
                 onPressed: () {},
@@ -275,9 +273,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       child: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(color: Colors.cyanAccent),
-            )
+          ? const Center(child: CircularProgressIndicator(color: Colors.cyanAccent))
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
