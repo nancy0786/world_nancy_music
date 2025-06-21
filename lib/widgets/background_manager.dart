@@ -1,9 +1,9 @@
-import 'package:world_music_nancy/widgets/neon_aware_container.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 import 'package:world_music_nancy/providers/preferences_provider.dart';
+import 'package:world_music_nancy/widgets/neon_aware_container.dart';
 
 class BackgroundManager extends StatefulWidget {
   const BackgroundManager({super.key});
@@ -12,41 +12,62 @@ class BackgroundManager extends StatefulWidget {
   State<BackgroundManager> createState() => _BackgroundManagerState();
 }
 
-class _BackgroundManagerState extends State<BackgroundManager> {
-  String? _selectedBackground;
+class _BackgroundManagerState extends State<BackgroundManager> with WidgetsBindingObserver {
+  String? _currentBackground;
   VideoPlayerController? _videoController;
+
+  String? _category;
+  List<String> _nextBackgrounds = [];
+  int _currentIndex = 0;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _loadBackground();
+    _loadCategoryAndPreselect();
   }
 
-  void _loadBackground() async {
+  void _loadCategoryAndPreselect() async {
     final provider = Provider.of<PreferencesProvider>(context, listen: false);
     final category = provider.backgroundCategory;
 
-    final backgrounds = _getCategoryBackgrounds(category);
-    if (backgrounds.isEmpty) return;
-    final selected = backgrounds[Random().nextInt(backgrounds.length)];
+    // Kill old queue if category changed
+    if (_category != category) {
+      _category = category;
+      _currentIndex = 0;
+      _nextBackgrounds = _generateQueue(category);
+    }
+
+    _setNextBackground();
+  }
+
+  List<String> _generateQueue(String category) {
+    final all = _getCategoryBackgrounds(category);
+    all.shuffle();
+    return all.take(10).toList();
+  }
+
+  void _setNextBackground() async {
+    if (_nextBackgrounds.isEmpty) return;
+
+    final selected = _nextBackgrounds[_currentIndex % _nextBackgrounds.length];
+    _currentIndex++;
+
+    _videoController?.dispose();
+    _videoController = null;
 
     if (selected.endsWith('.mp4')) {
       final controller = VideoPlayerController.asset(selected);
-      await controller.initialize().catchError((e) {
-        debugPrint("Video init error: $e");
-      });
-
+      await controller.initialize().catchError((e) => debugPrint("Video error: $e"));
       controller.setLooping(true);
-      controller.setVolume(0); // 🔇 Mute video audio
+      controller.setVolume(0);
       controller.play();
-
       setState(() {
-        _selectedBackground = selected;
+        _currentBackground = selected;
         _videoController = controller;
       });
     } else {
       setState(() {
-        _selectedBackground = selected;
+        _currentBackground = selected;
       });
     }
   }
@@ -81,40 +102,44 @@ class _BackgroundManagerState extends State<BackgroundManager> {
 
   @override
   Widget build(BuildContext context) {
-    final isVideo = _selectedBackground?.endsWith('.mp4') ?? false;
+    final isVideo = _currentBackground?.endsWith('.mp4') ?? false;
 
     return Positioned.fill(
-      child: Stack(
-        children: [
-          if (_selectedBackground == null)
-            const ColoredBox(color: Colors.black)
+      child: IgnorePointer( // prevent background from responding to taps
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            if (_currentBackground == null)
+              const ColoredBox(color: Colors.black)
 
-          else if (isVideo)
-            (_videoController != null && _videoController!.value.isInitialized)
-                ? FittedBox(
-                    fit: BoxFit.cover,
-                    child: SizedBox(
-                      width: _videoController!.value.size.width,
-                      height: _videoController!.value.size.height,
-                      child: VideoPlayer(_videoController!),
-                    ),
-                  )
-                : const ColoredBox(color: Colors.black)
+            else if (isVideo && _videoController != null && _videoController!.value.isInitialized)
+              FittedBox(
+                fit: BoxFit.cover,
+                child: SizedBox(
+                  width: _videoController!.value.size.width,
+                  height: _videoController!.value.size.height,
+                  child: VideoPlayer(_videoController!),
+                ),
+              )
 
-          else
-            Image.asset(
-              _selectedBackground!,
-              fit: BoxFit.cover,
-              width: double.infinity,
-              height: double.infinity,
-              errorBuilder: (_, __, ___) => const ColoredBox(color: Colors.black),
+            else
+              Image.asset(
+                _currentBackground!,
+                fit: BoxFit.cover,
+                width: double.infinity,
+                height: double.infinity,
+                filterQuality: FilterQuality.high,
+                errorBuilder: (_, __, ___) => const ColoredBox(color: Colors.black),
+              ),
+
+            Positioned.fill(
+              child: NeonAwareContainer(
+                color: Colors.black.withOpacity(0.4),
+                child: const SizedBox.shrink(),
+              ),
             ),
-
-          NeonAwareContainer(
-            color: Colors.black.withOpacity(0.4),
-            child: const SizedBox.shrink(),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
