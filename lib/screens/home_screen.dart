@@ -8,7 +8,6 @@ import 'package:world_music_nancy/models/song_model.dart';
 import 'package:world_music_nancy/components/base_screen.dart';
 import 'package:world_music_nancy/widgets/now_playing_card.dart';
 import 'package:world_music_nancy/screens/playlist_details_screen.dart';
-import 'package:world_music_nancy/services/mood_service.dart';
 import 'package:world_music_nancy/screens/player_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -23,6 +22,14 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, String>> _ytRecommendations = [];
   Map<String, String>? _lastPlayed;
   List<Map<String, String>> _topSongs = [];
+  Map<String, List<Map<String, String>>> _exploreSections = {};
+
+  final List<String> _subSections = [
+    "Romantic Hits", "Monsoon Melodies", "Bollywood Classics", "Workout Tunes",
+    "Top Arijit Singh", "Soulful Nights", "Dance Floor", "Lo-Fi Vibes",
+    "Sad Songs", "Punjabi Hits", "Old is Gold", "Trending India",
+    "Morning Chill", "Rainy Day Vibes", "Travel Beats"
+  ];
 
   @override
   void initState() {
@@ -31,6 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _loadLastPlayed();
     _loadRecommendations();
     _loadTopSongs();
+    _loadExploreSections();
   }
 
   Future<void> _loadData() async {
@@ -61,8 +69,16 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _loadTopSongs() async {
-    final trending = await YouTubeService.search("top trending music india");
-    setState(() => _topSongs = trending.take(20).toList());
+    final topHindi = await YouTubeService.search("Top songs by Arijit Singh, Shreya Ghoshal, Jubin Nautiyal, Tulsi Kumar, Atif Aslam");
+    setState(() => _topSongs = topHindi.take(20).toList());
+  }
+
+  Future<void> _loadExploreSections() async {
+    for (var section in _subSections) {
+      final result = await YouTubeService.search("$section music playlist");
+      _exploreSections[section] = result.take(10).toList();
+    }
+    setState(() {});
   }
 
   void _openPlaylist(Map<String, dynamic> playlist) {
@@ -140,6 +156,30 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildExploreSection(String title, List<Map<String, String>> playlists) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SectionTitle(title: title),
+        const SizedBox(height: 6),
+        SizedBox(
+          height: 140,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            children: playlists.map((item) {
+              return PlaylistCard(
+                title: item['title'] ?? '',
+                imageUrl: item['thumbnail'] ?? '',
+                onTap: () => _openYTPlaylist(item),
+              );
+            }).toList(),
+          ),
+        ),
+        const SizedBox(height: 16),
+      ],
     );
   }
 
@@ -245,57 +285,68 @@ class _HomeScreenState extends State<HomeScreen> {
                 }).toList(),
               ),
             ),
-            const SizedBox(height: 100), // Space for mini player
+
+            const SizedBox(height: 30),
+            ..._exploreSections.entries.map((entry) {
+              return _buildExploreSection(entry.key, entry.value);
+            }).toList(),
+
+            const SizedBox(height: 100),
           ],
         ),
-        bottomNavigationBar: _lastPlayed != null
-            ? GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => PlayerScreen(
-                        title: _lastPlayed!['title']!,
-                        author: _lastPlayed!['channel']!,
-                        url: _lastPlayed!['url']!,
-                      ),
-                    ),
-                  );
-                },
-                child: Container(
-                  color: Colors.black87,
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  child: Row(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(6),
-                        child: Image.network(
-                          _lastPlayed!['thumbnail'] ?? '',
-                          width: 50,
-                          height: 50,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          _lastPlayed!['title'] ?? '',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.pause_circle_filled, color: Colors.white),
-                        onPressed: () {
-                          // toggle play/pause
-                        },
-                      ),
-                    ],
+        bottomNavigationBar: GestureDetector(
+          onTap: () {
+            if (_lastPlayed != null) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => PlayerScreen(
+                    title: _lastPlayed!['title']!,
+                    author: _lastPlayed!['channel']!,
+                    url: _lastPlayed!['url']!,
                   ),
                 ),
-              )
-            : null,
+              );
+            }
+          },
+          child: Container(
+            color: Colors.black87,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Row(
+              children: [
+                if (_lastPlayed != null)
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(6),
+                    child: Image.network(
+                      _lastPlayed!['thumbnail'] ?? '',
+                      width: 50,
+                      height: 50,
+                      fit: BoxFit.cover,
+                    ),
+                  )
+                else
+                  const SizedBox(width: 50, height: 50),
+
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    _lastPlayed != null ? _lastPlayed!['title']! : "Nothing is playing",
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(
+                    _lastPlayed != null ? Icons.pause_circle_filled : Icons.play_circle_outline,
+                    color: Colors.white,
+                  ),
+                  onPressed: () {},
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
