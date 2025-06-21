@@ -3,7 +3,7 @@ import 'package:world_music_nancy/widgets/neon_aware_tile.dart';
 import 'package:world_music_nancy/widgets/section_title.dart';
 import 'package:world_music_nancy/widgets/playlist_card.dart';
 import 'package:world_music_nancy/services/storage_service.dart';
-import 'package:world_music_nancy/services/youtube_service.dart';
+import 'package:world_music_nancy/services/ytdlp_service.dart'; // New yt-dlp powered backend
 import 'package:world_music_nancy/models/song_model.dart';
 import 'package:world_music_nancy/components/base_screen.dart';
 import 'package:world_music_nancy/screens/playlist_details_screen.dart';
@@ -11,7 +11,6 @@ import 'package:world_music_nancy/screens/player_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
-
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
@@ -20,17 +19,23 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isLoading = true;
   List<SongModel> _recentlyPlayed = [];
   List<Map<String, dynamic>> _playlists = [];
-  List<Map<String, String>> _ytRecommendations = [];
+  List<Map<String, String>> _recommendations = [];
   Map<String, String>? _lastPlayed;
   List<Map<String, String>> _topSongs = [];
   Map<String, List<Map<String, String>>> _exploreSections = {};
 
-  final List<String> _subSections = [
-    "Romantic Hits", "Monsoon Melodies", "Bollywood Classics", "Workout Tunes",
-    "Top Arijit Singh", "Soulful Nights", "Dance Floor", "Lo-Fi Vibes",
-    "Sad Songs", "Punjabi Hits", "Old is Gold", "Trending India",
-    "Morning Chill", "Rainy Day Vibes", "Travel Beats"
+  final List<String> _moodSections = [
+    "Romantic", "Sad", "Workout", "Lo-Fi", "Happy", "Rainy", "Night Vibes", "Trending"
   ];
+
+  String _detectMood() {
+    final hour = TimeOfDay.now().hour;
+    if (hour >= 5 && hour < 10) return "Morning Chill";
+    if (hour >= 10 && hour < 13) return "Uplifting Vibes";
+    if (hour >= 13 && hour < 17) return "Focus Music";
+    if (hour >= 17 && hour < 21) return "Evening Relax";
+    return "Late Night Lo-Fi";
+  }
 
   @override
   void initState() {
@@ -43,17 +48,14 @@ class _HomeScreenState extends State<HomeScreen> {
       final recents = await StorageService.getHistory();
       final customPlaylists = await StorageService.getPlaylists();
       final lastPlayed = await StorageService.getLastPlayed();
-      final ytRecs = await YouTubeService.getMusicPlaylists();
-      final topSongs = await YouTubeService.search("Top Hindi Songs 2024");
 
+      final recommendations = await YtDlpService.getMoodBasedPlaylists(_detectMood());
+      final topSongs = await YtDlpService.fetchTrending();
       final Map<String, List<Map<String, String>>> explore = {};
-      for (final section in _subSections) {
-        try {
-          final result = await YouTubeService.search("$section music playlist");
-          explore[section] = result.take(10).toList();
-        } catch (e) {
-          explore[section] = [];
-        }
+
+      for (final mood in _moodSections) {
+        final result = await YtDlpService.search("$mood Hindi songs playlist");
+        explore[mood] = result.take(10).toList();
       }
 
       setState(() {
@@ -66,16 +68,15 @@ class _HomeScreenState extends State<HomeScreen> {
           id: e['id'] ?? '',
           thumbnail: e['thumbnail'] ?? '',
         )).toList();
-
         _playlists = List<Map<String, dynamic>>.from(customPlaylists);
         _lastPlayed = Map<String, String>.from(lastPlayed ?? {});
-        _ytRecommendations = ytRecs;
+        _recommendations = recommendations;
         _topSongs = topSongs.take(20).toList();
         _exploreSections = explore;
         _isLoading = false;
       });
     } catch (e) {
-      debugPrint("❌ Error loading HomeScreen: $e");
+      debugPrint("❌ HomeScreen load error: $e");
       setState(() => _isLoading = false);
     }
   }
@@ -245,7 +246,9 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  _lastPlayed != null ? _lastPlayed!['title']! : "Nothing is playing",
+                  _lastPlayed != null
+                      ? _lastPlayed!['title']!
+                      : "Nothing is playing",
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(color: Colors.white),
@@ -265,7 +268,9 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       child: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Colors.cyanAccent))
+          ? const Center(
+              child: CircularProgressIndicator(color: Colors.cyanAccent),
+            )
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
@@ -304,15 +309,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const SizedBox(height: 24),
                 ],
-                const SectionTitle(title: "🔥 Top Music"),
+                const SectionTitle(title: "🔥 Top Songs Now"),
                 _buildTopSongsGrid(),
                 const SizedBox(height: 24),
-                const SectionTitle(title: "Recommended"),
+                const SectionTitle(title: "🎯 For You"),
                 SizedBox(
                   height: 140,
                   child: ListView(
                     scrollDirection: Axis.horizontal,
-                    children: _ytRecommendations.map((item) {
+                    children: _recommendations.map((item) {
                       return PlaylistCard(
                         title: item['title'] ?? '',
                         imageUrl: item['thumbnail'] ?? '',
@@ -322,7 +327,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 const SizedBox(height: 30),
-                const SectionTitle(title: "🎧 Explore Playlists"),
+                const SectionTitle(title: "📂 Your Playlists"),
                 SizedBox(
                   height: 160,
                   child: ListView(
@@ -340,7 +345,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 const SizedBox(height: 30),
-                ..._exploreSections.entries.map((entry) => _buildExploreSection(entry.key, entry.value)).toList(),
+                ..._exploreSections.entries.map(
+                  (entry) => _buildExploreSection(entry.key, entry.value),
+                ),
                 const SizedBox(height: 100),
               ],
             ),
