@@ -9,6 +9,7 @@ import 'package:world_music_nancy/components/base_screen.dart';
 import 'package:world_music_nancy/widgets/now_playing_card.dart';
 import 'package:world_music_nancy/screens/playlist_details_screen.dart';
 import 'package:world_music_nancy/services/mood_service.dart';
+import 'package:world_music_nancy/screens/player_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -84,6 +85,19 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void _playSong(Map<String, String> song) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PlayerScreen(
+          title: song['title'] ?? '',
+          author: song['channel'] ?? '',
+          url: song['url'] ?? '',
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BaseScreen(
@@ -94,13 +108,16 @@ class _HomeScreenState extends State<HomeScreen> {
           elevation: 0,
           centerTitle: true,
           title: const Text(
-            '🎶 Nancy Music World',
+            '💫 Nancy Music World',
             style: TextStyle(
-              fontFamily: 'DancingScript',
-              color: Colors.cyanAccent,
-              fontSize: 30,
+              fontFamily: 'Orbitron',
+              fontSize: 26,
               fontWeight: FontWeight.bold,
-              shadows: [Shadow(color: Colors.pinkAccent, blurRadius: 4)],
+              color: Colors.cyanAccent,
+              shadows: [
+                Shadow(blurRadius: 10, color: Colors.pinkAccent),
+              ],
+              letterSpacing: 1.5,
             ),
           ),
         ),
@@ -125,9 +142,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     title: Text(song.title, style: const TextStyle(color: Colors.white)),
                     subtitle: Text(song.artist ?? '', style: const TextStyle(color: Colors.white70)),
                     leading: Image.network(song.thumbnailUrl ?? '', width: 50, height: 50),
-                    onTap: () {
-                      // TODO: Play this song
-                    },
+                    onTap: () => _playSong({
+                      'title': song.title,
+                      'channel': song.artist ?? '',
+                      'url': song.url ?? '',
+                    }),
                   );
                 }).toList(),
               ),
@@ -151,9 +170,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   return PlaylistCard(
                     title: song['title'] ?? '',
                     imageUrl: song['thumbnail'] ?? '',
-                    onTap: () {
-                      // TODO: Play song
-                    },
+                    onTap: () => _playSong(song),
                   );
                 }).toList(),
               ),
@@ -169,46 +186,32 @@ class _HomeScreenState extends State<HomeScreen> {
                 Text("View All", style: TextStyle(color: Colors.cyanAccent)),
               ],
             ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: _playlists.take(5).map((playlist) {
-                      final songs = List<Map<String, dynamic>>.from(playlist['songs'] ?? []);
-                      final first = songs.isNotEmpty ? songs[0] : null;
-                      final thumb = first != null ? first['thumbnail'] ?? '' : '';
-                      return PlaylistCard(
-                        title: playlist['title'] ?? '',
-                        imageUrl: thumb,
-                        onTap: () => _openPlaylist(playlist),
-                      );
-                    }).toList(),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: _ytRecommendations.take(5).map((item) {
-                      return PlaylistCard(
-                        title: item['title'] ?? '',
-                        imageUrl: item['thumbnail'] ?? '',
-                        onTap: () {
-                          // TODO: Play YouTube playlist
-                        },
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ],
+            SizedBox(
+              height: 160,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: _ytRecommendations.map((item) {
+                  return PlaylistCard(
+                    title: item['title'] ?? '',
+                    imageUrl: item['thumbnail'] ?? '',
+                    onTap: () {
+                      // Optionally play or navigate
+                    },
+                  );
+                }).toList(),
+              ),
             ),
 
             const SizedBox(height: 30),
 
             /// 🎧 Explore All Playlists
-            const SectionTitle(title: "🎧 Explore Playlists"),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: const [
+                SectionTitle(title: "🎧 Explore"),
+                Text("Check All", style: TextStyle(color: Colors.cyanAccent)),
+              ],
+            ),
             SizedBox(
               height: 160,
               child: ListView(
