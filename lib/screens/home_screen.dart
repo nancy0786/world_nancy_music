@@ -3,7 +3,7 @@ import 'package:world_music_nancy/widgets/neon_aware_tile.dart';
 import 'package:world_music_nancy/widgets/section_title.dart';
 import 'package:world_music_nancy/widgets/playlist_card.dart';
 import 'package:world_music_nancy/services/storage_service.dart';
-import 'package:world_music_nancy/services/ytdlp_service.dart'; // New yt-dlp powered backend
+import 'package:world_music_nancy/services/ytdlp_service.dart';
 import 'package:world_music_nancy/models/song_model.dart';
 import 'package:world_music_nancy/components/base_screen.dart';
 import 'package:world_music_nancy/screens/playlist_details_screen.dart';
@@ -49,13 +49,17 @@ class _HomeScreenState extends State<HomeScreen> {
       final customPlaylists = await StorageService.getPlaylists();
       final lastPlayed = await StorageService.getLastPlayed();
 
-      final recommendations = await YtDlpService.getMoodBasedPlaylists(_detectMood());
-      final topSongs = await YtDlpService.fetchTrending();
+      final recommendations = await YtDlpService.getMoodBased(_detectMood());
+      final topSongs = await YtDlpService.getTrending();
       final Map<String, List<Map<String, String>>> explore = {};
 
       for (final mood in _moodSections) {
-        final result = await YtDlpService.search("$mood Hindi songs playlist");
-        explore[mood] = result.take(10).toList();
+        try {
+          final result = await YtDlpService.search("$mood Hindi songs");
+          explore[mood] = result.take(10).toList();
+        } catch (_) {
+          explore[mood] = [];
+        }
       }
 
       setState(() {
@@ -68,6 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
           id: e['id'] ?? '',
           thumbnail: e['thumbnail'] ?? '',
         )).toList();
+
         _playlists = List<Map<String, dynamic>>.from(customPlaylists);
         _lastPlayed = Map<String, String>.from(lastPlayed ?? {});
         _recommendations = recommendations;
@@ -102,7 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
           playlistName: playlist['title'] ?? '',
           imagePath: '',
           visibility: 'public',
-          youtubePlaylistId: playlist['playlistId'],
+          youtubePlaylistId: playlist['videoId'] ?? '',
         ),
       ),
     );
@@ -209,64 +214,53 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: GestureDetector(
-        onTap: () {
-          if (_lastPlayed != null && _lastPlayed!['url'] != null) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => PlayerScreen(
-                  title: _lastPlayed!['title']!,
-                  author: _lastPlayed!['channel']!,
-                  url: _lastPlayed!['url']!,
+      bottomNavigationBar: _lastPlayed != null
+          ? GestureDetector(
+              onTap: () {
+                if (_lastPlayed!['url'] != null) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => PlayerScreen(
+                        title: _lastPlayed!['title']!,
+                        author: _lastPlayed!['channel']!,
+                        url: _lastPlayed!['url']!,
+                      ),
+                    ),
+                  );
+                }
+              },
+              child: Container(
+                color: Colors.black87,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                child: Row(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(6),
+                      child: Image.network(
+                        _lastPlayed!['thumbnail'] ?? '',
+                        width: 50,
+                        height: 50,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) =>
+                            const Icon(Icons.music_note, color: Colors.white),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        _lastPlayed!['title'] ?? "Now Playing",
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ),
+                    const Icon(Icons.play_circle_fill, color: Colors.white),
+                  ],
                 ),
               ),
-            );
-          }
-        },
-        child: Container(
-          color: Colors.black87,
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: Row(
-            children: [
-              if (_lastPlayed != null)
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(6),
-                  child: Image.network(
-                    _lastPlayed!['thumbnail'] ?? '',
-                    width: 50,
-                    height: 50,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) =>
-                        const Icon(Icons.music_note, color: Colors.white),
-                  ),
-                )
-              else
-                const SizedBox(width: 50, height: 50),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  _lastPlayed != null
-                      ? _lastPlayed!['title']!
-                      : "Nothing is playing",
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: Colors.white),
-                ),
-              ),
-              IconButton(
-                icon: Icon(
-                  _lastPlayed != null
-                      ? Icons.pause_circle_filled
-                      : Icons.play_circle_outline,
-                  color: Colors.white,
-                ),
-                onPressed: () {},
-              ),
-            ],
-          ),
-        ),
-      ),
+            )
+          : null,
       child: _isLoading
           ? const Center(
               child: CircularProgressIndicator(color: Colors.cyanAccent),
@@ -289,7 +283,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             song.thumbnailUrl ?? '',
                             width: 50,
                             height: 50,
-                            errorBuilder: (_, __, ___) => const Icon(Icons.music_note, color: Colors.white),
+                            errorBuilder: (_, __, ___) =>
+                                const Icon(Icons.music_note, color: Colors.white),
                           ),
                           onTap: () {
                             Navigator.push(
