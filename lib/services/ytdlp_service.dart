@@ -3,89 +3,92 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 
 class YtDlpService {
-  /// 🔧 Run yt-dlp command and return stdout lines
-  static Future<List<Map<String, dynamic>>> _runAndParseLines(List<String> args) async {
+  /// Helper: Runs yt-dlp and returns parsed stdout
+  static Future<List<Map<String, String>>> _runYtdlpJsonSearch(List<String> args) async {
     try {
-      final process = await Process.start('yt-dlp', args, runInShell: true);
-      final output = await process.stdout.transform(utf8.decoder).transform(const LineSplitter()).toList();
-      final List<Map<String, dynamic>> results = [];
-
-      for (var line in output) {
-        final jsonLine = jsonDecode(line);
-        results.add(jsonLine);
+      final result = await Process.run('yt-dlp', args);
+      if (result.exitCode != 0) {
+        debugPrint("❌ yt-dlp error: ${result.stderr}");
+        return [];
       }
 
-      return results;
+      // Support multiple JSON objects line-by-line
+      final lines = result.stdout.toString().split('\n');
+      return lines.where((line) => line.trim().isNotEmpty).map((line) {
+        final jsonMap = jsonDecode(line);
+        return {
+          'title': jsonMap['title'] ?? '',
+          'url': 'https://www.youtube.com/watch?v=${jsonMap['id'] ?? ''}',
+          'thumbnail': jsonMap['thumbnail'] ?? '',
+          'channel': jsonMap['uploader'] ?? '',
+          'videoId': jsonMap['id'] ?? '',
+        };
+      }).toList();
     } catch (e) {
-      debugPrint("yt-dlp error: $e");
+      debugPrint("❌ yt-dlp exec failed: $e");
       return [];
     }
   }
 
-  /// 🔍 Search YouTube
+  /// 🔍 Search YouTube (via yt-dlp)
   static Future<List<Map<String, String>>> search(String query) async {
-    final raw = await _runAndParseLines(['ytsearch10:$query', '--dump-json']);
-    return raw.map((item) {
-      final thumb = item['thumbnail'] ??
-          (item['thumbnails'] != null && item['thumbnails'].isNotEmpty
-              ? item['thumbnails'].last['url']
-              : '');
-      return {
-        'title': item['title'] ?? '',
-        'url': 'https://www.youtube.com/watch?v=${item['id']}',
-        'thumbnail': thumb,
-        'channel': item['uploader'] ?? '',
-        'videoId': item['id'] ?? '',
-      };
-    }).toList();
+    return await _runYtdlpJsonSearch([
+      '--dump-json',
+      'ytsearch10:$query',
+    ]);
   }
 
-  /// 📈 Trending Music
+  /// 📈 Trending songs (India region)
   static Future<List<Map<String, String>>> fetchTrending() async {
-    return await search("top trending hindi songs 2024");
+    return await search("top trending Hindi songs 2024");
   }
 
-  /// 🎵 Mood Based Playlists
+  /// 😎 Mood-based playlist search
   static Future<List<Map<String, String>>> getMoodBasedPlaylists(String mood) async {
-    final queries = ["$mood playlist", "$mood music mix", "$mood Hindi songs"];
-    final Set<Map<String, String>> all = {};
+    final Set<Map<String, String>> results = {};
+
+    final queries = [
+      "$mood playlist",
+      "$mood music mix",
+      "$mood Hindi songs"
+    ];
+
     for (final q in queries) {
       final res = await search(q);
-      all.addAll(res);
+      results.addAll(res);
     }
-    return all.take(12).toList();
+
+    return results.toList().take(15).toList();
   }
 
-  /// 🎧 Get Songs from Playlist
+  /// 📂 Get songs from YouTube playlist URL
   static Future<List<Map<String, String>>> getSongsFromPlaylist(String playlistUrl) async {
-    final raw = await _runAndParseLines(['--flat-playlist', '--dump-json', playlistUrl]);
-    return raw.map((item) {
-      return {
-        'title': item['title'] ?? '',
-        'videoId': item['id'] ?? '',
-        'url': 'https://www.youtube.com/watch?v=${item['id']}',
-        'thumbnail': 'https://img.youtube.com/vi/${item['id']}/hqdefault.jpg',
-        'channel': item['uploader'] ?? '',
-      };
-    }).toList();
-  }
-
-  /// ▶️ Audio Stream URL for Player
-  static Future<Map<String, String>?> getAudioStream(String videoId) async {
     try {
-      final urlProcess = await Process.run('yt-dlp', ['-f', 'bestaudio', '-g', 'https://www.youtube.com/watch?v=$videoId']);
-      final streamUrl = urlProcess.stdout.toString().trim();
+      final result = await Process.run('yt-dlp', [
+        '--flat-playlist',
+        '--dump-json',
+        playlistUrl,
+      ]);
 
-      final titleProcess = await Process.run('yt-dlp', ['--get-title', '--no-warnings', 'https://www.youtube.com/watch?v=$videoId']);
-      final title = titleProcess.stdout.toString().trim();
+      if (result.exitCode != 0) {
+        debugPrint("❌ Playlist fetch failed: ${result.stderr}");
+        return [];
+      }
 
-      return {
-        'title': title,
-        'url': streamUrl,
-      };
+      final lines = result.stdout.toString().split('\n');
+      return lines.where((line) => line.trim().isNotEmpty).map((line) {
+        final jsonMap = jsonDecode(line);
+        return {
+          'title': jsonMap['title'] ?? '',
+          'url': 'https://www.youtube.com/watch?v=${jsonMap['id'] ?? ''}',
+          'thumbnail': 'https://img.youtube.com/vi/${jsonMap['id']}/hqdefault.jpg',
+          'channel': jsonMap['uploader'] ?? '',
+          'videoId': jsonMap['id'] ?? '',
+        };
+      }).toList();
     } catch (e) {
-      debugPrint("yt-dlp stream fetch error: $e");
-      return null;
+      debugPrint("❌ Playlist parse failed: $e");
+      return [];
     }
   }
 }
