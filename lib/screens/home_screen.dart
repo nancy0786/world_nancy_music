@@ -49,8 +49,8 @@ class _HomeScreenState extends State<HomeScreen> {
       final customPlaylists = await StorageService.getPlaylists();
       final lastPlayed = await StorageService.getLastPlayed();
 
-      final recommendations = await YtDlpService.getMoodBased(_detectMood());
-      final topSongs = await YtDlpService.getTrending();
+      final recommendations = await YtDlpService.getMoodBasedPlaylists(_detectMood()); // ✅ FIXED
+      final topSongs = await YtDlpService.fetchTrending(); // ✅ FIXED
       final Map<String, List<Map<String, String>>> explore = {};
 
       for (final mood in _moodSections) {
