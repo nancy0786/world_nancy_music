@@ -73,14 +73,23 @@ class _SearchScreenState extends State<SearchScreen> {
     setState(() {
       _isLoading = true;
       _suggestions = [];
+      _results = [];
     });
 
     await _saveSearchHistory(query);
-    final results = await YtDlpService.search(query);
-    setState(() {
-      _results = results;
-      _isLoading = false;
-    });
+
+    try {
+      final results = await YtDlpService.search(query);
+      setState(() {
+        _results = results;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _results = [];
+        _isLoading = false;
+      });
+    }
   }
 
   Future<void> _play(String videoId, String title, String url) async {
@@ -122,12 +131,12 @@ class _SearchScreenState extends State<SearchScreen> {
                     borderRadius: BorderRadius.circular(14),
                     borderSide: BorderSide.none,
                   ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 ),
                 onSubmitted: _search,
               ),
             ),
-
             const SizedBox(height: 6),
             const Text(
               "Nancy Music World",
@@ -139,7 +148,6 @@ class _SearchScreenState extends State<SearchScreen> {
                 shadows: [Shadow(color: Colors.pinkAccent, blurRadius: 8)],
               ),
             ),
-
             if (_suggestions.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 10),
@@ -147,19 +155,25 @@ class _SearchScreenState extends State<SearchScreen> {
                   duration: const Duration(milliseconds: 300),
                   child: Column(
                     key: ValueKey(_suggestions.length),
-                    children: _suggestions.map((s) => NeonAwareTile(
-                      title: Text(s, style: const TextStyle(color: Colors.white)),
-                      leading: const Icon(Icons.search, color: Colors.cyanAccent),
-                      onTap: () {
-                        _controller.text = s;
-                        _search(s);
-                      },
-                    )).toList(),
+                    children: _suggestions
+                        .map((s) => NeonAwareTile(
+                              title: Text(s,
+                                  style:
+                                      const TextStyle(color: Colors.white)),
+                              leading: const Icon(Icons.search,
+                                  color: Colors.cyanAccent),
+                              onTap: () {
+                                _controller.text = s;
+                                _search(s);
+                              },
+                            ))
+                        .toList(),
                   ),
                 ),
               ),
-
-            if (_results.isEmpty && !_isLoading && _controller.text.isEmpty)
+            if (_results.isEmpty &&
+                !_isLoading &&
+                _controller.text.isEmpty)
               Expanded(
                 child: Column(
                   children: [
@@ -168,10 +182,13 @@ class _SearchScreenState extends State<SearchScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text("Search History", style: TextStyle(color: Colors.white70, fontSize: 16)),
+                          const Text("Search History",
+                              style: TextStyle(
+                                  color: Colors.white70, fontSize: 16)),
                           TextButton(
                             onPressed: _clearHistory,
-                            child: const Text("Clear", style: TextStyle(color: Colors.redAccent)),
+                            child: const Text("Clear",
+                                style: TextStyle(color: Colors.redAccent)),
                           ),
                         ],
                       ),
@@ -182,10 +199,14 @@ class _SearchScreenState extends State<SearchScreen> {
                         itemBuilder: (_, index) {
                           final item = _history[index];
                           return NeonAwareTile(
-                            title: Text(item, style: const TextStyle(color: Colors.white)),
-                            leading: const Icon(Icons.history, color: Colors.cyan),
+                            title: Text(item,
+                                style:
+                                    const TextStyle(color: Colors.white)),
+                            leading: const Icon(Icons.history,
+                                color: Colors.cyan),
                             trailing: IconButton(
-                              icon: const Icon(Icons.close, color: Colors.redAccent),
+                              icon: const Icon(Icons.close,
+                                  color: Colors.redAccent),
                               onPressed: () => _deleteHistoryItem(item),
                             ),
                             onTap: () {
@@ -199,13 +220,12 @@ class _SearchScreenState extends State<SearchScreen> {
                   ],
                 ),
               ),
-
             if (_isLoading)
               const Padding(
                 padding: EdgeInsets.all(20),
-                child: CircularProgressIndicator(color: Colors.cyanAccent),
+                child:
+                    CircularProgressIndicator(color: Colors.cyanAccent),
               ),
-
             if (!_isLoading && _results.isNotEmpty)
               Expanded(
                 child: ListView.builder(
@@ -219,20 +239,26 @@ class _SearchScreenState extends State<SearchScreen> {
                         height: 60,
                         fit: BoxFit.cover,
                       ),
-                      title: Text(video['title'] ?? '', style: const TextStyle(color: Colors.white)),
-                      subtitle: Text(video['channel'] ?? '', style: const TextStyle(color: Colors.white70)),
-                      onTap: () => _play(video['videoId']!, video['title']!, video['url']!),
+                      title: Text(video['title'] ?? '',
+                          style:
+                              const TextStyle(color: Colors.white)),
+                      subtitle: Text(video['channel'] ?? '',
+                          style:
+                              const TextStyle(color: Colors.white70)),
+                      onTap: () => _play(video['videoId']!,
+                          video['title']!, video['url']!),
                     );
                   },
                 ),
               ),
-
-            if (!_isLoading && _results.isEmpty && _controller.text.isNotEmpty)
+            if (!_isLoading &&
+                _results.isEmpty &&
+                _controller.text.isNotEmpty)
               const Padding(
                 padding: EdgeInsets.all(20),
-                child: Text("🚫 No results found", style: TextStyle(color: Colors.white70)),
+                child: Text("🚫 No results found",
+                    style: TextStyle(color: Colors.white70)),
               ),
-
             Container(
               height: 60,
               alignment: Alignment.center,
