@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:world_music_nancy/components/base_screen.dart';
-import 'package:world_music_nancy/services/youtube_service.dart';
-import 'package:world_music_nancy/services/youtube_autocomplete_service.dart';
 import 'package:world_music_nancy/screens/player_screen.dart';
+import 'package:world_music_nancy/services/ytdlp_service.dart';
+import 'package:world_music_nancy/services/youtube_autocomplete_service.dart';
 import 'package:world_music_nancy/widgets/neon_aware_tile.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -33,6 +33,7 @@ class _SearchScreenState extends State<SearchScreen> {
       setState(() => _suggestions = []);
       return;
     }
+
     final onlineSuggestions =
         await YouTubeAutocompleteService.fetchSuggestions(text);
     setState(() {
@@ -75,24 +76,21 @@ class _SearchScreenState extends State<SearchScreen> {
     });
 
     await _saveSearchHistory(query);
-    final results = await YouTubeService.search(query); // <-- API v3
+    final results = await YtDlpService.search(query);
     setState(() {
       _results = results;
       _isLoading = false;
     });
   }
 
-  Future<void> _play(String videoId) async {
-    final data = await YouTubeService.getAudioStream(videoId);
-    if (data == null) return;
-
+  Future<void> _play(String videoId, String title, String url) async {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => PlayerScreen(
-          title: data['title']!,
+          title: title,
           author: 'YouTube',
-          url: data['url']!,
+          url: url,
         ),
       ),
     );
@@ -223,7 +221,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       ),
                       title: Text(video['title'] ?? '', style: const TextStyle(color: Colors.white)),
                       subtitle: Text(video['channel'] ?? '', style: const TextStyle(color: Colors.white70)),
-                      onTap: () => _play(video['videoId']!),
+                      onTap: () => _play(video['videoId']!, video['title']!, video['url']!),
                     );
                   },
                 ),
