@@ -1,30 +1,32 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 
 class YouTubeAutocompleteService {
   static Future<List<String>> fetchSuggestions(String query) async {
     try {
-      final encoded = Uri.encodeComponent(query);
-      final url = Uri.parse(
-        'https://clients1.google.com/complete/search?client=youtube&hl=en&gl=US&ds=yt&q=$encoded'
+      final process = await Process.start(
+        'yt-dlp',
+        ['--dump-json', 'ytsearch10:$query'],
+        runInShell: true,
       );
 
-      final response = await http.get(url);
-      if (response.statusCode == 200) {
-        final raw = response.body;
+      final List<String> suggestions = [];
+      final lines = await process.stdout
+          .transform(utf8.decoder)
+          .transform(const LineSplitter())
+          .toList();
 
-        // Extract JSON string from raw response
-        final start = raw.indexOf('[');
-        final end = raw.lastIndexOf(']') + 1;
-        final jsonStr = raw.substring(start, end);
-        final List data = json.decode(jsonStr);
-
-        return List<String>.from(data[1].map((item) => item[0]));
-      } else {
-        return [];
+      for (final line in lines) {
+        final data = jsonDecode(line);
+        if (data is Map && data['title'] != null) {
+          suggestions.add(data['title']);
+        }
       }
+
+      return suggestions.take(8).toList(); // Return top 8 results as suggestions
     } catch (e) {
-      print("🔴 Error fetching suggestions: $e");
+      debugPrint("🔴 yt-dlp autocomplete error: $e");
       return [];
     }
   }
