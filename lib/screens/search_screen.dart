@@ -33,11 +33,22 @@ class _SearchScreenState extends State<SearchScreen> {
       return;
     }
 
-    final onlineSuggestions =
-        await YouTubeAutocompleteService.fetchSuggestions(text);
-    setState(() {
-      _suggestions = onlineSuggestions.take(8).toList();
-    });
+    try {
+      final results = await YtDlpService.search(text);
+      final topTitles = results
+          .map((e) => e['title'] ?? '')
+          .where((title) => title.isNotEmpty)
+          .take(8)
+          .toList();
+
+      setState(() {
+        _suggestions = topTitles;
+      });
+    } catch (e) {
+      setState(() {
+        _suggestions = [];
+      });
+    }
   }
 
   Future<void> _loadSearchHistory() async {
