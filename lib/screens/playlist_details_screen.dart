@@ -4,9 +4,9 @@ import 'package:share_plus/share_plus.dart';
 import 'package:world_music_nancy/components/base_screen.dart';
 import 'package:world_music_nancy/widgets/neon_aware_tile.dart';
 import 'package:world_music_nancy/screens/player_screen.dart';
-import 'package:world_music_nancy/services/youtube_service.dart';
+import 'package:world_music_nancy/services/ytdlp_service.dart'; // ✅ updated
 import 'package:world_music_nancy/services/storage_service.dart';
-import 'package:world_music_nancy/widgets/mini_player_bar.dart'; // ✅ added
+import 'package:world_music_nancy/widgets/mini_player_bar.dart';
 
 class PlaylistDetailsScreen extends StatefulWidget {
   final String playlistName;
@@ -38,7 +38,7 @@ class _PlaylistDetailsScreenState extends State<PlaylistDetailsScreen> {
 
   Future<void> _loadSongs() async {
     if (widget.youtubePlaylistId != null) {
-      final ytSongs = await YouTubeService.getSongsFromPlaylist(widget.youtubePlaylistId!);
+      final ytSongs = await YtDlpService.getSongsFromPlaylist(widget.youtubePlaylistId!); // ✅ updated
       setState(() => _songs = ytSongs);
     } else {
       final allPlaylists = await StorageService.getPlaylists();
@@ -111,7 +111,7 @@ Open in app: $link
   Future<void> _downloadAll() async {
     for (var song in _songs) {
       if (song['videoId'] != null) {
-        final data = await YouTubeService.getAudioStream(song['videoId']!);
+        final data = await YtDlpService.getAudioStream(song['videoId']!); // ✅ updated
         if (data != null && data['url'] != null && data['title'] != null) {
           await StorageService.downloadAudio(data['url']!, data['title']!);
         }
@@ -143,7 +143,7 @@ Open in app: $link
         body: Stack(
           children: [
             Padding(
-              padding: const EdgeInsets.only(bottom: 80), // space for mini player
+              padding: const EdgeInsets.only(bottom: 80),
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(20),
                 child: Column(
@@ -153,7 +153,7 @@ Open in app: $link
                         borderRadius: BorderRadius.circular(12),
                         child: Image.file(
                           File(widget.imagePath),
-                          height: 140, // ✅ reduced height to look neat
+                          height: 140,
                           width: double.infinity,
                           fit: BoxFit.cover,
                         ),
@@ -222,7 +222,7 @@ Open in app: $link
             ),
             const Align(
               alignment: Alignment.bottomCenter,
-              child: MiniPlayerBar(), // ✅ mini player added
+              child: MiniPlayerBar(),
             ),
           ],
         ),
