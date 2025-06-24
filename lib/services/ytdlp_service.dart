@@ -7,7 +7,7 @@ class YtDlpService {
   static String? _ytDlpPath;
 
   static Future<void> _ensureInit() async {
-    _ytDlpPath ??= await YtDlpInitializer.initYtDlpBinary();
+    _ytDlpPath ??= await YtDlpInitializer.prepareYtDlp();
   }
 
   static Future<List<Map<String, String>>> _runYtdlpSearch(List<String> args) async {
