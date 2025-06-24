@@ -65,7 +65,8 @@ flutter:
     - assets/backgrounds/girls/
     - assets/backgrounds/nature/
     - assets/lottie/
-    - assets/fonts/
+    - assets/fonts
+    - assets/yt-dlp
 
   fonts:
     - family: Orbitron
