@@ -5,12 +5,14 @@ buildscript {
 
         mavenCentral()
         maven { url "https://chaquo.com/maven" }
+        maven { url "https://chaquo.com/maven" }
 
     }
 
     dependencies {
 
         classpath "com.android.tools.build:gradle:8.3.0"
+        classpath "com.chaquo.python:gradle:14.0.2"
         classpath "com.chaquo.python:gradle:14.0.2"
         classpath "com.chaquo.python:gradle:14.0.2"
 
@@ -22,6 +24,7 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        maven { url "https://chaquo.com/maven" }
         maven { url "https://chaquo.com/maven" }
     }
 }
