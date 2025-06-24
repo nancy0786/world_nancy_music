@@ -76,6 +76,19 @@ jobs:
             exit 1
           fi
 
+      # 🆕 ADD: Install Python for Chaquopy and yt-dlp
+      - name: 🐍 Install Python 3.8 (required by Chaquopy)
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.8'
+
+      - name: 🔧 Verify Python & pip
+        run: |
+          python3 --version
+          pip3 --version
+
+      # 🆕 END ADDITION
+
       - name: 🏗️ Build APK
         run: flutter build apk --release
 
