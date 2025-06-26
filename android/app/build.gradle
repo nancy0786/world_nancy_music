@@ -3,7 +3,6 @@ plugins {
     id "kotlin-android"
     id "dev.flutter.flutter-gradle-plugin"
 }
-
 apply plugin: "com.chaquo.python"
 
 def localProperties = new Properties()
@@ -42,15 +41,15 @@ android {
             signingConfig = signingConfigs.debug
         }
     }
+}
 
-    python {
-        version "3.8"
-        pip {
-            install "yt-dlp"
-            install "requests"
-        }
-        staticProxy true
+python {
+    version "3.8"
+    pip {
+        install "yt-dlp"
+        install "requests"
     }
+    staticProxy true
 }
 
 flutter {
