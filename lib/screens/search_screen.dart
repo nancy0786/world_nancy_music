@@ -5,6 +5,13 @@ import 'package:world_music_nancy/screens/player_screen.dart';
 import 'package:world_music_nancy/services/ytdlp_service.dart';
 import 'package:world_music_nancy/widgets/neon_aware_tile.dart';
 
+class SearchScreen extends StatefulWidget {
+  const SearchScreen({super.key});
+
+  @override
+  State<SearchScreen> createState() => _SearchScreenState();
+}
+
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _controller = TextEditingController();
   List<Map<String, String>> _results = [];
