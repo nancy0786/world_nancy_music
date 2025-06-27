@@ -1,0 +1,59 @@
+name: Regenerate Android
+
+on:
+  workflow_dispatch:
+
+jobs:
+  regenerate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter 3.32.2
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.32.2"
+
+      - name: Remove android directory
+        run: |
+          rm -rf android
+          echo "✅ Removed old android directory"
+
+      - name: Regenerate android folder
+        run: |
+          flutter create .
+          echo "✅ Android folder regenerated"
+
+      - name: Confirm Groovy build files and no .kts
+        run: |
+          echo "🔍 Checking android build files..."
+          find android -name "*.kts" > kts_files.txt
+          find android -name "*.gradle" > gradle_files.txt
+
+          echo "📁 .kts files found (should be empty):"
+          cat kts_files.txt
+
+          echo "📁 .gradle files found:"
+          cat gradle_files.txt
+
+          if [ -s kts_files.txt ]; then
+            echo "❌ ERROR: .kts files still exist!"
+            exit 1
+          fi
+
+          if ! grep -q "build.gradle" gradle_files.txt; then
+            echo "❌ ERROR: build.gradle not found!"
+            exit 1
+          fi
+
+          echo "✅ Confirmed: No .kts files, .gradle files exist"
+
+      - name: Commit and push regenerated android folder
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add android
+          git commit -m "Regenerated android folder with .gradle (Flutter 3.32.2)"
+          git push origin main
