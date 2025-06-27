@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: Build Release APK
+    name: Recreate Android & Build APK
     runs-on: ubuntu-latest
 
     steps:
@@ -21,18 +21,15 @@ jobs:
           channel: stable
           cache: true
 
-      - name: 📦 Install Dependencies
-        run: flutter pub get
-
-      - name: ✅ Ensure package_config.json exists
+      - name: 🧹 Delete broken android folder
         run: |
-          if [ ! -f .dart_tool/package_config.json ]; then
-            flutter pub get
-          fi
+          echo "🧨 Removing broken android/ directory..."
+          rm -rf android
 
-      - name: 🧼 Clean Build Cache
-        run: flutter clean || true
-        continue-on-error: true
+      - name: ♻️ Recreate android folder
+        run: |
+          echo "⚙️ Regenerating android/ using flutter create..."
+          flutter create .
 
       - name: 🧩 Install Android SDK 35
         run: |
@@ -67,7 +64,6 @@ jobs:
         run: |
           echo "📁 Checking android-35 folder contents..."
           ls -lh $ANDROID_HOME/platforms/android-35/
-
           JAR="$ANDROID_HOME/platforms/android-35/android.jar"
           if [ -f "$JAR" ]; then
             echo "✅ android.jar exists at: $JAR"
@@ -75,6 +71,19 @@ jobs:
             echo "❌ android.jar is missing!"
             exit 1
           fi
+
+      - name: 📦 Install Dependencies
+        run: flutter pub get
+
+      - name: ✅ Ensure package_config.json exists
+        run: |
+          if [ ! -f .dart_tool/package_config.json ]; then
+            flutter pub get
+          fi
+
+      - name: 🧼 Clean Build Cache
+        run: flutter clean || true
+        continue-on-error: true
 
       - name: ⬇️ Download yt-dlp binary
         run: |
