@@ -5,13 +5,6 @@ import 'package:world_music_nancy/screens/player_screen.dart';
 import 'package:world_music_nancy/services/ytdlp_service.dart';
 import 'package:world_music_nancy/widgets/neon_aware_tile.dart';
 
-class SearchScreen extends StatefulWidget {
-  const SearchScreen({super.key});
-
-  @override
-  State<SearchScreen> createState() => _SearchScreenState();
-}
-
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _controller = TextEditingController();
   List<Map<String, String>> _results = [];
@@ -36,7 +29,7 @@ class _SearchScreenState extends State<SearchScreen> {
     try {
       final results = await YtDlpService.search(text);
       final topTitles = results
-          .map((e) => e['title'] ?? '')
+          .map((e) => e['title']?.toString() ?? '')
           .where((title) => title.isNotEmpty)
           .take(8)
           .toList();
@@ -89,7 +82,12 @@ class _SearchScreenState extends State<SearchScreen> {
     await _saveSearchHistory(query);
 
     try {
-      final results = await YtDlpService.search(query);
+      final rawResults = await YtDlpService.search(query);
+      final results = rawResults
+          .map<Map<String, String>>(
+              (e) => e.map((k, v) => MapEntry(k.toString(), v.toString())))
+          .toList();
+
       setState(() {
         _results = results;
         _isLoading = false;
