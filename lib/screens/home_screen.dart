@@ -49,14 +49,17 @@ class _HomeScreenState extends State<HomeScreen> {
       final customPlaylists = await StorageService.getPlaylists();
       final lastPlayed = await StorageService.getLastPlayed();
 
-      final recommendations = await YtDlpService.getMoodBasedPlaylists(_detectMood()); // ✅ FIXED
-      final topSongs = await YtDlpService.fetchTrending(); // ✅ FIXED
+      final recommendationsRaw = await YtDlpService.getMoodBasedPlaylists(_detectMood());
+      final topSongsRaw = await YtDlpService.fetchTrending();
       final Map<String, List<Map<String, String>>> explore = {};
 
       for (final mood in _moodSections) {
         try {
           final result = await YtDlpService.search("$mood Hindi songs");
-          explore[mood] = result.take(10).toList();
+          explore[mood] = result
+              .map<Map<String, String>>((e) => e.map((k, v) => MapEntry(k.toString(), v.toString())))
+              .take(10)
+              .toList();
         } catch (_) {
           explore[mood] = [];
         }
@@ -75,8 +78,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
         _playlists = List<Map<String, dynamic>>.from(customPlaylists);
         _lastPlayed = Map<String, String>.from(lastPlayed ?? {});
-        _recommendations = recommendations;
-        _topSongs = topSongs.take(20).toList();
+
+        _recommendations = recommendationsRaw
+            .map<Map<String, String>>((e) => e.map((k, v) => MapEntry(k.toString(), v.toString())))
+            .toList();
+
+        _topSongs = topSongsRaw
+            .map<Map<String, String>>((e) => e.map((k, v) => MapEntry(k.toString(), v.toString())))
+            .take(20)
+            .toList();
+
         _exploreSections = explore;
         _isLoading = false;
       });
