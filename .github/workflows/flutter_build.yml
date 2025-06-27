@@ -1,0 +1,97 @@
+name: Build APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Release APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🛠 Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.32.2"
+          channel: stable
+          cache: true
+
+      - name: 📦 Install Dependencies
+        run: flutter pub get
+
+      - name: ✅ Ensure package_config.json exists
+        run: |
+          if [ ! -f .dart_tool/package_config.json ]; then
+            flutter pub get
+          fi
+
+      - name: 🧼 Clean Build Cache
+        run: flutter clean || true
+        continue-on-error: true
+
+      - name: 🧩 Install Android SDK 35
+        run: |
+          mkdir -p "$ANDROID_HOME/cmdline-tools/latest"
+          cd "$ANDROID_HOME/cmdline-tools/latest"
+          curl -s -o sdk.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+          unzip -q sdk.zip
+          rm sdk.zip
+          yes | ./bin/sdkmanager --licenses
+          yes | ./bin/sdkmanager "platforms;android-35"
+
+      - name: 🧹 Remove broken android.jar from SDK 35
+        run: |
+          echo "🗑️ Deleting broken android.jar from SDK 35..."
+          rm -f $ANDROID_HOME/platforms/android-35/android.jar
+
+      - name: ⬇️ Install Android SDK 34
+        run: |
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-34"
+
+      - name: 🔁 Move android.jar from SDK 34 → SDK 35
+        run: |
+          echo "📦 Copying android.jar from SDK 34 to 35..."
+          cp $ANDROID_HOME/platforms/android-34/android.jar $ANDROID_HOME/platforms/android-35/android.jar
+
+      - name: ❌ Delete Android SDK 34 (optional cleanup)
+        run: |
+          echo "🧹 Removing SDK 34..."
+          rm -rf $ANDROID_HOME/platforms/android-34
+
+      - name: ✅ Verify android.jar and aapt2
+        run: |
+          echo "📁 Checking android-35 folder contents..."
+          ls -lh $ANDROID_HOME/platforms/android-35/
+
+          JAR="$ANDROID_HOME/platforms/android-35/android.jar"
+          if [ -f "$JAR" ]; then
+            echo "✅ android.jar exists at: $JAR"
+          else
+            echo "❌ android.jar is missing!"
+            exit 1
+          fi
+
+      - name: ⬇️ Download yt-dlp binary
+        run: |
+          echo "📥 Downloading yt-dlp ARM64 binary..."
+          mkdir -p assets
+          curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux_aarch64 -o assets/yt-dlp
+          chmod +x assets/yt-dlp
+          echo "✅ yt-dlp binary is ready in assets/"
+
+      - name: 🏗️ Build APK
+        run: flutter build apk --release
+
+      - name: 📂 List APK Output Folder
+        run: ls -la build/app/outputs/flutter-apk
+
+      - name: 📤 Upload Release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release.apk
+          path: build/app/outputs/flutter-apk/app-release.apk
