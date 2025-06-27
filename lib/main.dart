@@ -17,6 +17,8 @@ import 'package:world_music_nancy/routes.dart';
 import 'package:world_music_nancy/providers/preferences_provider.dart';
 import 'package:world_music_nancy/screens/favorites_screen.dart';
 
+import 'yt_controller.dart'; // ✅ NEW: yt-dlp integration
+
 void main() {
   runApp(const NancyMusicWorldApp());
 }
@@ -87,7 +89,7 @@ class _NancyMusicWorldAppState extends State<NancyMusicWorldApp> {
           initialRoute: '/',
           routes: {
             '/': (context) => const SplashScreen(),
-            '/home': (context) => const HomePageWithNav(),
+            '/home': (context) => YTDLPHomeWrapper(child: const HomePageWithNav()), // ✅ WRAPPED
             '/profile': (context) => const ProfileScreen(),
             '/createPlaylist': (context) => const CreatePlaylistScreen(),
             '/downloads': (context) => const DownloadsScreen(),
@@ -95,14 +97,36 @@ class _NancyMusicWorldAppState extends State<NancyMusicWorldApp> {
             '/playlist': (context) => const PlaylistScreen(),
             '/library': (context) => const LibraryScreen(),
             '/search': (context) => const SearchScreen(),
-            '/createPlaylist': (context) => const CreatePlaylistScreen(),
             '/favorites': (context) => const FavoritesScreen(),
-            '/playlist': (context) => const PlaylistScreen(),
-            '/profile': (context) => const ProfileScreen(),
           },
           onGenerateRoute: onGenerateRoute,
         );
       }),
+    );
+  }
+}
+
+// ✅ Wrapper to show yt-dlp FAB only on Home
+class YTDLPHomeWrapper extends StatelessWidget {
+  final Widget child;
+  const YTDLPHomeWrapper({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: child,
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () async {
+          const url = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Running yt-dlp on test video...')),
+          );
+          await YTDLPManager.runYTDLP(url);
+        },
+        label: Text("Test yt-dlp"),
+        icon: Icon(Icons.download),
+        backgroundColor: Colors.purpleAccent,
+      ),
     );
   }
 }
