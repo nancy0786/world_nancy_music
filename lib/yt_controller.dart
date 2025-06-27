@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 
 class YTDLPManager {
+  /// Copies yt-dlp binary from assets to internal storage and makes it executable
   static Future<String> extractBinary() async {
     final dir = await getApplicationSupportDirectory();
     final binaryPath = '${dir.path}/yt-dlp';
@@ -14,10 +15,11 @@ class YTDLPManager {
       flush: true,
     );
 
-    await Process.run('chmod', ['+x', binaryPath]); // Make executable
+    await Process.run('chmod', ['+x', binaryPath]); // Make it executable
     return binaryPath;
   }
 
+  /// Run yt-dlp on a given URL
   static Future<void> runYTDLP(String url) async {
     final binary = await extractBinary();
     final process = await Process.start(binary, [url]);
@@ -30,6 +32,7 @@ class YTDLPManager {
       print("YT-DLP ERROR: $data");
     });
 
-    await process.exitCode;
+    final exitCode = await process.exitCode;
+    print("YT-DLP finished with exit code: $exitCode");
   }
 }
