@@ -16,6 +16,7 @@ def flutterVersionCode = localProperties.getProperty("flutter.versionCode") ?: "
 def flutterVersionName = localProperties.getProperty("flutter.versionName") ?: "1.0"
 
 android {
+    ndkVersion = "27.0.12077973"
     namespace "com.example.world_nancy_music"
     compileSdk 35
 
