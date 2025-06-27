@@ -25,7 +25,9 @@ class YtDlpService {
     );
 
     final lines = LineSplitter.split(process.stdout.toString());
-    return lines.map((line) => jsonDecode(line)).toList();
+    return lines
+        .map((line) => Map<String, dynamic>.from(jsonDecode(line)))
+        .toList();
   }
 
   static Future<Map<String, dynamic>> getAudioStream(String videoId) async {
@@ -35,7 +37,7 @@ class YtDlpService {
       ytDlp,
       [url, '-f', 'bestaudio', '--dump-json'],
     );
-    return jsonDecode(result.stdout.toString());
+    return Map<String, dynamic>.from(jsonDecode(result.stdout.toString()));
   }
 
   static Future<List<Map<String, dynamic>>> getSongsFromPlaylist(String playlistId) async {
@@ -47,7 +49,9 @@ class YtDlpService {
     );
 
     final lines = LineSplitter.split(result.stdout.toString());
-    return lines.map((line) => jsonDecode(line)).toList();
+    return lines
+        .map((line) => Map<String, dynamic>.from(jsonDecode(line)))
+        .toList();
   }
 
   static Future<List<Map<String, dynamic>>> fetchTrending() async {
