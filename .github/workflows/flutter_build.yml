@@ -21,16 +21,6 @@ jobs:
           channel: stable
           cache: true
 
-      - name: 🧹 Delete broken android folder
-        run: |
-          echo "🧨 Removing broken android/ directory..."
-          rm -rf android
-
-      - name: ♻️ Recreate android folder
-        run: |
-          echo "⚙️ Regenerating android/ using flutter create..."
-          flutter create .
-
       - name: 🧩 Install Android SDK 35
         run: |
           mkdir -p "$ANDROID_HOME/cmdline-tools/latest"
