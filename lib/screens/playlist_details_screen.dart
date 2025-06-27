@@ -4,7 +4,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:world_music_nancy/components/base_screen.dart';
 import 'package:world_music_nancy/widgets/neon_aware_tile.dart';
 import 'package:world_music_nancy/screens/player_screen.dart';
-import 'package:world_music_nancy/services/ytdlp_service.dart'; // ✅ updated
+import 'package:world_music_nancy/services/ytdlp_service.dart';
 import 'package:world_music_nancy/services/storage_service.dart';
 import 'package:world_music_nancy/widgets/mini_player_bar.dart';
 
@@ -38,8 +38,10 @@ class _PlaylistDetailsScreenState extends State<PlaylistDetailsScreen> {
 
   Future<void> _loadSongs() async {
     if (widget.youtubePlaylistId != null) {
-      final ytSongs = await YtDlpService.getSongsFromPlaylist(widget.youtubePlaylistId!); // ✅ updated
-      setState(() => _songs = ytSongs);
+      final rawSongs = await YtDlpService.getSongsFromPlaylist(widget.youtubePlaylistId!);
+      final songs = rawSongs.map((e) =>
+          e.map((key, value) => MapEntry(key.toString(), value.toString()))).toList();
+      setState(() => _songs = songs);
     } else {
       final allPlaylists = await StorageService.getPlaylists();
       final matched = allPlaylists.firstWhere(
@@ -48,18 +50,10 @@ class _PlaylistDetailsScreenState extends State<PlaylistDetailsScreen> {
       );
 
       final localSongs = (matched['songs'] ?? []) as List<dynamic>;
-      setState(() {
-        _songs = localSongs.map((e) {
-          final song = Map<String, String>.from(e);
-          return {
-            'title': song['title'] ?? '',
-            'thumbnail': song['thumbnail'] ?? '',
-            'channel': song['channel'] ?? '',
-            'url': song['url'] ?? '',
-            'videoId': song['videoId'] ?? '',
-          };
-        }).toList();
-      });
+      final songs = localSongs.map<Map<String, String>>((e) =>
+          e.map((key, value) => MapEntry(key.toString(), value.toString()))).toList();
+
+      setState(() => _songs = songs);
     }
   }
 
@@ -111,7 +105,7 @@ Open in app: $link
   Future<void> _downloadAll() async {
     for (var song in _songs) {
       if (song['videoId'] != null) {
-        final data = await YtDlpService.getAudioStream(song['videoId']!); // ✅ updated
+        final data = await YtDlpService.getAudioStream(song['videoId']!);
         if (data != null && data['url'] != null && data['title'] != null) {
           await StorageService.downloadAudio(data['url']!, data['title']!);
         }
