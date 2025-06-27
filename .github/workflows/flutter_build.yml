@@ -31,6 +31,31 @@ jobs:
           echo "⚙️ Regenerating android/ using flutter create..."
           flutter create .
 
+      - name: 🛠 Patch ndkVersion in build.gradle
+        run: |
+          GRADLE_FILE="android/app/build.gradle"
+          echo "📁 Checking for $GRADLE_FILE..."
+          if [ ! -f "$GRADLE_FILE" ]; then
+            echo "❌ File not found: $GRADLE_FILE"
+            exit 1
+          fi
+
+          echo "📝 Inserting ndkVersion into android block..."
+
+          awk '
+            BEGIN { inserted = 0 }
+            /android[[:space:]]*{/ && inserted == 0 {
+              print
+              print "    ndkVersion = \"27.0.12077973\""
+              inserted = 1
+              next
+            }
+            { print }
+          ' "$GRADLE_FILE" > "$GRADLE_FILE.tmp" && mv "$GRADLE_FILE.tmp" "$GRADLE_FILE"
+
+          echo "✅ Verifying insertion..."
+          grep -q 'ndkVersion *= *"27.0.12077973"' "$GRADLE_FILE" && echo "✅ ndkVersion inserted correctly!" || (echo "❌ Insertion failed!" && exit 1)
+
       - name: 🧩 Install Android SDK 35
         run: |
           mkdir -p "$ANDROID_HOME/cmdline-tools/latest"
