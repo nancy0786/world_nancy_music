@@ -4,8 +4,6 @@ plugins {
     id "dev.flutter.flutter-gradle-plugin"
 }
 
-apply plugin: "com.chaquo.python"
-
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file("local.properties")
 if (localPropertiesFile.exists()) {
@@ -18,38 +16,28 @@ def flutterVersionCode = localProperties.getProperty("flutter.versionCode") ?: "
 def flutterVersionName = localProperties.getProperty("flutter.versionName") ?: "1.0"
 
 android {
-    namespace = "com.example.world_nancy_music"
-    compileSdk = 35
-    ndkVersion = "27.0.12077973"
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
+    namespace "com.example.world_nancy_music"
+    compileSdk 35
 
     defaultConfig {
-        applicationId = "com.example.world_nancy_music"
-        minSdk = flutter.minSdkVersion
-        targetSdk = 35
-        versionCode = flutterVersionCode.toInteger()
-        versionName = flutterVersionName
+        applicationId "com.example.world_nancy_music"
+        minSdkVersion flutter.minSdkVersion
+        targetSdkVersion 35
+        versionCode flutterVersionCode.toInteger()
+        versionName flutterVersionName
     }
 
     buildTypes {
         release {
-            minifyEnabled false
+            signingConfig signingConfigs.debug
             shrinkResources false
-            signingConfig = signingConfigs.debug
+            minifyEnabled false
         }
     }
 
-    python {
-        version "3.8"
-        pip {
-            install "yt-dlp"
-            install "requests"
-        }
-        staticProxy true
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
