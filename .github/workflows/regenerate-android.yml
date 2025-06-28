@@ -64,7 +64,11 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add android
-          git commit -m "🆕 Replaced android/ with Groovy version and added NDK version"
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/nancy0786/world_nancy_music.git HEAD:main
+          if git diff --cached --quiet; then
+            echo "⚠️ No changes to commit."
+          else
+            git commit -m "🆕 Replaced android/ with Groovy version and added NDK version"
+            git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/nancy0786/world_nancy_music.git HEAD:main
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
