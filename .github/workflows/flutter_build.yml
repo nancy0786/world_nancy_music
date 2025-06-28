@@ -76,6 +76,14 @@ jobs:
             exit 1
           fi
 
+      - name: ⬇️ Download yt-dlp binary
+        run: |
+          echo "📥 Downloading yt-dlp ARM64 binary..."
+          mkdir -p assets
+          curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux_aarch64 -o assets/yt-dlp
+          chmod +x assets/yt-dlp
+          echo "✅ yt-dlp binary is ready in assets/"
+
       - name: 🏗️ Build APK
         run: flutter build apk --release
 
