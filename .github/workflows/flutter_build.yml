@@ -26,10 +26,10 @@ jobs:
           echo "🧨 Removing broken android/ directory..."
           rm -rf android
 
-      - name: ♻️ Recreate android folder
+      - name: ♻️ Recreate android folder with Groovy (not KTS)
         run: |
-          echo "⚙️ Regenerating android/ using flutter create..."
-          flutter create .
+          echo "⚙️ Regenerating android/ using flutter create with Java..."
+          flutter create --android-language java .
 
       - name: 🛠 Patch ndkVersion in build.gradle
         run: |
