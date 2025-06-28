@@ -47,12 +47,24 @@ jobs:
           rm -rf world_nancy_music_temp
           echo "✅ android folder copied to project root."
 
+      - name: ⚙️ Add ndkVersion = "27.0.12077973" in build.gradle.kts
+        run: |
+          echo "🧪 Checking if build.gradle.kts exists and patching..."
+          if [ -f android/app/build.gradle.kts ]; then
+            grep -q 'ndkVersion' android/app/build.gradle.kts && echo "✅ NDK version already set." || \
+            sed -i '/android {/a \ \ \ \ ndkVersion = "27.0.12077973"' android/app/build.gradle.kts && \
+            echo "✅ Added ndkVersion = \"27.0.12077973\""
+          else
+            echo "❌ build.gradle.kts not found!"
+            exit 1
+          fi
+
       - name: ✅ Commit android/ folder to repo
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add android
-          git commit -m "🆕 Replaced android/ with Groovy version (com.example.world_nancy_music)"
+          git commit -m "🆕 Replaced android/ with Groovy version and added NDK version"
           git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/nancy0786/world_nancy_music.git HEAD:main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
