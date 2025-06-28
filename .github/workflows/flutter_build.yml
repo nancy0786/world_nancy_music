@@ -76,6 +76,9 @@ jobs:
             exit 1
           fi
 
+      - name: change flutter gradle version 
+        run: sed -i 's/dev.flutter:flutter-gradle-plugin:1.0.0/dev.flutter:flutter-gradle-plugin:8.0.2/g' android/build.gradle
+      
       - name: 🏗️ Build APK
         run: flutter build apk --release
 
