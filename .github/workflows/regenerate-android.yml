@@ -53,6 +53,6 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add android
           git commit -m "🆕 Replaced android/ with Groovy version (com.example.world_nancy_music)"
-          git push origin main
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/nancy0786/world_nancy_music.git HEAD:main
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
