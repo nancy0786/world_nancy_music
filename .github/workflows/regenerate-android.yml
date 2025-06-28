@@ -65,7 +65,7 @@ jobs:
           echo "🔧 Enabling core library desugaring in build.gradle.kts..."
           FILE="android/app/build.gradle.kts"
 
-          # 1. Enable desugaring in compileOptions block
+          # Enable in compileOptions block
           if grep -q 'isCoreLibraryDesugaringEnabled' "$FILE"; then
             echo "✅ Desugaring already enabled."
           else
@@ -73,7 +73,7 @@ jobs:
             echo "✅ Enabled coreLibraryDesugaring in compileOptions."
           fi
 
-          # 2. Add desugaring dependency — create dependencies block if missing
+          # Add dependency
           if grep -q 'dependencies {' "$FILE"; then
             echo "📦 dependencies block found."
             grep -q 'desugar_jdk_libs' "$FILE" || \
@@ -81,12 +81,10 @@ jobs:
             echo "✅ Added coreLibraryDesugaring dependency."
           else
             echo "📦 dependencies block not found — creating one at end of file."
-            cat <<EOF >> "$FILE"
-
-dependencies {
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
-}
-EOF
+            echo '
+          dependencies {
+            coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+          }' >> "$FILE"
             echo "✅ Created dependencies block with desugaring dependency."
           fi
 
