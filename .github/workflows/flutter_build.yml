@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: Recreate Android & Build APK
+    name: Recreate Android (Groovy) & Build APK
     runs-on: ubuntu-latest
 
     steps:
@@ -26,10 +26,19 @@ jobs:
           echo "🧨 Removing broken android/ directory..."
           rm -rf android
 
-      - name: ♻️ Recreate android folder with Groovy (not KTS)
+      - name: ♻️ Recreate android folder with flutter create
         run: |
-          echo "⚙️ Regenerating android/ using flutter create with Java..."
-          flutter create --android-language java .
+          echo "⚙️ Running flutter create..."
+          flutter create --project-name world_nancy_music --org com.example .
+
+      - name: 🔄 Replace KTS Android with Groovy version
+        run: |
+          echo "♻️ Replacing KTS with Groovy template..."
+          rm -rf android
+          git clone https://github.com/flutter/flutter.git --depth 1
+          cp -r flutter/packages/flutter_tools/templates/app/android.tmpl/* ./android/
+          rm -rf flutter
+          echo "✅ Groovy-based android folder restored."
 
       - name: 🛠 Patch ndkVersion in build.gradle
         run: |
@@ -41,7 +50,6 @@ jobs:
           fi
 
           echo "📝 Inserting ndkVersion into android block..."
-
           awk '
             BEGIN { inserted = 0 }
             /android[[:space:]]*{/ && inserted == 0 {
