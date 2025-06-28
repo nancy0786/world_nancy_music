@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter/foundation.dart';
 
 class YtDlpService {
   static Future<String> _getBinaryPath() async {
@@ -18,40 +19,71 @@ class YtDlpService {
   }
 
   static Future<List<Map<String, dynamic>>> search(String query) async {
-    final ytDlp = await _getBinaryPath();
-    final process = await Process.run(
-      ytDlp,
-      ['ytsearch10:$query', '--dump-json'],
-    );
+    try {
+      final ytDlp = await _getBinaryPath();
+      final result = await Process.run(
+        ytDlp,
+        ['ytsearch10:$query', '--dump-json'],
+      );
 
-    final lines = LineSplitter.split(process.stdout.toString());
-    return lines
-        .map((line) => Map<String, dynamic>.from(jsonDecode(line)))
-        .toList();
+      if (result.exitCode != 0) {
+        debugPrint("❌ yt-dlp search failed: ${result.stderr}");
+        return [];
+      }
+
+      final lines = LineSplitter.split(result.stdout.toString());
+      return lines
+          .map((line) => Map<String, dynamic>.from(jsonDecode(line)))
+          .toList();
+    } catch (e) {
+      debugPrint("❌ search('$query') error: $e");
+      return [];
+    }
   }
 
   static Future<Map<String, dynamic>> getAudioStream(String videoId) async {
-    final ytDlp = await _getBinaryPath();
-    final url = 'https://www.youtube.com/watch?v=$videoId';
-    final result = await Process.run(
-      ytDlp,
-      [url, '-f', 'bestaudio', '--dump-json'],
-    );
-    return Map<String, dynamic>.from(jsonDecode(result.stdout.toString()));
+    try {
+      final ytDlp = await _getBinaryPath();
+      final url = 'https://www.youtube.com/watch?v=$videoId';
+      final result = await Process.run(
+        ytDlp,
+        [url, '-f', 'bestaudio', '--dump-json'],
+      );
+
+      if (result.exitCode != 0) {
+        debugPrint("❌ getAudioStream failed: ${result.stderr}");
+        return {};
+      }
+
+      return Map<String, dynamic>.from(jsonDecode(result.stdout.toString()));
+    } catch (e) {
+      debugPrint("❌ getAudioStream error: $e");
+      return {};
+    }
   }
 
   static Future<List<Map<String, dynamic>>> getSongsFromPlaylist(String playlistId) async {
-    final ytDlp = await _getBinaryPath();
-    final url = 'https://www.youtube.com/playlist?list=$playlistId';
-    final result = await Process.run(
-      ytDlp,
-      [url, '--flat-playlist', '--dump-json'],
-    );
+    try {
+      final ytDlp = await _getBinaryPath();
+      final url = 'https://www.youtube.com/playlist?list=$playlistId';
+      final result = await Process.run(
+        ytDlp,
+        [url, '--flat-playlist', '--dump-json'],
+      );
 
-    final lines = LineSplitter.split(result.stdout.toString());
-    return lines
-        .map((line) => Map<String, dynamic>.from(jsonDecode(line)))
-        .toList();
+      if (result.exitCode != 0) {
+        debugPrint("❌ getSongsFromPlaylist failed: ${result.stderr}");
+        return [];
+      }
+
+      final lines = LineSplitter.split(result.stdout.toString());
+      return lines
+          .map((line) => Map<String, dynamic>.from(jsonDecode(line)))
+          .toList();
+    } catch (e) {
+      debugPrint("❌ getSongsFromPlaylist error: $e");
+      return [];
+    }
   }
 
   static Future<List<Map<String, dynamic>>> fetchTrending() async {
