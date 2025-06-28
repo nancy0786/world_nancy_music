@@ -49,10 +49,11 @@ jobs:
 
       - name: ⚙️ Add ndkVersion = "27.0.12077973" in build.gradle.kts
         run: |
-          echo "🧪 Checking if build.gradle.kts exists and patching..."
-          if [ -f android/app/build.gradle.kts ]; then
-            grep -q 'ndkVersion' android/app/build.gradle.kts && echo "✅ NDK version already set." || \
-            sed -i '/android {/a \ \ \ \ ndkVersion = "27.0.12077973"' android/app/build.gradle.kts && \
+          echo "🧪 Checking if build.gradle.kts exists and patching ndkVersion..."
+          FILE="android/app/build.gradle.kts"
+          if [ -f "$FILE" ]; then
+            grep -q 'ndkVersion' "$FILE" && echo "✅ NDK version already set." || \
+            sed -i '/android {/a \    ndkVersion = "27.0.12077973"' "$FILE" && \
             echo "✅ Added ndkVersion = \"27.0.12077973\""
           else
             echo "❌ build.gradle.kts not found!"
@@ -61,18 +62,27 @@ jobs:
 
       - name: 🔧 Enable core library desugaring
         run: |
-          echo "🔧 Enabling Java 8 desugaring..."
+          echo "🔧 Enabling core library desugaring in build.gradle.kts..."
           FILE="android/app/build.gradle.kts"
 
-          # Enable in compileOptions block
-          grep -q 'coreLibraryDesugaringEnabled' $FILE || \
-          sed -i '/compileOptions {/a \            isCoreLibraryDesugaringEnabled = true' $FILE
+          # Enable desugaring in compileOptions block
+          if grep -q 'isCoreLibraryDesugaringEnabled' "$FILE"; then
+            echo "✅ Desugaring already enabled."
+          else
+            sed -i '/compileOptions {/a \            isCoreLibraryDesugaringEnabled = true' "$FILE" && \
+            echo "✅ Enabled coreLibraryDesugaring in compileOptions."
+          fi
 
-          # Add dependency
-          grep -q 'desugar_jdk_libs' $FILE || \
-          sed -i '/dependencies {/a \    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")' $FILE
-
-          echo "✅ Core library desugaring added."
+          # Add desugaring dependency
+          if grep -q 'desugar_jdk_libs' "$FILE"; then
+            echo "✅ Desugaring dependency already present."
+          elif grep -q 'dependencies {' "$FILE"; then
+            sed -i '/dependencies {/a \    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")' "$FILE" && \
+            echo "✅ Added coreLibraryDesugaring dependency."
+          else
+            echo "❌ dependencies block not found!"
+            exit 1
+          fi
 
       - name: ✅ Commit android/ folder to repo
         run: |
@@ -82,7 +92,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "⚠️ No changes to commit."
           else
-            git commit -m "🆕 Replaced android/ with Groovy version, NDK and desugaring fix"
+            git commit -m "🆕 Replaced android/ with Groovy version, NDK, and desugaring fixes"
             git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/nancy0786/world_nancy_music.git HEAD:main
           fi
         env:
