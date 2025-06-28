@@ -1,59 +1,52 @@
-name: Regenerate Android
+name: Force Groovy Android Setup
 
 on:
   workflow_dispatch:
+  push:
+    branches: [ main ]
 
 jobs:
-  regenerate:
+  regenerate_android:
     runs-on: ubuntu-latest
+    name: Force Replace Android with Groovy Version
 
     steps:
-      - name: Checkout repo
+      - name: 📥 Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Flutter 3.32.2
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: "3.32.2"
-
-      - name: Remove android directory
+      - name: 🧨 Delete android/ folder
         run: |
+          echo "🧹 Deleting old android/ folder..."
           rm -rf android
-          echo "✅ Removed old android directory"
 
-      - name: Regenerate android folder
+      - name: 🕵️‍♂️ Confirm android folder is gone
         run: |
-          flutter create .
-          echo "✅ Android folder regenerated"
-
-      - name: Confirm Groovy build files and no .kts
-        run: |
-          echo "🔍 Checking android build files..."
-          find android -name "*.kts" > kts_files.txt
-          find android -name "*.gradle" > gradle_files.txt
-
-          echo "📁 .kts files found (should be empty):"
-          cat kts_files.txt
-
-          echo "📁 .gradle files found:"
-          cat gradle_files.txt
-
-          if [ -s kts_files.txt ]; then
-            echo "❌ ERROR: .kts files still exist!"
+          echo "🔍 Verifying android/ folder was deleted..."
+          if [ -d "android" ] || find . -path "./android/*" | grep -q .; then
+            echo "❌ android folder still exists!"
             exit 1
+          else
+            echo "✅ android folder removed successfully."
           fi
 
-          if ! grep -q "build.gradle" gradle_files.txt; then
-            echo "❌ ERROR: build.gradle not found!"
-            exit 1
-          fi
-
-          echo "✅ Confirmed: No .kts files, .gradle files exist"
-
-      - name: Commit and push regenerated android folder
+      - name: ♻️ Create temp Flutter project (Groovy)
         run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
+          echo "🛠️ Creating temporary Groovy project..."
+          flutter create --org com.example.world_nancy_music world_nancy_music_temp
+
+      - name: 📦 Copy android/ from temp project
+        run: |
+          echo "📁 Copying android/..."
+          cp -r world_nancy_music_temp/android ./android
+          rm -rf world_nancy_music_temp
+          echo "✅ android folder copied to project root."
+
+      - name: ✅ Commit android/ folder to repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git add android
-          git commit -m "Regenerated android folder with .gradle (Flutter 3.32.2)"
+          git commit -m "🆕 Replaced android/ with Groovy version (com.example.world_nancy_music)"
           git push origin main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
