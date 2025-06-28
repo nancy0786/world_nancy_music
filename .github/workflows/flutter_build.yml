@@ -7,60 +7,32 @@ on:
 
 jobs:
   build:
-    name: Recreate Android (Groovy) & Build APK
+    name: Build Release APK
     runs-on: ubuntu-latest
 
     steps:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
 
-      - name: 🛠 Set up Flutter 3.32.2
+      - name: 🛠 Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: "3.32.2"
           channel: stable
           cache: true
 
-      - name: 🧹 Delete existing android folder
-        run: rm -rf android
+      - name: 📦 Install Dependencies
+        run: flutter pub get
 
-      - name: ♻️ Regenerate android folder with Java
-        run: flutter create --android-language java .
-
-      - name: 🔁 Replace KTS files with Groovy templates
+      - name: ✅ Ensure package_config.json exists
         run: |
-          echo "♻️ Replacing .kts with .gradle templates..."
-          mkdir -p android_template
-          cd android_template
-          flutter create --android-language java temp_app
-          cp -r temp_app/android/* ../android/
-          cd ..
-          rm -rf android_template
-
-      - name: 🛠 Patch ndkVersion in build.gradle
-        run: |
-          GRADLE_FILE="android/app/build.gradle"
-          echo "📁 Checking for $GRADLE_FILE..."
-          if [ ! -f "$GRADLE_FILE" ]; then
-            echo "❌ File not found: $GRADLE_FILE"
-            exit 1
+          if [ ! -f .dart_tool/package_config.json ]; then
+            flutter pub get
           fi
 
-          echo "📝 Inserting ndkVersion into android block..."
-
-          awk '
-            BEGIN { inserted = 0 }
-            /android[[:space:]]*{/ && inserted == 0 {
-              print
-              print "    ndkVersion = \"27.0.12077973\""
-              inserted = 1
-              next
-            }
-            { print }
-          ' "$GRADLE_FILE" > "$GRADLE_FILE.tmp" && mv "$GRADLE_FILE.tmp" "$GRADLE_FILE"
-
-          echo "✅ Verifying insertion..."
-          grep -q 'ndkVersion *= *"27.0.12077973"' "$GRADLE_FILE" && echo "✅ ndkVersion inserted correctly!" || (echo "❌ Insertion failed!" && exit 1)
+      - name: 🧼 Clean Build Cache
+        run: flutter clean || true
+        continue-on-error: true
 
       - name: 🧩 Install Android SDK 35
         run: |
@@ -74,47 +46,43 @@ jobs:
 
       - name: 🧹 Remove broken android.jar from SDK 35
         run: |
+          echo "🗑️ Deleting broken android.jar from SDK 35..."
           rm -f $ANDROID_HOME/platforms/android-35/android.jar
 
       - name: ⬇️ Install Android SDK 34
         run: |
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-34"
 
-      - name: 🔁 Move android.jar from SDK 34 to SDK 35
+      - name: 🔁 Move android.jar from SDK 34 → SDK 35
         run: |
+          echo "📦 Copying android.jar from SDK 34 to 35..."
           cp $ANDROID_HOME/platforms/android-34/android.jar $ANDROID_HOME/platforms/android-35/android.jar
 
-      - name: ❌ Delete SDK 34 (optional cleanup)
+      - name: ❌ Delete Android SDK 34 (optional cleanup)
         run: |
+          echo "🧹 Removing SDK 34..."
           rm -rf $ANDROID_HOME/platforms/android-34
 
-      - name: ✅ Verify android.jar
+      - name: ✅ Verify android.jar and aapt2
         run: |
-          if [ ! -f $ANDROID_HOME/platforms/android-35/android.jar ]; then
-            echo "❌ android.jar missing!"
+          echo "📁 Checking android-35 folder contents..."
+          ls -lh $ANDROID_HOME/platforms/android-35/
+
+          JAR="$ANDROID_HOME/platforms/android-35/android.jar"
+          if [ -f "$JAR" ]; then
+            echo "✅ android.jar exists at: $JAR"
+          else
+            echo "❌ android.jar is missing!"
             exit 1
           fi
-
-      - name: 📦 Install Flutter dependencies
-        run: flutter pub get
-
-      - name: 🧼 Clean build cache
-        run: flutter clean || true
-        continue-on-error: true
-
-      - name: ⬇️ Download yt-dlp binary
-        run: |
-          mkdir -p assets
-          curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux_aarch64 -o assets/yt-dlp
-          chmod +x assets/yt-dlp
 
       - name: 🏗️ Build APK
         run: flutter build apk --release
 
-      - name: 📂 List APK files
+      - name: 📂 List APK Output Folder
         run: ls -la build/app/outputs/flutter-apk
 
-      - name: 📤 Upload APK artifact
+      - name: 📤 Upload Release APK
         uses: actions/upload-artifact@v4
         with:
           name: app-release.apk
