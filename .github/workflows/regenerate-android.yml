@@ -59,6 +59,21 @@ jobs:
             exit 1
           fi
 
+      - name: 🔧 Enable core library desugaring
+        run: |
+          echo "🔧 Enabling Java 8 desugaring..."
+          FILE="android/app/build.gradle.kts"
+
+          # Enable in compileOptions block
+          grep -q 'coreLibraryDesugaringEnabled' $FILE || \
+          sed -i '/compileOptions {/a \            isCoreLibraryDesugaringEnabled = true' $FILE
+
+          # Add dependency
+          grep -q 'desugar_jdk_libs' $FILE || \
+          sed -i '/dependencies {/a \    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")' $FILE
+
+          echo "✅ Core library desugaring added."
+
       - name: ✅ Commit android/ folder to repo
         run: |
           git config user.name "github-actions[bot]"
@@ -67,7 +82,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "⚠️ No changes to commit."
           else
-            git commit -m "🆕 Replaced android/ with Groovy version and added NDK version"
+            git commit -m "🆕 Replaced android/ with Groovy version, NDK and desugaring fix"
             git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/nancy0786/world_nancy_music.git HEAD:main
           fi
         env:
